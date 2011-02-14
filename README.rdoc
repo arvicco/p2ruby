@@ -1,0 +1,27 @@
+= p2ruby
+by: Arvicco
+url: http://github.com/arvicco/p2ruby
+
+== DESCRIPTION:
+
+FIXME (describe your package)
+
+== FEATURES/PROBLEMS:
+
+* FIXME (list of features or problems)
+
+== SYNOPSIS:
+
+  FIXME (code sample of usage)
+
+== REQUIREMENTS:
+
+* FIXME (list of requirements)
+
+== INSTALL:
+
+  $ sudo gem install p2ruby
+* FIXME anything else?
+
+== LICENSE:
+Copyright (c) 2010 Arvicco. See LICENSE for details.
