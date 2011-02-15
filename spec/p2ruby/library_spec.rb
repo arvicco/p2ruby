@@ -6,10 +6,10 @@ describe P2Ruby::Library do
     it 'works only if P2ClientGate(MTA) OLE typelib is pre-registered' do
       libs = WIN32OLE_TYPELIB.typelibs
       p2libs = libs.select { |t| t.name=~/P2ClientGate/ }
-      p p2libs.map &:guid
+      print 'Registered P2ClientGate libs: '; p p2libs.map &:guid
       p2mta = p2libs.find { |t| t.name=~/MTA/ }
       p2mta.should_not be_nil
-      p p2mta.ole_types.collect { |k| k.name }
+      print 'P2ClientGate  OLE types: '; p p2mta.ole_types.collect { |k| k.name }
     end
 
     it 'wraps P2ClientGateMTA typelib by default' do
@@ -41,7 +41,6 @@ describe P2Ruby::Library do
       it 'builds P2ClientGate(MTA) OLE type with given name and init args' do
         app = lib.build "P2Application"
         app.should be_an_instance_of WIN32OLE
-        p (app.methods - Object.methods).sort
       end
     end
 

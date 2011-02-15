@@ -3,7 +3,38 @@
   <component name="GemRequirementsHolder" version="3">
     <requirement>
       <requirement>
+        <dependency name="builder" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source manual="true" />
+    </requirement>
+    <requirement>
+      <requirement>
         <dependency name="cucumber" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source manual="true" />
+      <source from="p2ruby/Gemfile" />
+    </requirement>
+    <requirement>
+      <requirement>
+        <dependency name="diff-lcs" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source manual="true" />
+    </requirement>
+    <requirement>
+      <requirement>
+        <dependency name="gherkin" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source manual="true" />
+    </requirement>
+    <requirement>
+      <requirement>
+        <dependency name="json" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source manual="true" />
+    </requirement>
+    <requirement>
+      <requirement>
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
@@ -15,9 +46,9 @@
     </requirement>
     <requirement>
       <requirement>
-        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
+        <dependency name="term-ansicolor" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
       </requirement>
-      <source from="p2ruby/Gemfile" />
+      <source manual="true" />
     </requirement>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
@@ -25,6 +56,17 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="Ruby SDK 1.9.2-p136 [global]" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] rspec (v2.5.0, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/rspec-2.5.0)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] rspec (v2.5.0, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/rspec-2.5.0)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] rspec-expectations (v2.5.0, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/rspec-expectations-2.5.0)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] rspec-core (v2.5.1, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/rspec-core-2.5.1)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] rspec-mocks (v2.5.0, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/rspec-mocks-2.5.0)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] diff-lcs (v1.1.2, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/diff-lcs-1.1.2)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] builder (v3.0.0, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/builder-3.0.0)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] cucumber (v0.10.0, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/cucumber-0.10.0)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] gherkin (v2.3.3, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/gherkin-2.3.3)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] json (v1.4.6, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/json-1.4.6)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] term-ansicolor (v1.0.5, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/term-ansicolor-1.0.5)" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] bundler (v1.0.10, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/bundler-1.0.10)" level="application" />
   </component>
 </module>
