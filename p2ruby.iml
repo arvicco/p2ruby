@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="RUBY_MODULE" version="4">
+  <component name="GemRequirementsHolder" version="3">
+    <requirement>
+      <requirement>
+        <dependency name="cucumber" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source from="p2ruby/Gemfile" />
+    </requirement>
+    <requirement>
+      <requirement>
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec', 'rspec/autorun']" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source from="p2ruby/Gemfile" />
+    </requirement>
+    <requirement>
+      <requirement>
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source from="p2ruby/Gemfile" />
+    </requirement>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="jdk" jdkName="Ruby SDK 1.9.2-p136 [global]" jdkType="RUBY_SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] bundler (v1.0.10, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/bundler-1.0.10)" level="application" />
+  </component>
+</module>
+
