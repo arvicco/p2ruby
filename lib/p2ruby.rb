@@ -1,9 +1,10 @@
 require 'version'
+require 'win32ole'
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
 
-module P2ruby
+module P2Ruby
 
   # Requires ruby source file(s), given as single filename/glob or Array of filenames/globs.
   # Accepts following options:
@@ -17,9 +18,9 @@ module P2ruby
       Pathname.glob(name.to_s).sort.each {|rb| require rb}
     end
   end
-end  # module P2ruby
+end  # module P2Ruby
 
 # Require all ruby source files located under directory lib/p2ruby
 # If you need files in specific order, you should specify it here before the glob
-P2ruby.require_libs %W[**/*]
+P2Ruby.require_libs %W[**/*]
 
