@@ -9,4 +9,7 @@ describe P2Ruby::Application do
     print 'Source OLE types: '; p subject.ole_type.source_ole_types
     print 'OLE methods: '; p (subject.ole_methods - Object.methods).map &:name
   end
+
+  its(:ParserType){should == 2}  # •	1 — Plaza; •	2 — Plaza-II (default)
+
 end

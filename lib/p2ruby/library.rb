@@ -16,8 +16,8 @@ module P2Ruby
       super p2lib.name
     end
 
-    def build type_name
-      WIN32OLE.new "P2ClientGate.#{type_name}"
+    def full_class_name name
+      "P2ClientGate.#{name}"
     end
 
   end # class Library

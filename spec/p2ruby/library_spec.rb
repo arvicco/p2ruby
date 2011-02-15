@@ -37,10 +37,9 @@ describe P2Ruby::Library do
   context 'when initialized with MTA type' do
     let(:lib) {P2Ruby::Library.default}
 
-    describe '#build' do
-      it 'builds P2ClientGate(MTA) OLE type with given name and init args' do
-        app = lib.build "P2Application"
-        app.should be_an_instance_of WIN32OLE
+    describe '#full_class_name' do
+      it 'returns full name for P2ClientGate(MTA) OLE type with given short name' do
+        lib.full_class_name("P2Application").should ==  "P2ClientGate.P2Application"
       end
     end
 
