@@ -16,7 +16,9 @@ describe P2Ruby::Connection do
       its(:Timeout) { should == 1000 }
       its(:LoginStr) { should == '' }
       its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
-      its(:NodeName) { should == "??" }
+      it 'raises on NodeName access' do
+        expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
+      end
     end
 
     context 'with options' do
@@ -32,7 +34,10 @@ describe P2Ruby::Connection do
       its(:Timeout) { should == 500 }
       its(:LoginStr) { should == "Blah" }
       its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
-      its(:NodeName) { should == "??" }
+      it 'raises on NodeName access' do
+        expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
+      end
+#      its(:NodeName) { should == "??" }
     end
   end
 end
