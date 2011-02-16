@@ -5,11 +5,9 @@ describe P2Ruby::Application do
 
   it 'wraps P2ClientGate.P2Application OLE class' do
     subject.ole_type.name.should == 'IP2Application'
-    print 'Implemented OLE types: '; p subject.ole_type.implemented_ole_types
-    print 'Source OLE types: '; p subject.ole_type.source_ole_types
-    print 'OLE methods: '; p (subject.ole_methods - Object.methods).map &:name
+    show_ole
   end
 
-  its(:ParserType){should == 2}  # •	1 — Plaza; •	2 — Plaza-II (default)
+  its(:ParserType) { should == 2 } # •	1 — Plaza; •	2 — Plaza-II (default)
 
 end
