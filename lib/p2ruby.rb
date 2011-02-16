@@ -12,5 +12,6 @@ end
 P2 = P2ClientGate
 
 require 'p2ruby/library'
+require 'p2ruby/p2class'
 require 'p2ruby/application'
 require 'p2ruby/connection'
