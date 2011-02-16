@@ -22,7 +22,7 @@ describe P2Ruby::Connection do
     end
 
     context 'with options' do
-      subject { P2Ruby::Connection.new :app_name => "APP-#{rand(10000)}",
+      subject { P2Ruby::Connection.new :app_name => "APP-#{rand 10000}",
                                        :host => "localhost",
                                        :port => 3333,
                                        :timeout => 500,
@@ -39,5 +39,20 @@ describe P2Ruby::Connection do
       end
 #      its(:NodeName) { should == "??" }
     end
+
+    describe '#connect' do
+      context 'when Router service is running' do
+        before :all do
+
+        end
+        it 'connects successfully' do
+          conn = P2Ruby::Connection.new :app_name => "APP-#{rand 10000}",
+                                        :host => "127.0.0.1", :port => 4001
+          conn.Connect().should == P2::P2ERR_OK
+        end
+
+      end
+    end
+
   end
 end

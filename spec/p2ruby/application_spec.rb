@@ -13,6 +13,6 @@ describe P2Ruby::Application do
   it 'loads P2ClientGate constants' do
     P2ClientGate::CS_CONNECTION_DISCONNECTED.should == 1
     P2::CS_CONNECTION_DISCONNECTED.should == 1
-    P2ClientGate.constants.should have(23).constants
+    P2ClientGate.constants.should have_at_least(23).constants
   end
 end
