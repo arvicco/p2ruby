@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using P2ClientGateMTA;
 using System.Threading;
 
-
 namespace AsyncSend
 {
 	[

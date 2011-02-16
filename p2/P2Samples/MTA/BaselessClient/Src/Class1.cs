@@ -7,26 +7,16 @@ using System.Threading;
 
 namespace P2SimpleGate2Client
 {
-	/// <summary>
-	/// Summary description for Class1.
-	/// </summary>
 	public class Class1
 	{
-		/// <summary>
 		/// The main entry point for the application.
-		/// </summary>
-        /// 
         [MTAThread]
 		static void Main(string[] args)
 		{
-			//
 			// TODO: Add code to start application here
-			//
                 Client cl = new Client();
                 if (cl.Start(args) != 0) return;
                 cl.Run();
-            
-            
 		}
 	}
 
@@ -49,13 +39,10 @@ namespace P2SimpleGate2Client
         Int64 curr_rev = 0;
         Int64 curr_rev_deal = 0;
 
-		/*
-		 * Идентификаторы потоков
-		 */
+		//Идентификаторы потоков
 		string streamAggregatesID = "FORTS_FUTAGGR20_REPL";
         string streamTradesID = "FORTS_FUTTRADE_REPL";
 
-		
 		public int Start(string[] args)
 		{
             try

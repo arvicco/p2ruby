@@ -10,4 +10,7 @@ describe P2Ruby::Application do
 
   its(:ParserType) { should == 2 } # •	1 — Plaza; •	2 — Plaza-II (default)
 
+  it 'loads constants' do
+    P2ClientGate::CS_CONNECTION_DISCONNECTED.should == 1
+  end
 end

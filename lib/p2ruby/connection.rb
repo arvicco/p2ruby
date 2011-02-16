@@ -22,9 +22,10 @@ module P2Ruby
     def initialize opts = {}
       @opts = opts
       # app_name, node_name, host, port, password, timeout, login_str, lib = Library.default
-      @ole = WIN32OLE.new (@opts[:lib] || Library.default).full_class_name "P2Connection"
+      @ole = WIN32OLE.new (@opts[:lib] || Library.default).find "P2Connection"
       @ole.appName = @opts[:app_name] || "APP-#{rand(10000)}"
-      p @ole.appName
+#      WIN32OLE.const_load(@ole, self.class)
+#      p self.class.constants
     end
 
     def method_missing *args

@@ -8,6 +8,17 @@ describe P2Ruby::Connection do
     show_ole
   end
 
-  its(:AppName){should =~ /APP-./}  # •	1 — Plaza; •	2 — Plaza-II (default)
+  context 'by default' do
+    its(:AppName) { should =~ /APP-./ }
 
+    it 'rocks' do
+      p subject.AppName
+      p subject.LoginStr
+      p subject.Host
+      p subject.Port
+      p subject.Status
+      p subject.Timeout
+#      p subject.NodeName
+    end
+  end
 end

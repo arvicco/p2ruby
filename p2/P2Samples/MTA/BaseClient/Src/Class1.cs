@@ -6,24 +6,16 @@ using P2ClientGateMTA;
 using System.Threading;
 using System.Diagnostics;
 
-
 namespace P2SimpleGate2Client
 {
-	/// <summary>
-	/// Summary description for Class1.
-	/// </summary>
+	// Summary description for Class1.
 	public class Class1
 	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-        /// 
+		// The main entry point for the application.
         [MTAThread]
 		static void Main(string[] args)
 		{
-			//
 			// TODO: Add code to start application here
-			//
              try
             {
 			    Client cl = new Client();
@@ -51,7 +43,6 @@ namespace P2SimpleGate2Client
 		private bool m_stop = false;
 
 		CP2Connection m_conn;
-                
 
 		CP2DataStream m_streamAggregates;
 		CP2DataStream m_streamTrades;
@@ -60,17 +51,13 @@ namespace P2SimpleGate2Client
 
 		StreamWriter m_logFile;
 
-		/*
-		 * Идентификаторы потоков
-		 */
+		 // Идентификаторы потоков
 		string streamAggregatesID = "FORTS_FUTAGGR20_REPL";
 		string streamTradesID = "FORTS_FUTTRADE_REPL";
 		string streamCommonsID = "FORTS_FUTCOMMON_REPL";
         string streamMiscInfoID = "FORTS_MISCINFO_REPL";
 
-		
-		// Строки соединения с локальной БД для потоков				
-        // базы на SQLite
+		// Строки соединения с локальной БД для потоков	базы на SQLite
         string streamAggregatesDBConn = "P2DBSQLite3.dll;sqlite3.ini;forts_aggregate.db";
         string streamMiscInfoDBConn = "P2DBSQLite3.dll;sqlite3.ini;forts_miscinfo.db";        
         string streamTradesDBConn  = "P2DBSQLite3.dll;sqlite3.ini;forts_trades.db";            
@@ -78,7 +65,6 @@ namespace P2SimpleGate2Client
         
 		public void Start(string[] args)
 		{
-           
                 // Объект "соединение" и параметры соединения с приложением P2MQRouter
                 m_conn = new CP2ConnectionClass();                
                 m_conn.Host = "localhost";
@@ -201,11 +187,9 @@ namespace P2SimpleGate2Client
 			}
 		}
 
-
 		// ГЛАВНЫЙ ЦИКЛ
 		public void Run()
 		{
-			
 			while( !m_stop )
 			{
 				try
@@ -219,7 +203,6 @@ namespace P2SimpleGate2Client
 						{
 							try
 							{                                
-
 								if( m_streamAggregates.State ==  TDataStreamState.DS_STATE_ERROR ||
 									m_streamAggregates.State ==  TDataStreamState.DS_STATE_CLOSE)
 								{

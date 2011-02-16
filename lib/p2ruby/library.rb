@@ -1,23 +1,20 @@
 module P2Ruby
-  # Represents P2ClientGate(MTA) OLE type library
+  # Represents P2ClientGate OLE type library.
+  # Only works with STA version ( Ruby WIN32OLE limitation ).
   class Library < WIN32OLE_TYPELIB
 
     def self.default
       @library ||= new
     end
 
-    def initialize type = :mta
-      p2libs = WIN32OLE_TYPELIB.typelibs.select { |t| t.name =~ /P2ClientGate/ }
-      raise "No libs registered, please register P2ClientGate[MTA].dll" if p2libs.empty?
-
-      p2lib = p2libs.find { |t| type == :mta ? t.name =~ /MTA/ : t.name !~ /MTA/ }
-      raise "No registered libs of #{type} type" unless p2lib
-
+    def initialize
+      p2lib = WIN32OLE_TYPELIB.typelibs.find { |t| t.name =~ /P2ClientGate / }
+      raise "No registered STA P2ClientGate, please register P2ClientGate.dll" unless p2lib
       super p2lib.name
     end
 
-    def full_class_name name
-      "P2ClientGate.#{name}"
+    def find name
+      self.ole_types.map(&:progid).compact.find { |progid| progid =~ Regexp.new(name) }
     end
 
   end # class Library
