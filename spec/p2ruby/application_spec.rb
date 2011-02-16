@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe P2Ruby::Application do
-  subject { P2Ruby::Application.new INI_PATH }
+  subject { P2Ruby::Application.new :ini => INI_PATH }
 
   it 'wraps P2ClientGate.P2Application OLE class' do
     subject.ole_type.name.should == 'IP2Application'
