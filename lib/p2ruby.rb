@@ -13,6 +13,22 @@ end
 # Shorthand for P2ClientGate
 P2 = P2ClientGate
 
+module P2Ruby
+  # Any P2Ruby-specific Error
+  class Error < StandardError
+  end
+
+  # Allows extended manipulation of all P2Ruby-specific exceptions (Error aspect)
+  def error *args
+    if args.first.is_a? Exception
+      raise args.first
+    else
+      raise P2Ruby::Error.new *args
+    end
+  end
+end
+
+require 'p2ruby/router'
 require 'p2ruby/library'
 require 'p2ruby/p2class'
 require 'p2ruby/application'

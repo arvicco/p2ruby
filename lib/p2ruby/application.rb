@@ -4,7 +4,7 @@ module P2Ruby
 
     def initialize opts = {}
       @ini_file = Pathname(opts[:ini] || opts[:ini_file] || "./P2ClientGate.ini")
-      raise "Wrong ini file name" unless @ini_file.expand_path.exist?
+      error "Wrong ini file name" unless @ini_file.expand_path.exist?
 
       super "P2Application", opts
 

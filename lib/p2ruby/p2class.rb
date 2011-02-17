@@ -2,6 +2,7 @@ module P2Ruby
 
   # This is P2 Base class that defines common functionality
   class P2Class
+    include P2Ruby
 
     def initialize name, opts = {}
       @opts = opts

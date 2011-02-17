@@ -56,7 +56,7 @@ describe P2Ruby::Connection do
           @conn = P2Ruby::Connection.new :app_name => random_name,
                                         :host => "127.0.0.1", :port => 4001
           @conn.Connect().should == P2::P2ERR_OK
-          @conn.NodeName.should == ROUTER_ID
+          @conn.NodeName.should == ROUTER_LOGIN
           @conn.should be_connected
           @conn.status_text.should == "Connection Connected, Router Connected"
         end
@@ -109,13 +109,13 @@ describe P2Ruby::Connection do
           @conn.should be_connected
         end
 
-        it 'disconnects Router from uplink' do
+        xit 'disconnects Router from uplink' do
           @conn.Logout()
           sleep 4
           @conn.status_text.should == "Connection Disconnected"
         end
 
-        it 'but keeps local connection to Router' do
+        xit 'but keeps local connection to Router' do
           @conn.Logout()
           @conn.should be_connected
           @conn.status_text.should == "Connection Disconnected"

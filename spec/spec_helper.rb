@@ -6,18 +6,18 @@ require 'bundler'
 Bundler.setup
 Bundler.require :test
 
-BASE_PATH = (Pathname.new(__FILE__).dirname + '..').realpath
-SOURCE_DIR = BASE_PATH + 'p2/'
-TMP_DIR = BASE_PATH + 'tmp/'
-TEST_DIR = BASE_PATH + 'tmp/p2/'
+BASE_DIR = (Pathname.new(__FILE__).dirname + '..').realpath
+SOURCE_DIR = BASE_DIR + 'p2/'
+TMP_DIR = BASE_DIR + 'tmp/'
+TEST_DIR = BASE_DIR + 'tmp/p2/'
 
-ROUTER_INI = BASE_PATH + 'spec/files/client_router.ini'
-CLIENT_INI = BASE_PATH + 'spec/files/P2ClientGate.ini'
+CLIENT_INI = BASE_DIR + 'spec/files/P2ClientGate.ini'
 # start ./p2bin/P2MQRouter.exe /ini:CLIENT_router.ini
+ROUTER_INI = BASE_DIR + 'spec/files/client_router.ini'
 ROUTER_PATH = TEST_DIR + 'p2bin/P2MQRouter.exe'
 ROUTER_ARGS = "/ini:#{ROUTER_INI}"
-ROUTER_ID = 'FORTS_FZ36001_bezvv' # My login to RTS test server
-ROUTER_TITLE = Regexp.new('P2MQRouter - ') # + ROUTER_ID)
+ROUTER_LOGIN = 'FORTS_FZ36001_bezvv' # My login to RTS test server
+ROUTER_TITLE = Regexp.new('P2MQRouter - ') # + ROUTER_LOGIN)
 
 RSpec.configure do |config|
   # config.exclusion_filter = { :slow => true }
@@ -58,14 +58,18 @@ def start_router opts ={}
   end
 end
 
+def restart_router
+  stop_router
+  start_router :force => true
+end
+
 # Prepares test stand by copying P2 files to /tmp
 def prepare_test_stand
   FileUtils.rm_rf TMP_DIR
   FileUtils.cp_r SOURCE_DIR, TMP_DIR
 end
 
-stop_router
 prepare_test_stand
-start_router :force => true
+restart_router
 
 
