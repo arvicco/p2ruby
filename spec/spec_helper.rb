@@ -12,6 +12,7 @@ TMP_DIR = BASE_DIR + 'tmp/'
 TEST_DIR = BASE_DIR + 'tmp/p2/'
 
 CLIENT_INI = BASE_DIR + 'spec/files/P2ClientGate.ini'
+MESSAGE_INI = BASE_DIR + 'spec/files/p2fortsgate_messages.ini'
 # start ./p2bin/P2MQRouter.exe /ini:CLIENT_router.ini
 ROUTER_INI = BASE_DIR + 'spec/files/client_router.ini'
 ROUTER_PATH = TEST_DIR + 'p2bin/P2MQRouter.exe'
