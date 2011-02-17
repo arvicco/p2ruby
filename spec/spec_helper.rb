@@ -1,12 +1,23 @@
 require 'p2ruby'
 require 'pathname'
+require 'fileutils'
 
 require 'bundler'
 Bundler.setup
 Bundler.require :test
 
-BASE_PATH = Pathname.new(__FILE__).dirname + '..'
-INI_PATH = (BASE_PATH + 'spec/files/P2ClientGate.ini').realpath
+BASE_PATH = (Pathname.new(__FILE__).dirname + '..').realpath
+SOURCE_DIR = BASE_PATH + 'p2/'
+TMP_DIR = BASE_PATH + 'tmp/'
+TEST_DIR = BASE_PATH + 'tmp/p2/'
+
+ROUTER_INI = BASE_PATH + 'spec/files/client_router.ini'
+CLIENT_INI = BASE_PATH + 'spec/files/P2ClientGate.ini'
+# start ./p2bin/P2MQRouter.exe /ini:CLIENT_router.ini
+ROUTER_PATH = TEST_DIR + 'p2bin/P2MQRouter.exe'
+ROUTER_ARGS = "/ini:#{ROUTER_INI}"
+ROUTER_ID = 'FORTS_FZ36001_bezvv' # My login to RTS test server
+ROUTER_TITLE = Regexp.new('P2MQRouter - ') # + ROUTER_ID)
 
 RSpec.configure do |config|
   # config.exclusion_filter = { :slow => true }
@@ -21,10 +32,40 @@ def show_ole
   p subject.ole_methods.map { |m| "#{m.invoke_kind} #{m.name}(#{m.params.join ', '})" }.sort
 end
 
-# Start test Router service if it is currently down
-ROUTER_ID = 'FORTS_FZ36001_bezvv'
-ROUTER_TITLE = Regexp.new('P2MQRouter .+' + ROUTER_ID)
-unless WinGui::Window.find :title => ROUTER_TITLE
-  WinGui::App.launch(:dir => 'p2', :path => 'start_router.cmd', :title => ROUTER_TITLE, :timeout => 5)
-# start ./p2bin/P2MQRouter.exe /ini:CLIENT_router.ini
+# Closes any open Router application
+def stop_router
+  router_app = WinGui::App.find :title => ROUTER_TITLE
+  router_app.exit(timeout=10) if router_app
 end
+
+# Starts new Router application. Options:
+# :force - force Router to start, even if it's already running (default *false*)
+# :title - look for specific Router title
+# :dir - cd to this dir before starting router
+# :path - start Router at specific path
+# :args - start Router with specific command line args
+# :timeout - wait for timeout seconds for Router to start (default *5*)
+#
+def start_router opts ={}
+  title = opts[:title] || ROUTER_TITLE
+  path = opts[:path] || ROUTER_PATH
+  dir = opts[:dir] || TEST_DIR
+  args = opts[:args] || ROUTER_ARGS
+  timeout = opts[:timeout] || 5
+  if not WinGui::Window.find(:title => title) or opts[:force]
+    WinGui::App.launch(:dir => dir, :path => path, :args => args,
+                       :title => title, :timeout => timeout)
+  end
+end
+
+# Prepares test stand by copying P2 files to /tmp
+def prepare_test_stand
+  FileUtils.rm_rf TMP_DIR
+  FileUtils.cp_r SOURCE_DIR, TMP_DIR
+end
+
+stop_router
+prepare_test_stand
+start_router :force => true
+
+

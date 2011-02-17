@@ -1,3 +1,9 @@
+PATH
+  remote: Y:/Dev/apps/win/win_gui
+  specs:
+    win_gui (0.2.18)
+      win (>= 0.3.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -26,8 +32,6 @@ GEM
     term-ansicolor (1.0.5)
     win (0.3.24)
       ffi (>= 0.6.0)
-    win_gui (0.2.18)
-      win (>= 0.3.1)
 
 PLATFORMS
   x86-mingw32
@@ -35,4 +39,4 @@ PLATFORMS
 DEPENDENCIES
   cucumber
   rspec (>= 2.0.0)
-  win_gui (>= 0.2.18)
+  win_gui (>= 0.2.18)!
