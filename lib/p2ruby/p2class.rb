@@ -4,6 +4,8 @@ module P2Ruby
   class P2Class
     include P2Ruby
 
+    attr_reader :opts, :ole
+
     def initialize name, opts = {}
       @opts = opts.dup
       @ole = WIN32OLE.new (@opts[:lib] || Library.default).find name

@@ -17,10 +17,12 @@ describe P2Ruby::Router, "Driver for Router server app" do
     @app.should be_nil
   end
 
-  context "initialized with :path => #{ROUTER_PATH}, :ini => #{ROUTER_INI}" do
+  context "router initialized with :path => #{ROUTER_PATH}, :ini => #{ROUTER_INI}" do
     after(:all) { stop_router }
     before(:all) { @router = P2Ruby::Router.new :dir => TEST_DIR, # To avoid file litter in BASE_DIR
                                                 :path => ROUTER_PATH, :ini => ROUTER_INI }
+    subject { @router }
+
     it 'has P2 Router application/window launched' do
       app = WinGui::App.find(:title => ROUTER_TITLE)
       app.should be_an WinGui::App
@@ -31,30 +33,19 @@ describe P2Ruby::Router, "Driver for Router server app" do
       router.should be_a P2Ruby::Router
     end
 
-#        it 'main_window' do
-#          @app.main_window.should be_a Window
-#          @app.main_window.title.should == WIN_TITLE
-#        end
-#      end
-#    end
-#
-#    context 'manipulating' do
-#      before(:each) { @app = App.launch(path: APP_PATH, title: WIN_TITLE) }
-#
-#      it 'exits App gracefully' do
-#        @app.exit
-#        sleep SLEEP_DELAY # needed to ensure window had enough time to close down
-#        @app.main_window.visible?.should == false
-#        @app.main_window.window?.should == false
-#      end
-#
-#      it 'closes App gracefully' do
-#        @app.close
-#        sleep SLEEP_DELAY # needed to ensure window had enough time to close down
-#        @app.main_window.visible?.should == false
-#        @app.main_window.window?.should == false
-#      end
-#    end
+    its(:opts) { should have_key :path }
+    its(:app) { should be_a WinGui::App }
+    its(:main_window) { should be_a WinGui::Window }
+    its(:title) { should =~ ROUTER_TITLE }
+
+    context 'forcing Router app to quit' do
+      it 'exits gracefully when asked' do
+        @router.exit
+        sleep 0.5 # needed to ensure Router window had enough time to close down
+        @router.main_window.visible?.should == false
+        @router.main_window.window?.should == false
+      end
+    end
   end
 end
 

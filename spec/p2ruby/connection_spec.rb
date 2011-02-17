@@ -5,6 +5,9 @@ def random_name
 end
 
 shared_examples_for 'new connection' do
+
+  its(:opts) { should be_a Hash }
+  its(:ole) { should be_a WIN32OLE }
   its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
   its(:status_text) { should == "Connection Disconnected" }
 

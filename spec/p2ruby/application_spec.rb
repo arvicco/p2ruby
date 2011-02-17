@@ -8,6 +8,8 @@ describe P2Ruby::Application do
     show_ole
   end
 
+  its(:opts) { should have_key :ini }
+  its(:ole) { should be_a WIN32OLE }
   its(:ParserType) { should == 2 } # •	1 — Plaza; •	2 — Plaza-II (default)
 
   it 'loads P2ClientGate constants' do

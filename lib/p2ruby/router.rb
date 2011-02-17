@@ -4,6 +4,13 @@ module P2Ruby
     ROUTER_TITLE = Regexp.new('P2MQRouter - ')
     include P2Ruby
 
+    def self.find
+      router = WinGui::App.find :title => ROUTER_TITLE
+      router ? new(:app => router) : nil
+    end
+
+    attr_reader :opts, :app
+
     def initialize opts = {}
       @opts = opts.dup
       if @opts[:app]
@@ -25,10 +32,14 @@ module P2Ruby
       end
     end
 
-    def self.find
-      router = WinGui::App.find :title => ROUTER_TITLE
-      router ? new(:app => router) : nil
+    def method_missing *args
+      @app.send *args
     end
+
+    def title
+      @app.main_window.title
+    end
+
   end # class Router
 end # module P2Ruby
 
