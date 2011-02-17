@@ -9,9 +9,12 @@ GEM
       json (~> 1.4.6)
       term-ansicolor (~> 1.0.5)
     diff-lcs (1.1.2)
+    ffi (1.0.5-x86-mingw32)
+      rake (>= 0.8.7)
     gherkin (2.3.3-x86-mingw32)
       json (~> 1.4.6)
     json (1.4.6-x86-mingw32)
+    rake (0.8.7)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
       rspec-expectations (~> 2.5.0)
@@ -21,10 +24,15 @@ GEM
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.5.0)
     term-ansicolor (1.0.5)
+    win (0.3.24)
+      ffi (>= 0.6.0)
+    win_gui (0.2.18)
+      win (>= 0.3.1)
 
 PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
   cucumber
-  rspec (> 2.0.0)
+  rspec (>= 2.0.0)
+  win_gui (>= 0.2.18)

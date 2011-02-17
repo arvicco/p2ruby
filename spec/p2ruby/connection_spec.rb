@@ -41,10 +41,7 @@ describe P2Ruby::Connection do
     end
 
     describe '#connect' do
-      context 'when Router service is running' do
-        before :all do
-
-        end
+      context 'with correct connection parameters' do
         it 'connects successfully' do
           conn = P2Ruby::Connection.new :app_name => "APP-#{rand 10000}",
                                         :host => "127.0.0.1", :port => 4001

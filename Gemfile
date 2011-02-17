@@ -19,11 +19,12 @@ source :gemcutter
 
 group :cucumber do
   gem 'cucumber'
-  gem 'rspec', '>2.0.0', :require => ['rspec/expectations', 'rspec/stubs/cucumber']
+  gem 'rspec', '>=2.0.0', :require => ['rspec/expectations', 'rspec/stubs/cucumber']
   # add more here...
 end
 
 group :test do # Group for testing code on Windows (win, win_gui)
-  gem 'rspec', '>2.0.0', :require => ['rspec', 'rspec/autorun']
+  gem 'rspec', '>=2.0.0', :require => ['rspec', 'rspec/autorun']
+  gem 'win_gui', '>=0.2.18' #, :path => '/Dev/apps/win/win_gui'
 end
 
