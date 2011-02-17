@@ -28,10 +28,47 @@ module P2Ruby
       @ole.password = @opts[:password] if @opts[:password]
       @ole.loginStr = @opts[:login_str] if @opts[:login_str]
       @ole.timeout = @opts[:timeout] if @opts[:timeout]
+
+      @@status_messages ||= {P2::CS_CONNECTION_DISCONNECTED => 'Connection Disconnected',
+                             P2::CS_CONNECTION_CONNECTED => 'Connection Connected',
+                             P2::CS_CONNECTION_INVALID => 'Connection Invalid',
+                             P2::CS_CONNECTION_BUSY => 'Connection Busy',
+                             P2::CS_ROUTER_DISCONNECTED => 'Router Disconnected',
+                             P2::CS_ROUTER_RECONNECTING => 'Router Reconnecting',
+                             P2::CS_ROUTER_CONNECTED => 'Router Connected',
+                             P2::CS_ROUTER_LOGINFAILED => 'Router Login Failed',
+                             P2::CS_ROUTER_NOCONNECT => 'Router No Connect'}
     end
 
     def connected?
       @ole.status == P2::CS_CONNECTION_CONNECTED | P2::CS_ROUTER_CONNECTED
+    end
+
+    #  Connection and Router status in text format
+    #  ?	0x00000001 (CS_CONNECTION_DISCONNECTED) Ч соединение с роутером еще не установлено.
+    #  ?	0x00000002 (CS_CONNECTION_CONNECTED) Ч соединение с роутером установлено.
+    #  ?	0x00000004 (CS_CONNECTION_INVALID) Ч нарушен протокол работы соединени€, дальнейша€
+    #         работа возможна только после повторной установки соединени€.
+    #  ?	0x00000008 (CS_CONNECTION_BUSY) Ч соединение временно заблокировано функцией получени€ сообщени€.
+    #  ?	0x00010000 (CS_ROUTER_DISCONNECTED) Ч роутер запущен, но не присоединен к сети.
+    #         –оутер не создает удаленных исход€щих соединений, имени не имеет, принимает
+    #         только локальные соединени€, при этом локальные приложени€ могут взаимодействовать
+    #         между собой посредством роутера.
+    #  ?	0x00020000 (CS_ROUTER_RECONNECTING) Ч роутер получил аутентификационную информацию
+    #         (им€ и пароль), пытаетс€ установить исход€щее соединение, но ни одно исход€щее
+    #         соединение еще не установлено.
+    #  ?	0x00040000 (CS_ROUTER_CONNECTED) Ч роутер установил по крайней мере одно исход€щее
+    #         соединение, аутентификационна€ информаци€ подтверждена.
+    #  ?	0x00080000 (CS_ROUTER_LOGINFAILED) Ч по крайней мере один из сервисов отклонил
+    #         аутентификационную информацию. ¬ этом случае аутентификационна€ информаци€
+    #         становитс€ недействительной. ƒл€ продолжени€ работы необходимо провести
+    #         последовательный вызов методов Logout и Login.
+    #  ?	0x00100000 (CS_ROUTER_NOCONNECT) Ч за заданное количество попыток роутер не смог
+    #         установить ни одного исход€щего соединени€, но аутентификационна€ информаци€
+    #         подтверждена. –оутер больше не будет пытатьс€ установить исход€щие соединени€.
+    #         ƒл€ продолжени€ работы необходимо провести последовательный вызов методов Logout и Login.
+    def status_text
+      @@status_messages.map{|k,v| (k & @ole.status).zero? ? nil : v}.compact.join(', ')
     end
   end
 end # module P2Ruby

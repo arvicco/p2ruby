@@ -2,6 +2,7 @@ require 'spec_helper'
 
 shared_examples_for 'new connection' do
   its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
+  its(:status_text) { should == "Connection Disconnected" }
 
   it 'raises on NodeName access' do
     expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
@@ -52,6 +53,7 @@ describe P2Ruby::Connection do
                                         :host => "127.0.0.1", :port => 4001
           conn.Connect().should == P2::P2ERR_OK
           conn.should be_connected
+          conn.status_text.should == "Connection Connected, Router Connected"
         end
       end
 
@@ -61,6 +63,7 @@ describe P2Ruby::Connection do
                                         :host => "127.0.0.1", :port => 1313
           expect { conn.Connect() }.to raise_error /Couldn't connect to MQ/
           conn.should_not be_connected
+          conn.status_text.should == "Connection Disconnected"
         end
       end
     end
