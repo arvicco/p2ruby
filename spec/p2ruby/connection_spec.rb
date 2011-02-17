@@ -52,6 +52,7 @@ describe P2Ruby::Connection do
           conn = P2Ruby::Connection.new :app_name => "APP-#{rand 10000}",
                                         :host => "127.0.0.1", :port => 4001
           conn.Connect().should == P2::P2ERR_OK
+          conn.NodeName.should == ROUTER_ID
           conn.should be_connected
           conn.status_text.should == "Connection Connected, Router Connected"
         end
@@ -62,6 +63,7 @@ describe P2Ruby::Connection do
           conn = P2Ruby::Connection.new :app_name => "APP-#{rand 10000}",
                                         :host => "127.0.0.1", :port => 1313
           expect { conn.Connect() }.to raise_error /Couldn't connect to MQ/
+          expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
           conn.should_not be_connected
           conn.status_text.should == "Connection Disconnected"
         end

@@ -22,8 +22,9 @@ def show_ole
 end
 
 # Start test Router service if it is currently down
-router_title = /P2MQRouter .+FZ36001/
-unless WinGui::Window.find :title => router_title
-  WinGui::App.launch(:dir => 'p2', :path => 'start_router.cmd', :title => router_title, :timeout => 5)
+ROUTER_ID = 'FORTS_FZ36001_bezvv'
+ROUTER_TITLE = Regexp.new('P2MQRouter .+' + ROUTER_ID)
+unless WinGui::Window.find :title => ROUTER_TITLE
+  WinGui::App.launch(:dir => 'p2', :path => 'start_router.cmd', :title => ROUTER_TITLE, :timeout => 5)
 # start ./p2bin/P2MQRouter.exe /ini:CLIENT_router.ini
 end
