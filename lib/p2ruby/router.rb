@@ -5,23 +5,30 @@ module P2Ruby
     include P2Ruby
 
     def initialize opts = {}
-      @ini_file = Pathname(opts[:ini] || opts[:ini_file] || "./client_router.ini")
-      error "Wrong ini file name" unless @ini_file.expand_path.exist? || opts[:args]
+      @opts = opts.dup
+      if @opts[:app]
+        @app = @opts[:app]
+      else
+        @opts[:ini] = Pathname(@opts[:ini] || @opts[:ini_file] || "./client_router.ini")
+        error "Wrong ini file name" unless @opts[:ini].expand_path.exist? || @opts[:args]
 
-      title = opts[:title] || ROUTER_TITLE
-      dir = opts[:dir]
-      path = opts[:path] || opts[:dir] && opts[:dir] + 'P2MQRouter.exe'
-      args = opts[:args] || "/ini:#{@ini_file}"
-      timeout = opts[:timeout] || 3
+        @opts[:title] ||= ROUTER_TITLE
+        @opts[:path] ||= @opts[:dir] && @opts[:dir] + 'P2MQRouter.exe'
+        @opts[:args] ||= "/ini:#{@opts[:ini]}"
+        @opts[:timeout] ||= 3
 
-#      begin
-        @app = WinGui::App.launch(:dir => dir, :path => path, :args => args,
-                                  :title => title, :timeout => timeout)
-#      rescue => e
-#        error e
-#      end
+        @app = WinGui::App.launch(:dir => @opts[:dir],
+                                  :path => @opts[:path],
+                                  :args => @opts[:args],
+                                  :title => @opts[:title],
+                                  :timeout => @opts[:timeout])
+      end
     end
 
+    def self.find
+      router = WinGui::App.find :title => ROUTER_TITLE
+      router ? new(:app => router) : nil
+    end
   end # class Router
 end # module P2Ruby
 

@@ -5,7 +5,7 @@ module P2Ruby
     include P2Ruby
 
     def initialize name, opts = {}
-      @opts = opts
+      @opts = opts.dup
       @ole = WIN32OLE.new (@opts[:lib] || Library.default).find name
     end
 
