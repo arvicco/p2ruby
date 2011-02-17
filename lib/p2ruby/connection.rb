@@ -29,6 +29,10 @@ module P2Ruby
       @ole.loginStr = @opts[:login_str] if @opts[:login_str]
       @ole.timeout = @opts[:timeout] if @opts[:timeout]
     end
+
+    def connected?
+      @ole.status == P2::CS_CONNECTION_CONNECTED | P2::CS_ROUTER_CONNECTED
+    end
   end
 end # module P2Ruby
 

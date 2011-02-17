@@ -3,38 +3,7 @@
   <component name="GemRequirementsHolder" version="3">
     <requirement>
       <requirement>
-        <dependency name="builder" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
-      </requirement>
-      <source manual="true" />
-    </requirement>
-    <requirement>
-      <requirement>
         <dependency name="cucumber" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
-      </requirement>
-      <source manual="true" />
-      <source from="p2ruby/Gemfile" />
-    </requirement>
-    <requirement>
-      <requirement>
-        <dependency name="diff-lcs" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
-      </requirement>
-      <source manual="true" />
-    </requirement>
-    <requirement>
-      <requirement>
-        <dependency name="gherkin" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
-      </requirement>
-      <source manual="true" />
-    </requirement>
-    <requirement>
-      <requirement>
-        <dependency name="json" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
-      </requirement>
-      <source manual="true" />
-    </requirement>
-    <requirement>
-      <requirement>
-        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
@@ -46,9 +15,9 @@
     </requirement>
     <requirement>
       <requirement>
-        <dependency name="term-ansicolor" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
       </requirement>
-      <source manual="true" />
+      <source from="p2ruby/Gemfile" />
     </requirement>
     <requirement>
       <requirement>
@@ -80,6 +49,7 @@
     <orderEntry type="library" scope="PROVIDED" name="[gem] rake (v0.8.7, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/rake-0.8.7)" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] win (v0.3.24, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/win-0.3.24)" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] ffi (v1.0.5, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/ffi-1.0.5)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] win_gui (vFile.open('VERSION').read.strip, /Users/vb/Dev/apps/win/win_gui) from path" level="application" />
   </component>
 </module>
 

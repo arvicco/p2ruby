@@ -1,5 +1,18 @@
 require 'spec_helper'
 
+shared_examples_for 'new connection' do
+  its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
+
+  it 'raises on NodeName access' do
+    expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
+#      its(:NodeName) { should == "??" }
+  end
+
+  it 'is not connected right away' do
+    subject.should_not be_connected
+  end
+end
+
 describe P2Ruby::Connection do
   it 'wraps P2ClientGate.P2Connection OLE class' do
     subject.ole_type.name.should == 'IP2Connection'
@@ -15,10 +28,7 @@ describe P2Ruby::Connection do
       its(:Port) { should == 3000 }
       its(:Timeout) { should == 1000 }
       its(:LoginStr) { should == '' }
-      its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
-      it 'raises on NodeName access' do
-        expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
-      end
+      it_behaves_like 'new connection'
     end
 
     context 'with options' do
@@ -27,17 +37,12 @@ describe P2Ruby::Connection do
                                        :port => 3333,
                                        :timeout => 500,
                                        :login_str => "Blah" }
-
       its(:AppName) { should =~ /APP-./ }
       its(:Host) { should == "localhost" }
       its(:Port) { should == 3333 }
       its(:Timeout) { should == 500 }
       its(:LoginStr) { should == "Blah" }
-      its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
-      it 'raises on NodeName access' do
-        expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
-      end
-#      its(:NodeName) { should == "??" }
+      it_behaves_like 'new connection'
     end
 
     describe '#connect' do
@@ -46,8 +51,17 @@ describe P2Ruby::Connection do
           conn = P2Ruby::Connection.new :app_name => "APP-#{rand 10000}",
                                         :host => "127.0.0.1", :port => 4001
           conn.Connect().should == P2::P2ERR_OK
+          conn.should be_connected
         end
+      end
 
+      context 'with wrong connection parameters' do
+        it 'fails to connect' do
+          conn = P2Ruby::Connection.new :app_name => "APP-#{rand 10000}",
+                                        :host => "127.0.0.1", :port => 1313
+          expect { conn.Connect() }.to raise_error /Couldn't connect to MQ/
+          conn.should_not be_connected
+        end
       end
     end
 
