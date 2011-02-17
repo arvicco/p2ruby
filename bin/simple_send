@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+# encoding: Windows-1251
+
+require 'pathname'
+lib = (Pathname.new(__FILE__).dirname + '../lib').expand_path.to_s
+$:.unshift lib unless $:.include?(lib)
+require 'p2ruby'
+
+# This script replicates SimpleSend.js functionality
+
+# First we need to cd into p2 main dir (and make sure Router is started)
+...
+
+# создаем объект Connection
+conn = P2Ruby::Connection(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
+                          :host => "127.0.0.1", # IP Адрес
+                          :port => 4001) # и порт локального роутера
+
+error = conn.Connect() # устанавливаем соединение с локальным роутером
+srv_addr = conn.ResolveService("FORTS_SRV") # ищем адрес сервера приема заявок
+
+puts "FORTS_SRV server address: #{srv_addr}"
+
+# создаем и инициализируем фабрику объектов-сообщений
+msgs = P2Ruby::MessageFactory :ini => "p2fortsgate_messages.ini"
+
+puts "Msg Factory inited"
+
+# создаем и заполняем сообщение
+msg = msgs.message "FutAddOrder"
+
+puts "Msg created"
+
+msg.DestAddr = srv_addr # адрес сервера
+
+msg.Field("P2_Category") = "FORTS_MSG" # служебные поля.
+msg.Field("P2_Type") = 1; #служебные поля.
+
+
+msg.Field("isin") = "RTS-3.10";
+msg.Field("price") = "150000";
+msg.Field("amount") = "1";
+msg.Field("client_code") = "000";
+msg.Field("type") = 1;
+msg.Field("dir") = 1;
+
+puts "BeforeSend"
+
+msg = msg.Send(conn, 5000); # посылаем сообщение с ожиданием ответа в течение 5 000 миллисекунд
+
+var c = msg.Field("P2_Category");
+var t = msg.Field("P2_Type");
+
+WScript.Echo("category " + c + "; type " + t);
+
+if ((c == "FORTS_MSG") && (t == 101))
+  {
+      var code = msg.Field("code"); # разбираем ответ
+  if (code == 0)
+    WScript.Echo("Adding order Ok, Order_id="+msg.Field("order_id"));
+  else
+    WScript.Echo("Adding order fail, logic error="+msg.Field("message"));
+    }
+    else
+    if ((c == "FORTS_MSG") && (t == 100))
+      {
+          WScript.Echo("Adding order fail, system level error "+msg.Field("err_code")+" "+msg.Field("message"));
+      }
+    else
+      {
+          WScript.Echo("Unexpected MQ message recieved; category " + c + "; type " + t);
+      }
+
