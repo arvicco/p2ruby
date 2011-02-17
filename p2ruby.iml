@@ -9,13 +9,13 @@
     </requirement>
     <requirement>
       <requirement>
-        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec', 'rspec/autorun']" git="false" path="false" doRequire="true" />
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
     <requirement>
       <requirement>
-        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec', 'rspec/autorun']" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>

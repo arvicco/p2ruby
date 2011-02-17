@@ -68,7 +68,7 @@ module P2Ruby
     #         подтверждена. Роутер больше не будет пытаться установить исходящие соединения.
     #         Для продолжения работы необходимо провести последовательный вызов методов Logout и Login.
     def status_text
-      @@status_messages.map{|k,v| (k & @ole.status).zero? ? nil : v}.compact.join(', ')
+      @@status_messages.map { |k, v| (k & @ole.status).zero? ? nil : v }.compact.join(', ')
     end
   end
 end # module P2Ruby
