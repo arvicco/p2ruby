@@ -17,7 +17,7 @@ module P2Ruby
     end
 
     def find name
-      self.ole_types.map(&:progid).compact.find { |progid| progid =~ Regexp.new(name) }
+      self.ole_types.map(&:progid).compact.find { |progid| progid[name] }
     end
 
   end # class Library

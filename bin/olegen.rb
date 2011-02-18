@@ -39,18 +39,23 @@ class WIN32COMGen
       size_required_params = method.size_params - 1
     end
     size_required_params.times do |i|
-      if method.params[i] && method.params[i].optional?
-        args.push "arg#{i}=nil"
-      else
-        args.push "arg#{i}"
+      if method.params[i]
+        param = method.params[i].name || "arg#{i}"
+        param += "=nil" if method.params[i].optional?
+        args.push "_" + param
       end
     end
     if method.size_opt_params >= 0
       method.size_opt_params.times do |i|
-        args.push "arg#{i + size_required_params}=nil"
+        if method.params[i]
+          param = method.params[i].name || "arg#{i}" + "=nil"
+        else
+          param = "arg#{i + size_required_params}=nil"
+        end
+        args.push "_" + param
       end
     else
-      args.push "*arg"
+      args.push "*args"
     end
     args.join(", ")
   end
@@ -122,7 +127,7 @@ class WIN32COMGen
   def generate_method_args_help(method)
     args = []
     method.params.each_with_index { |param, i|
-      h = "  #   #{param.ole_type} arg#{i} --- #{param.name}"
+      h = "  #   #{param.ole_type} _#{param.name}"
       inout = []
       inout.push "IN" if param.input?
       inout.push "OUT" if param.output?
@@ -274,8 +279,8 @@ STR
   def define_common_methods
     <<STR
 
-  def method_missing(cmd, *arg)
-    @ole.method_missing(cmd, *arg)
+  def method_missing(cmd, *args)
+    @ole.method_missing(cmd, *args)
   end
 
   def keep_lastargs(return_value)
@@ -289,7 +294,7 @@ STR
     io.puts "class #{class_name(klass)} # #{klass.name}"
     io.puts define_include
     io.puts define_instance_variables
-    io.puts "  attr_reader :dispatch"
+    io.puts "  attr_reader :ole"
     io.puts "  attr_reader :clsid"
     io.puts "  attr_reader :progid"
     io.puts define_initialize(klass)
