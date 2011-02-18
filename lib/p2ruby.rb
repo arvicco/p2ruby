@@ -1,5 +1,7 @@
 require 'version'
 require 'win32ole'
+require 'win32ole/property'
+
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
@@ -39,3 +41,4 @@ require 'p2ruby/p2class'
 require 'p2ruby/application'
 require 'p2ruby/connection'
 require 'p2ruby/message_factory'
+require 'p2ruby/message'

@@ -68,8 +68,8 @@ end
 # Prepares test stand by copying P2 files to /tmp
 def prepare_test_stand
   FileUtils.rm_rf TMP_DIR
-  FileUtils.cp_r SOURCE_DIR, TMP_DIR
+  FileUtils.cp_r SOURCE_DIR, TEST_DIR #TMP_DIR
 end
 
 prepare_test_stand
-FileUtils.cd "#{TEST_DIR}"
+#FileUtils.cd "#{TEST_DIR}"

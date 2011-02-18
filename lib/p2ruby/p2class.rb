@@ -10,7 +10,8 @@ module P2Ruby
 
     def initialize name, opts = {}
       @opts = opts.dup
-      @ole = WIN32OLE.new (@opts[:lib] || Library.default).find name
+      @ole = @opts[:ole] # OLE object may be provided directly (Message)
+      @ole ||= WIN32OLE.new (@opts[:lib] || Library.default).find name
     end
 
     # All unknown methods are routed to composed OLE object

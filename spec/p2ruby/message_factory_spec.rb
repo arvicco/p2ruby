@@ -30,10 +30,50 @@ describe P2Ruby::MessageFactory do
     end
   end
 
-  describe '#message', 'creates P2Ruby::Messages according to scheme' do
+  describe '#message', 'creates P2Ruby::Message according to scheme' do
     # This is a P2Ruby object wrapper for CreateMessageByName
 
-    it 'creates P2Ruby::Messages according to scheme'
+    it 'creates P2Ruby::Messages according to scheme' do
+      msg = subject.message :name => "FutAddOrder"
+      msg.should be_a P2Ruby::Message
+#      msg.name.should == "FutAddOrder"
+      p msg.name
+      p msg.Name()
+      p msg.DestAddr()
+      p msg.Id()
+      p msg.Version()
+      p msg.destAddr()
+      p msg.Field #["P2_Category"]
+
+      msg.Field["P2_Category"] = "FORTS_MSG"
+      p msg.Field["P2_Category"]
+      p msg.Field["P2_Type"] #служебные поля.
+      p msg.Field["isin"]
+      p msg.Field["price"]
+      p msg.Field["client_code"]
+
+      #  [table:message:FutAddOrder]
+      #  field = broker_code,c4,,""
+      #  field = isin,c25
+      #  field = client_code,c3
+      #  field = type,i4
+      #  field = dir,i4
+      #  field = amount,i4
+      #  field = price,c17
+      #  field = comment,c20,,""
+      #  field = broker_to,c20,,""
+      #  field = ext_id,i4,,0
+      #  field = du,i4,,0
+      #  field = date_exp,c8,,""
+      #  field = hedge,i4,,0
+
+      p msg.Field["hedge"]
+      p msg.Field["dir"]  ################################
+      p msg.Field["amount"]
+      p msg.Field["type"]
+      p msg.FieldAsLONGLONG("isin")
+
+    end
   end
 end
 
