@@ -30,8 +30,16 @@ module P2Ruby
     # property Field
     #   BSTR arg0 --- Name [IN]
     def Field
+#      p VT_I8, VT_UI8
       @field ||= OLEProperty.new(@ole, 5, [VT_BSTR], [VT_BSTR, VT_VARIANT])
     end
 
+    # I8 FieldAsLONGLONG
+    # property FieldAsULONGLONG
+    #   BSTR arg0 --- Name [IN]
+    def FieldAsLONGLONG
+      OLEProperty.new(@ole, 10, [VT_BSTR], [VT_BSTR, VT_I8])
+    end
   end
 end # module P2Ruby
+

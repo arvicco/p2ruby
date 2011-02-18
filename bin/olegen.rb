@@ -59,8 +59,7 @@ class WIN32COMGen
     ts = ''
     typedetails.each do |t|
       case t
-        when 'CARRAY', 'VOID', 'UINT', 'RESULT', 'DECIMAL', 'I8', 'UI8'
-#	  raise "Sorry type\"" + t + "\" not supported"
+        when 'CARRAY', 'VOID', 'UINT', 'RESULT', 'DECIMAL' #, 'I8', 'UI8'
           ts << "\"??? NOT SUPPORTED TYPE:`#{t}'\""
         when 'USERDEFINED', 'Unknown Type 9'
           ts << 'VT_DISPATCH'
@@ -97,36 +96,26 @@ class WIN32COMGen
   end
 
   def generate_method_body(method, disptype, types=nil)
-    "    ret = #{@reciever}#{disptype}(#{method.dispid}, [" +
-        generate_args(method).gsub("=nil", "") +
-        "], [" +
-        generate_argtypes(method, types) +
-        "])\n" +
-        "    @lastargs = WIN32OLE::ARGV\n" +
-        "    ret"
+    "    keep_lastargs #{@reciever}#{disptype}(#{method.dispid}," +
+        "[#{generate_args(method).gsub('=nil', '')}], " +
+        " [#{generate_argtypes(method, types)}])"
   end
 
   def generate_method_help(method, type = nil)
     str = "  # "
-    if type
-      str += type
-    else
-      str += method.return_type
-    end
-    str += " #{method.name}"
-    if method.event?
-      str += " EVENT"
-      str += " in #{method.event_interface}"
-    end
+    typed_name = "#{type || method.return_type} #{method.name}"
     if method.helpstring && method.helpstring != ""
-      str += "\n  # "
-      str += method.helpstring
+      if method.helpstring[method.name]
+        str += method.helpstring.sub(method.name, typed_name)
+      else
+        str += typed_name + ': ' + method.helpstring
+      end
+    else
+      str += typed_name
     end
+    str += " - EVENT in #{method.event_interface}" if method.event?
     args_help = generate_method_args_help(method)
-    if args_help
-      str += "\n"
-      str += args_help
-    end
+    str += "\n#{args_help}" if args_help
     str
   end
 
@@ -181,9 +170,9 @@ class WIN32COMGen
       io.puts generate_method_help(method, types[0])
       io.puts "  def #{method.name}"
       if klass.ole_type == "Class"
-        io.print "    OLEProperty.new(@dispatch, #{method.dispid}, ["
+        io.print "    @_#{method.name} ||= OLEProperty.new(@ole, #{method.dispid}, ["
       else
-        io.print "    OLEProperty.new(self, #{method.dispid}, ["
+        io.print "    @_#{method.name} ||= OLEProperty.new(self, #{method.dispid}, ["
       end
       io.print generate_argtypes(method, nil)
       io.print "], ["
@@ -266,9 +255,9 @@ class WIN32COMGen
     @clsid = "#{klass.guid}"
     @progid = "#{klass.progid}"
     if obj.nil?
-      @dispatch = WIN32OLE.new @progid
+      @ole = WIN32OLE.new @progid
     else
-      @dispatch = obj
+      @ole = obj
     end
   end
 STR
@@ -282,11 +271,16 @@ STR
     "  attr_reader :lastargs"
   end
 
-  def define_method_missing
+  def define_common_methods
     <<STR
 
   def method_missing(cmd, *arg)
-    @dispatch.method_missing(cmd, *arg)
+    @ole.method_missing(cmd, *arg)
+  end
+
+  def keep_lastargs(return_value)
+    @lastargs = WIN32OLE::ARGV
+    return_value
   end
 STR
   end
@@ -299,7 +293,7 @@ STR
     io.puts "  attr_reader :clsid"
     io.puts "  attr_reader :progid"
     io.puts define_initialize(klass)
-    io.puts define_method_missing
+    io.puts define_common_methods
   end
 
   def define_module(klass, io = STDOUT)
@@ -313,7 +307,7 @@ STR
     if klass.ole_type == "Class" &&
         klass.guid &&
         klass.progid
-      @reciever = "@dispatch."
+      @reciever = "@ole."
       define_class(klass, io)
     else
       @reciever = ""

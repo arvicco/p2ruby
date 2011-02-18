@@ -46,11 +46,11 @@ describe P2Ruby::MessageFactory do
       p msg.Field #["P2_Category"]
 
       msg.Field["P2_Category"] = "FORTS_MSG"
-      p msg.Field["P2_Category"]
-      p msg.Field["P2_Type"] #служебные поля.
-      p msg.Field["isin"]
-      p msg.Field["price"]
-      p msg.Field["client_code"]
+      print "P2_Category "; p msg.Field["P2_Category"]
+      print "P2_Type "; p msg.Field["P2_Type"] #служебные поля.
+      print "isin "; p msg.Field["isin"]
+      print "price "; p msg.Field["price"]
+      print "client_code "; p msg.Field["client_code"]
 
       #  [table:message:FutAddOrder]
       #  field = broker_code,c4,,""
@@ -67,11 +67,15 @@ describe P2Ruby::MessageFactory do
       #  field = date_exp,c8,,""
       #  field = hedge,i4,,0
 
-      p msg.Field["hedge"]
-      p msg.Field["dir"]  ################################
+      msg.Field["hedge"] = -1
+      print "hedge "; p msg.Field["hedge"]
+
+      print "P2_Type asLL "; p msg.FieldAsLONGLONG["P2_Type"]
+      print "hedge asLL "; p msg.FieldAsLONGLONG["hedge"]
+
+      p msg.Field["dir"] ################################
       p msg.Field["amount"]
       p msg.Field["type"]
-      p msg.FieldAsLONGLONG("isin")
 
     end
   end
