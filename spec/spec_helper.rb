@@ -35,8 +35,9 @@ end
 
 # Closes any open Router application
 def stop_router
-  router_app = WinGui::App.find :title => ROUTER_TITLE
-  router_app.exit(timeout=10) if router_app
+  while router_app = WinGui::App.find(:title => ROUTER_TITLE)
+    router_app.exit(timeout=10)
+  end
 end
 
 # Starts new Router application. Options:
@@ -71,6 +72,3 @@ def prepare_test_stand
 end
 
 prepare_test_stand
-restart_router
-
-

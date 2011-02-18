@@ -4,6 +4,8 @@ module P2Ruby
   class Library < WIN32OLE_TYPELIB
     include P2Ruby
 
+    # Returns default lib if not explicitely instantiated
+    #
     def self.default
       @library ||= new
     end

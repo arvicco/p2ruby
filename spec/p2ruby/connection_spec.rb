@@ -22,13 +22,34 @@ shared_examples_for 'new connection' do
 end
 
 describe P2Ruby::Connection do
-  it 'wraps P2ClientGate.P2Connection OLE class' do
-    subject.ole_type.name.should == 'IP2Connection'
-    show_ole
-  end
+  before(:all){start_router}
+  after(:all){stop_router}
 
   describe '.new' do
+    context 'with options' do
+      subject { P2Ruby::Connection.new :ini => CLIENT_INI,
+                                       :app_name => random_name,
+                                       :host => "localhost",
+                                       :port => 3333,
+                                       :timeout => 500,
+                                       :login_str => "Blah" }
+
+      it 'wraps P2ClientGate.P2Connection OLE class' do
+        subject.ole_type.name.should == 'IP2Connection'
+        show_ole
+      end
+
+      its(:AppName) { should =~ /APP-./ }
+      its(:Host) { should == "localhost" }
+      its(:Port) { should == 3333 }
+      its(:Timeout) { should == 500 }
+      its(:LoginStr) { should == "Blah" }
+      it_behaves_like 'new connection'
+    end
+
     context 'by default' do
+      # Ini file is still necessary if Application instance does not exist yet. Otherwise
+      # Connection#new will SEGFAULT looking for default "P2ClientGate.ini" in current dir
       subject { P2Ruby::Connection.new }
 
       its(:AppName) { should == '' }
@@ -36,20 +57,6 @@ describe P2Ruby::Connection do
       its(:Port) { should == 3000 }
       its(:Timeout) { should == 1000 }
       its(:LoginStr) { should == '' }
-      it_behaves_like 'new connection'
-    end
-
-    context 'with options' do
-      subject { P2Ruby::Connection.new :app_name => random_name,
-                                       :host => "localhost",
-                                       :port => 3333,
-                                       :timeout => 500,
-                                       :login_str => "Blah" }
-      its(:AppName) { should =~ /APP-./ }
-      its(:Host) { should == "localhost" }
-      its(:Port) { should == 3333 }
-      its(:Timeout) { should == 500 }
-      its(:LoginStr) { should == "Blah" }
       it_behaves_like 'new connection'
     end
   end

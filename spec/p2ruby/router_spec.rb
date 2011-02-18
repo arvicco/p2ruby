@@ -1,6 +1,7 @@
 # encoding: utf-8
 describe P2Ruby::Router, "Driver for Router server app" do
   before(:all) { stop_router }
+  after(:all) { stop_router }
 
   it "raises error on invalid Router path" do
     expect { described_class.new :path => "blah", :ini => ROUTER_INI }.
@@ -18,7 +19,6 @@ describe P2Ruby::Router, "Driver for Router server app" do
   end
 
   context "router initialized with :path => #{ROUTER_PATH}, :ini => #{ROUTER_INI}" do
-    after(:all) { stop_router }
     before(:all) { @router = P2Ruby::Router.new :dir => TEST_DIR, # To avoid file litter in BASE_DIR
                                                 :path => ROUTER_PATH, :ini => ROUTER_INI }
     subject { @router }
@@ -39,9 +39,9 @@ describe P2Ruby::Router, "Driver for Router server app" do
     its(:title) { should =~ ROUTER_TITLE }
 
     context 'forcing Router app to quit' do
-      it 'exits gracefully when asked' do
+      it 'exits gracefully when asked to' do
         @router.exit
-        sleep 0.5 # needed to ensure Router window had enough time to close down
+        sleep 0.6 # needed to ensure Router window had enough time to close down
         @router.main_window.visible?.should == false
         @router.main_window.window?.should == false
       end

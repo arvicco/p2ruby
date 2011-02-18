@@ -1,7 +1,8 @@
 require 'spec_helper'
 
-describe P2Ruby::Application do
-  subject { P2Ruby::Application.new :ini => CLIENT_INI }
+describe P2Ruby::Application, "singleton app object" do
+  before(:all) { P2Ruby::Application.instance CLIENT_INI }
+  subject { P2Ruby::Application.instance }
 
   it 'wraps P2ClientGate.P2Application OLE class' do
     subject.ole_type.name.should == 'IP2Application'
@@ -9,6 +10,7 @@ describe P2Ruby::Application do
   end
 
   its(:opts) { should have_key :ini }
+  its(:ini) { should == CLIENT_INI }
   its(:ole) { should be_a WIN32OLE }
   its(:ParserType) { should == 2 } # •	1 — Plaza; •	2 — Plaza-II (default)
 
