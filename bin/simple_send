@@ -9,65 +9,69 @@ require 'p2ruby'
 # This script replicates SimpleSend.js functionality
 
 # First we need to cd into p2 main dir (and make sure Router is started)
-...
+ROUTER_INI = Dir["**/client_router.ini"].first
+ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
+router = P2Ruby::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
 
-# создаем объект Connection
-conn = P2Ruby::Connection(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
-                          :host => "127.0.0.1", # IP Адрес
-                          :port => 4001) # и порт локального роутера
+begin
+  # создаем объект Connection
+  conn = P2Ruby::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
+                                :host => "127.0.0.1", # IP Адрес
+                                :port => 4001) # и порт локального роутера
 
-error = conn.Connect() # устанавливаем соединение с локальным роутером
-srv_addr = conn.ResolveService("FORTS_SRV") # ищем адрес сервера приема заявок
+  error = conn.Connect() # устанавливаем соединение с локальным роутером
+  srv_addr = conn.ResolveService("FORTS_SRV") # ищем адрес сервера приема заявок
 
-puts "FORTS_SRV server address: #{srv_addr}"
+  puts "FORTS_SRV server address: #{srv_addr}"
 
-# создаем и инициализируем фабрику объектов-сообщений
-msgs = P2Ruby::MessageFactory :ini => "p2fortsgate_messages.ini"
+  # создаем и инициализируем фабрику объектов-сообщений
+  msgs = P2Ruby::MessageFactory.new :ini => "p2fortsgate_messages.ini"
 
-puts "Msg Factory inited"
+  puts "Msg Factory inited"
 
-# создаем и заполняем сообщение
-msg = msgs.message "FutAddOrder"
+  # создаем и заполняем сообщение
+  msg = msgs.message :name => "FutAddOrder"
 
-puts "Msg created"
+  puts "Msg created"
 
-msg.DestAddr = srv_addr # адрес сервера
+  msg.DestAddr = srv_addr # адрес сервера
 
-msg.Field("P2_Category") = "FORTS_MSG" # служебные поля.
-msg.Field("P2_Type") = 1; #служебные поля.
+  msg.Field["P2_Category"] = "FORTS_MSG" # служебные поля.
+  msg.Field["P2_Type"] = 1 #служебные поля.
 
+  msg.Field["isin"] = "RTS-3.11"
+  msg.Field["price"] = "184500"
+  msg.Field["amount"] = "1" # string!
+  msg.Field["client_code"] = "001"
+  msg.Field["type"] = 1
+  msg.Field["dir"] = 1
 
-msg.Field("isin") = "RTS-3.10";
-msg.Field("price") = "150000";
-msg.Field("amount") = "1";
-msg.Field("client_code") = "000";
-msg.Field("type") = 1;
-msg.Field("dir") = 1;
+  puts "Before Send"
 
-puts "BeforeSend"
+  raw_msg = msg.Send(conn.ole, 5000) # посылаем, ждем ответа в течение 5000 миллисекунд
 
-msg = msg.Send(conn, 5000); # посылаем сообщение с ожиданием ответа в течение 5 000 миллисекунд
+  msg = P2Ruby::Message.new :ole => raw_msg
+  c = msg.Field["P2_Category"]
+  t = msg.Field["P2_Type"]
 
-var c = msg.Field("P2_Category");
-var t = msg.Field("P2_Type");
+  puts "Reply: category #{c}; type #{t}"
 
-WScript.Echo("category " + c + "; type " + t);
-
-if ((c == "FORTS_MSG") && (t == 101))
-  {
-      var code = msg.Field("code"); # разбираем ответ
-  if (code == 0)
-    WScript.Echo("Adding order Ok, Order_id="+msg.Field("order_id"));
+  if c == "FORTS_MSG" && t == 101
+    code = msg.Field["code"] # разбираем ответ
+    if code == 0
+      puts "Adding order Ok, Order_id = #{msg.Field["order_id"]}"
+    else
+      puts "Adding order fail, logic error = #{msg.Field["message"]}"
+    end
+  elsif c == "FORTS_MSG" && t == 100
+    puts "Adding order fail, system level error " +
+             "#{msg.Field["err_code"]} #{msg.Field["message"]}"
   else
-    WScript.Echo("Adding order fail, logic error="+msg.Field("message"));
-    }
-    else
-    if ((c == "FORTS_MSG") && (t == 100))
-      {
-          WScript.Echo("Adding order fail, system level error "+msg.Field("err_code")+" "+msg.Field("message"));
-      }
-    else
-      {
-          WScript.Echo("Unexpected MQ message recieved; category " + c + "; type " + t);
-      }
+    puts "Unexpected MQ message recieved; category #{c}; type #{t}"
+  end
 
+rescue => e
+  raise e
+ensure
+  router.exit
+end
