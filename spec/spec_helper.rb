@@ -72,3 +72,4 @@ def prepare_test_stand
 end
 
 prepare_test_stand
+FileUtils.cd "#{TEST_DIR}"

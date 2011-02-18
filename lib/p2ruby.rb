@@ -26,6 +26,11 @@ module P2Ruby
       raise P2Ruby::Error.new *args
     end
   end
+
+  # Mainly to enable P2Ruby#error both in instance and class methods
+  def self.included(host)
+    host.extend self
+  end
 end
 
 require 'p2ruby/router'

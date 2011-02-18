@@ -18,5 +18,6 @@ module P2Ruby
     def method_missing *args
       @ole.send *args
     end
+
   end
 end # module P2Ruby

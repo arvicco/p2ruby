@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe P2Ruby::MessageFactory do
+  before(:all) { P2Ruby::Application.reset CLIENT_INI }
   subject { P2Ruby::MessageFactory.new :ini => MESSAGE_INI }
 
   it 'wraps P2ClientGate.P2BLMessageFactory OLE class' do

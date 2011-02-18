@@ -22,7 +22,10 @@ shared_examples_for 'new connection' do
 end
 
 describe P2Ruby::Connection do
-  before(:all){start_router}
+  before(:all) do
+    start_router
+    P2Ruby::Application.reset CLIENT_INI
+  end
   after(:all){stop_router}
 
   describe '.new' do
