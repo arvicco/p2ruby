@@ -23,3 +23,10 @@ CLASS_NAME = P2Ruby
 Dir['tasks/*.rake'].sort.each { |file| load file }
 
 # Project-specific tasks
+
+desc "Generate OLE classes"
+task :olegen do
+  puts "Generate P2 OLE classes"
+  filename = Time.now.strftime "ole%Y%m%d-%H%M%S"
+  system "ruby bin/olegen.rb > lib/#{filename}.rb"
+end
