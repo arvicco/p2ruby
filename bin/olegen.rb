@@ -101,7 +101,10 @@ class WIN32COMGen
   end
 
   def generate_method_body(method, disptype, types=nil)
-    "    keep_lastargs #{@reciever}#{disptype}(#{method.dispid}," +
+    # Check if we need to keep WIN32OLE::ARGV to access OUT args...
+    args = generate_method_args_help(method)
+    (args && args['OUT'] ? "    keep_lastargs " : "    ") +
+        "#{@reciever}#{disptype}(#{method.dispid}," +
         "[#{generate_args(method).gsub('=nil', '')}], " +
         " [#{generate_argtypes(method, types)}])"
   end
