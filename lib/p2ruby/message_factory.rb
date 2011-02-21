@@ -22,21 +22,25 @@ module P2Ruby
       @ole.Init @ini.to_s, "Not used"
     end
 
+    # Creates wrapped OLE Message object (by name or id?)
     def message opts
-      P2Ruby::Message.new opts.merge(:ole => CreateMessageByName(opts[:name]))
+      message = opts[:name] ? CreateMessageByName(opts[:name]) : CreateMessageById(opts[:id])
+      P2Ruby::Message.new opts.merge(:ole => message)
     end
 
     # Auto-generated OLE methods:
 
-    # method VOID Init
-    #   BSTR struct_file [IN]
-    #   BSTR sign_file [IN]
+    # method VOID Init  - »нициализаци€ объекта.
+    #   BSTR struct_file [IN]  Ч файл, содержащий схему сообщений.
+    #   BSTR sign_file [IN]  Ч не используетс€.
     def Init(struct_file, sign_file)
       @ole._invoke(1, [struct_file, sign_file], [VT_BSTR, VT_BSTR])
     end
 
-    # method IP2BLMessage CreateMessageByName
+    # method IP2BLMessage CreateMessageByName - —оздание сообщени€ по имени.
+    #   !!! creates raw (unwrapped) OLE message objects
     #   BSTR msg_name [IN]
+    #   [out,retval] IP2BLMessage** newMsg)
     def CreateMessageByName(msg_name)
       @ole._invoke(2, [msg_name], [VT_BSTR])
     end

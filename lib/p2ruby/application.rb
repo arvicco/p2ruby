@@ -57,22 +57,26 @@ module P2Ruby
     # Auto-generated OLE methods:
 
     # property UI4 ParserType
+    #  Get Parser type: Х	1 Ч Plaza; Х	2 Ч Plaza-II (default)
     def ParserType()
       @ole._getproperty(3, [], [])
     end
 
     # property VOID ParserType
+    #  Set Parser type: Х	1 Ч Plaza; Х	2 Ч Plaza-II (default)
     def ParserType=(val)
       @ole._setproperty(3, [val], [VT_UI4])
     end
 
     # method VOID StartUp
+    # »нициализаци€ библиотеки P2ClientGate с параметрами, заданными в пользовательском ini-файле.
     #   BSTR ini_file_name [IN]
     def StartUp(ini_file_name)
       @ole._invoke(1, [ini_file_name], [VT_BSTR])
     end
 
     # method VOID CleanUp
+    # ƒеинициализаци€ библиотеки P2ClientGate.
     def CleanUp()
       @ole._invoke(2, [], [])
     end

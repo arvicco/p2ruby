@@ -88,129 +88,171 @@ module P2Ruby
     # Auto-generated OLE methods:
 
     # property I4 Status
+    #   Код состояния соединения или роутера.
     def Status()
       @ole._getproperty(1, [], [])
     end
 
     # property BSTR AppName
+    #   имя приложения, для которого необходимо установить соединение. Имя приложения
+    #   должно быть уникальным в рамках одного роутера.
     def AppName()
       @ole._getproperty(2, [], [])
     end
 
     # property BSTR NodeName
+    #   имя роутера
     def NodeName()
       @ole._getproperty(3, [], [])
     end
 
     # property BSTR Host
+    #   IP-адрес узла либо UNC-имя.
     def Host()
       @ole._getproperty(4, [], [])
     end
 
     # property UI4 Port
+    #   номер порта TCP/IP.
     def Port()
       @ole._getproperty(5, [], [])
     end
 
     # property UI4 Timeout
+    #   таймаут, в течение которого ожидается установка локального соединения.
     def Timeout()
       @ole._getproperty(7, [], [])
     end
 
     # property BSTR LoginStr
+    #   строка с аутентификационной информацией роутера (логии/пароль).
+    #   Формат строки: USERNAME=;PASSWORD=. Например, USERNAME=3@ivanov;PASSWORD=qwerty.
     def LoginStr()
       @ole._getproperty(8, [], [])
     end
 
     # property VOID AppName
+    #   имя приложения, для которого необходимо установить соединение. Имя приложения
+    #   должно быть уникальным в рамках одного роутера.
     def AppName=(val)
       @ole._setproperty(2, [val], [VT_BSTR])
     end
 
     # property VOID Host
+    #   IP-адрес узла либо UNC-имя.
     def Host=(val)
       @ole._setproperty(4, [val], [VT_BSTR])
     end
 
     # property VOID Port
+    #   номер порта TCP/IP.
     def Port=(val)
       @ole._setproperty(5, [val], [VT_UI4])
     end
 
     # property VOID Password
+    #  пароль для локального соединения.
     def Password=(val)
       @ole._setproperty(6, [val], [VT_VARIANT])
     end
 
     # property VOID Timeout
+    # таймаут, в течение которого ожидается установка локального соединения.
     def Timeout=(val)
       @ole._setproperty(7, [val], [VT_UI4])
     end
 
     # property VOID LoginStr
+    #    строка с аутентификационной информацией роутера (логии/пароль).
+    #    Формат строки: USERNAME=;PASSWORD=. Например, USERNAME=3@ivanov;PASSWORD=qwerty.
     def LoginStr=(val)
       @ole._setproperty(8, [val], [VT_BSTR])
     end
 
-    # method UI4 Connect
+    # method UI4 Connect ([out, retval] ULONG* errClass);
+    #  Создание локального соединения приложения с роутером.
+    #  errClass — класс ошибки в том случае, если функция вернет результат отличный от P2ERR_OK.
+    #  Используются следующие классы ошибок:
+    #  •	0 (константа P2MQ_ERRORCLASS_OK) — имеет смысл повторно попытаться установить
+    #       соединение с теми же параметрами (возможно, имеются временные перебои в работе
+    #       локальной сети и т.п.).
+    #  •	1 (константа P2MQ_ERRORCLASS_IS_USELESS) — вероятно повторная попытка установить
+    #       соединение приведет к тем же результатом, необходимо изменить параметры функции.
     def Connect()
       @ole._invoke(9, [], [])
     end
 
     # method UI4 Connect2
+    #  Создание локального соединения приложения с роутером. Выпущен в дополнение к методу Connection#Connect.
     #   BSTR conn_str [IN]
     def Connect2(conn_str)
       @ole._invoke(18, [conn_str], [VT_BSTR])
     end
 
-    # method VOID Disconnect
+    # method VOID DisconnecT
+    #  Разрыв локального соединения
     def Disconnect()
       @ole._invoke(10, [], [])
     end
 
     # method VOID Login
+    #  Инициирование входа роутера в сеть. Роутер создает исходящее удаленное соединение
+    #  с вышестоящим роутером и аутентифицируется в сети. Параметры аутентификации
+    #  (USERNAME=;PASSWORD=) задаются свойством LoginStr..
     def Login()
       @ole._invoke(11, [], [])
     end
 
     # method VOID Logout
+    #   Разрыв всех удаленных соединений роутера.
     def Logout()
       @ole._invoke(12, [], [])
     end
 
     # method VOID ProcessMessage
-    #   UI4 cookie [OUT]
-    #   UI4 poll_timeout [IN]
+    #  Прием и обработка сообщений, в том числе и репликационных.
+    #   UI4 cookie [OUT] — таймаут в миллисекундах, в течение которого ожидается получение сообщения;
+    #   UI4 poll_timeout [IN] — уникальный идентификатор подписчика.
     def ProcessMessage(cookie, poll_timeout)
       keep_lastargs @ole._invoke(13, [cookie, poll_timeout], [VT_BYREF|VT_UI4, VT_UI4])
     end
 
-    # method UI4 ProcessMessage2
+    # method UI4 ProcessMessage2 ( [in] ULONG pollTimeout, [out, retval] ULONG* cookie);
+    #  Прием и обработка сообщений. Выпущен в дополнение к методу Connection.ProcessMessage,
+    #  так как тот не позволял в интерпретированных языках (JScript) получить результат работы функции (cookie).
     #   UI4 poll_timeout [IN]
+    #   [out, retval] ULONG* cookie);???????????????????????
     def ProcessMessage2(poll_timeout)
       @ole._invoke(17, [poll_timeout], [VT_UI4])
     end
 
     # method UI4 ProcessMessage3
+    #   ???
     #   UI4 poll_timeout [IN]
     def ProcessMessage3(poll_timeout)
       @ole._invoke(19, [poll_timeout], [VT_UI4])
     end
 
-    # method UI4 RegisterReceiver
-    #   IP2MessageReceiver new_receiver [IN]
+    # method UI4 RegisterReceiver ( [in] IP2MessageReceiver* newReceiver, [out,retval] ULONG* cookie);
+    #  Регистрация подписчика.
+    #  •	cookie — уникальный идентификатор подписчика. Используется для того, чтобы можно
+    #     было отменить подписку, а также именно по нему в методе Connection.ProcessMessage
+    #     определяется получатель сообщения.
+    #   IP2MessageReceiver new_receiver [IN] — указатель на интерфейс обратного вызова;
     def RegisterReceiver(new_receiver)
       @ole._invoke(14, [new_receiver], [VT_BYREF|VT_DISPATCH])
     end
 
-    # method VOID UnRegisterReceiver
+    # method VOID UnRegisterReceiver ([in] ULONG cookie);
+    #  Отмена регистрации подписчика по идентификатору (cookie).
     #   UI4 cookie [IN]
     def UnRegisterReceiver(cookie)
       @ole._invoke(15, [cookie], [VT_UI4])
     end
 
-    # method BSTR ResolveService
-    #   BSTR service [IN]
+    # method BSTR ResolveService ( [in] BSTR service, [out,retval] BSTR* address);
+    #  Получение полного адреса приложения по имени сервиса, который оно предоставляет.
+    #   BSTR service [IN] - — имя сервиса;
     def ResolveService(service)
       @ole._invoke(16, [service], [VT_BSTR])
     end
