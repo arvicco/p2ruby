@@ -5,7 +5,17 @@ describe P2Ruby::Message do
     P2Ruby::Application.reset CLIENT_INI
     @factory = P2Ruby::MessageFactory.new :ini => MESSAGE_INI
   end
-  subject { @factory.message :name => "FutAddOrder" }
+  subject { @factory.message :name => "FutAddOrder",
+                             :dest_addr => "FINTER_FORTS3.Dispatcher",
+                             :field => {
+                                 "P2_Category" => "FORTS_MSG",
+                                 "isin" => "RTS-3.11",
+                                 :price => "184500",
+                                 :amount => 1,
+                                 "client_code" => "001",
+                                 "type" => 1,
+                                 "dir" => 1
+                             } }
 
   it 'is not instantiated directly, use MessageFactory instead'
 
@@ -18,28 +28,61 @@ describe P2Ruby::Message do
   its(:progid) { should == 'P2ClientGate.P2BLMessage.1' }
   its(:opts) { should have_key :name }
   its(:ole) { should be_a WIN32OLE }
+  its(:Name) { should == "" } # Why? Because there is no Message#Name= setter... :(
+  its(:DestAddr) { should == "FINTER_FORTS3.Dispatcher" }
 
-  describe '#Init()', 'is implicitely called by #new'
-  # Init ( BSTR structFile, BSTR signFile); - »нициализаци€ объекта.
-  # јргументы
-  # Х	structFile Ч ini-файл, содержащий схему сообщений.
-  # Х	signFile Ч не используетс€.
-
-  describe '#CreateMessageByName()', 'creates raw (unwrapped) OLE message objects' do
-    # CreateMessageByName ( [in] BSTR msgName, [out,retval] IP2BLMessage** newMsg);
-    # —оздание сообщени€ по имени.
-    # јргументы
-    # Х	msgName Ч им€ сообщени€ (им€ таблицы Ѕƒ).
-    xit 'creates raw OLE message objects according to scheme' do
-      msg = subject.CreateMessageByName("FutAddOrder")
-      msg.should be_a WIN32OLE # raw (unwrapped) OLE object!
-      msg.ole_type.name.should == 'IP2BLMessage'
+  context 'working with named property Field' do
+    it 'initializes Field named properties correctly' do
+      subject.Field["P2_Category"].should == "FORTS_MSG"
+      subject.Field['isin'].should == "RTS-3.11"
+      subject.Field['price'].should == "184500"
+      subject.Field['amount'].should == 1
+      subject.Field['client_code'].should == "001"
+      subject.Field['type'].should == 1
+      subject.Field['dir'].should == 1
     end
-  end
 
-  describe '#message', 'creates P2Ruby::Messages according to scheme' do
-    # This is a P2Ruby object wrapper for CreateMessageByName
+    it 'manually sets Field named properties as needed' do
+      subject.Field["P2_Category"] = "WHATEVER"
+      subject.Field['isin'] = "RTS-3.12"
+      subject.Field['amount'] = 100
+      subject.Field["P2_Category"].should == "WHATEVER"
+      subject.Field['isin'].should == "RTS-3.12"
+      subject.Field['amount'].should == 100
+    end
 
-    it 'creates P2Ruby::Messages according to scheme'
+    it 'does not test following Fields:' do
+      #  [table:message:FutAddOrder]
+      #  field = broker_code,c4,,""
+      #  field = isin,c25
+      #  field = client_code,c3
+      #  field = type,i4
+      #  field = dir,i4
+      #  field = amount,i4
+      #  field = price,c17
+      #  field = comment,c20,,""
+      #  field = broker_to,c20,,""
+      #  field = ext_id,i4,,0
+      #  field = du,i4,,0
+      #  field = date_exp,c8,,""
+      #  field = hedge,i4,,0
+
+      p subject.Id()
+      p subject.Version()
+      print "P2_Type "; p subject.Field["P2_Type"] #служебные пол€.
+      print "isin "; p subject.Field["isin"]
+      print "price "; p subject.Field["price"]
+      print "client_code "; p subject.Field["client_code"]
+
+      subject.Field["hedge"] = -1
+      print "hedge "; p subject.Field["hedge"]
+
+      print "P2_Type asLL "; p subject.FieldAsLONGLONG["P2_Type"]
+      print "hedge asLL "; p subject.FieldAsLONGLONG["hedge"]
+
+      p subject.Field["dir"] ################################
+      p subject.Field["amount"]
+      p subject.Field["type"]
+    end
   end
 end

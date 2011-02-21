@@ -16,10 +16,19 @@ module P2Ruby
       @ole = @opts[:ole]
       @ole ||= WIN32OLE.new (@opts[:lib] || Library.default).find name
 
-      # OLE object set properties may be given as options
       @opts.each do |key, val|
-        method = "#{key.to_s.camel_case}="
-        send(method, val) if respond_to? method
+        # OLE object set properties may be given as options
+        setter = "#{key.to_s.camel_case}="
+        send(setter, val) if respond_to? setter
+
+        # OLE object NAMED properties may be given as options (Message#Field)
+        prop = key.to_s.camel_case
+        if respond_to?(prop) && val.is_a?(Hash)
+          val.each do |k, v|
+            property = send prop
+            property[k.to_s] = v
+          end
+        end
       end
     end
 

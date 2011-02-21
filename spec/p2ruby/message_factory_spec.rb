@@ -35,50 +35,10 @@ describe P2Ruby::MessageFactory do
   describe '#message', 'creates P2Ruby::Message according to scheme' do
     # This is a P2Ruby object wrapper for CreateMessageByName
 
-    it 'creates P2Ruby::Messages according to scheme' do
+    it 'creates P2Ruby::Message wrapper according to scheme' do
       msg = subject.message :name => "FutAddOrder"
       msg.should be_a P2Ruby::Message
 #      msg.name.should == "FutAddOrder"
-      p msg.name
-      p msg.Name()
-      p msg.DestAddr()
-      p msg.Id()
-      p msg.Version()
-      p msg.destAddr()
-      p msg.Field #["P2_Category"]
-
-      msg.Field["P2_Category"] = "FORTS_MSG"
-      print "P2_Category "; p msg.Field["P2_Category"]
-      print "P2_Type "; p msg.Field["P2_Type"] #служебные поля.
-      print "isin "; p msg.Field["isin"]
-      print "price "; p msg.Field["price"]
-      print "client_code "; p msg.Field["client_code"]
-
-      #  [table:message:FutAddOrder]
-      #  field = broker_code,c4,,""
-      #  field = isin,c25
-      #  field = client_code,c3
-      #  field = type,i4
-      #  field = dir,i4
-      #  field = amount,i4
-      #  field = price,c17
-      #  field = comment,c20,,""
-      #  field = broker_to,c20,,""
-      #  field = ext_id,i4,,0
-      #  field = du,i4,,0
-      #  field = date_exp,c8,,""
-      #  field = hedge,i4,,0
-
-      msg.Field["hedge"] = -1
-      print "hedge "; p msg.Field["hedge"]
-
-      print "P2_Type asLL "; p msg.FieldAsLONGLONG["P2_Type"]
-      print "hedge asLL "; p msg.FieldAsLONGLONG["hedge"]
-
-#      p msg.Field["dir"] ################################
-#      p msg.Field["amount"]
-#      p msg.Field["type"]
-
     end
   end
 end
