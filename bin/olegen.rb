@@ -9,10 +9,16 @@
 #
 #-----------------------------
 # olegen.rb
-# $Revision$
 #-----------------------------
 
 require 'win32ole'
+
+class String
+  # returns snake_case representation of string
+  def snake_case
+    gsub(/([a-z])([A-Z0-9])/, '\1_\2').downcase
+  end
+end
 
 class WIN32COMGen
   def initialize(typelib)
@@ -40,9 +46,9 @@ class WIN32COMGen
     end
     size_required_params.times do |i|
       if method.params[i]
-        param = method.params[i].name || "arg#{i}"
+        param = method.params[i].name.snake_case || "arg#{i}"
         param += "=nil" if method.params[i].optional?
-        args.push "_" + param
+        args.push param
       end
     end
     if method.size_opt_params >= 0
@@ -104,9 +110,9 @@ class WIN32COMGen
     # Check if we need to keep WIN32OLE::ARGV to access OUT args...
     args = generate_method_args_help(method)
     (args && args['OUT'] ? "    keep_lastargs " : "    ") +
-        "#{@reciever}#{disptype}(#{method.dispid}," +
+        "#{@reciever}#{disptype}(#{method.dispid}, " +
         "[#{generate_args(method).gsub('=nil', '')}], " +
-        " [#{generate_argtypes(method, types)}])"
+        "[#{generate_argtypes(method, types)}])"
   end
 
   def generate_method_help(method, type = nil)
@@ -259,14 +265,8 @@ class WIN32COMGen
   def define_initialize(klass)
     <<STR
 
-  def initialize(obj = nil)
-    @clsid = "#{klass.guid}"
-    @progid = "#{klass.progid}"
-    if obj.nil?
-      @ole = WIN32OLE.new @progid
-    else
-      @ole = obj
-    end
+  def initialize opts = {}
+    super PROGID, opts
   end
 STR
   end
@@ -290,16 +290,24 @@ STR
     @lastargs = WIN32OLE::ARGV
     return_value
   end
+
+  def clsid
+    CLSID
+  end
+
+  def progid
+    PROGID
+  end
 STR
   end
 
   def define_class(klass, io = STDOUT)
-    io.puts "class #{class_name(klass)} # #{klass.name}"
+    io.puts "class #{klass.name} < P2Class # #{class_name(klass)}"
+    io.puts "  CLSID = '#{klass.guid}'"
+    io.puts "  PROGID = '#{klass.progid}'"
     io.puts define_include
     io.puts define_instance_variables
     io.puts "  attr_reader :ole"
-    io.puts "  attr_reader :clsid"
-    io.puts "  attr_reader :progid"
     io.puts define_initialize(klass)
     io.puts define_common_methods
   end
@@ -346,7 +354,6 @@ STR
   end
 end
 
-require 'win32ole'
 if __FILE__ == $0
 #  if ARGV.size == 0
 #    $stderr.puts "usage: #{$0} Type Library [...]"
