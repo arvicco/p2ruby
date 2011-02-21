@@ -5,13 +5,22 @@ module P2Ruby
   #
   class P2Class
     include P2Ruby
+    include WIN32OLE::VARIANT
 
-    attr_reader :opts, :ole
+    attr_reader :opts, :ole, :lastargs
 
     def initialize name, opts = {}
       @opts = opts.dup
-      @ole = @opts[:ole] # OLE object may be provided directly (Message)
+
+      # OLE object may be provided directly (Message)
+      @ole = @opts[:ole]
       @ole ||= WIN32OLE.new (@opts[:lib] || Library.default).find name
+
+      # OLE object set properties may be given as options
+      @opts.each do |key, val|
+        method = "#{key.to_s.camel_case}="
+        send(method, val) if respond_to? method
+      end
     end
 
     # All unknown methods are routed to composed OLE object
@@ -20,5 +29,19 @@ module P2Ruby
       @ole.send *args
     end
 
+    # Keeps [OUT] args sent by reference into OLE method
+    # s
+    def keep_lastargs(return_value)
+      @lastargs = WIN32OLE::ARGV
+      return_value
+    end
+
+    def clsid
+      self.class::CLSID
+    end
+
+    def progid
+      self.class::PROGID
+    end
   end
 end # module P2Ruby

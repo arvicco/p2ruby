@@ -9,6 +9,8 @@ describe P2Ruby::MessageFactory do
     show_ole
   end
 
+  its(:clsid) { should == '{501786DA-CA02-45C1-B815-1C58C383265D}' }
+  its(:progid) { should == 'P2ClientGate.P2BLMessageFactory.1' }
   its(:opts) { should have_key :ini }
   its(:ole) { should be_a WIN32OLE }
 
@@ -73,9 +75,9 @@ describe P2Ruby::MessageFactory do
       print "P2_Type asLL "; p msg.FieldAsLONGLONG["P2_Type"]
       print "hedge asLL "; p msg.FieldAsLONGLONG["hedge"]
 
-      p msg.Field["dir"] ################################
-      p msg.Field["amount"]
-      p msg.Field["type"]
+#      p msg.Field["dir"] ################################
+#      p msg.Field["amount"]
+#      p msg.Field["type"]
 
     end
   end

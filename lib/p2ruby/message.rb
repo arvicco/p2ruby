@@ -7,38 +7,83 @@ module P2Ruby
   # указать пользовательский ini-файл, содержащий такие схемы.
   #
   class Message < P2Class
-    include WIN32OLE::VARIANT
-    attr_reader :lastargs
+    CLSID = '{A9A6C936-5A12-4518-9A92-90D75B41AF18}'
+    PROGID = 'P2ClientGate.P2BLMessage.1'
 
     def initialize opts = {}
       # First we need to obtain Application instance... Yes, it IS freaking weird.
       error "Connection/Application should be created first" unless P2Ruby::Application.instance
 
       super "P2BLMessage", opts
-
-      @ole.appName = @opts[:app_name] if @opts[:app_name]
-      @ole.host = @opts[:host] if @opts[:host]
-      @ole.port = @opts[:port] if @opts[:port]
-      @ole.password = @opts[:password] if @opts[:password]
-      @ole.loginStr = @opts[:login_str] if @opts[:login_str]
-      @ole.timeout = @opts[:timeout] if @opts[:timeout]
-
-
     end
 
-    # VARIANT Field
-    # property Field
-    #   BSTR arg0 --- Name [IN]
+    # Auto-generated OLE methods:
+
+    # property BSTR Name
+    def Name()
+      @ole._getproperty(1, [], [])
+    end
+
+    # property UI4 Id
+    def Id()
+      @ole._getproperty(2, [], [])
+    end
+
+    # property BSTR Version
+    def Version()
+      @ole._getproperty(3, [], [])
+    end
+
+    # property BSTR DestAddr
+    def DestAddr()
+      @ole._getproperty(4, [], [])
+    end
+
+    # property VOID DestAddr
+    def DestAddr=(val)
+      @ole._setproperty(4, [val], [VT_BSTR])
+    end
+
+    # property VARIANT Field
+    #   BSTR name [IN]
     def Field
-#      p VT_I8, VT_UI8
-      @field ||= OLEProperty.new(@ole, 5, [VT_BSTR], [VT_BSTR, VT_VARIANT])
+      @_Field ||= OLEProperty.new(@ole, 5, [VT_BSTR], [VT_BSTR, VT_VARIANT])
     end
 
-    # I8 FieldAsLONGLONG
-    # property FieldAsULONGLONG
-    #   BSTR arg0 --- Name [IN]
+    # I8 FieldAsLONGLONG: property FieldAsULONGLONG
+    #   BSTR name [IN]
     def FieldAsLONGLONG
-      OLEProperty.new(@ole, 10, [VT_BSTR], [VT_BSTR, VT_I8])
+      @_FieldAsLONGLONG ||= OLEProperty.new(@ole, 10, [VT_BSTR], [VT_BSTR, VT_I8])
+    end
+
+    # method IP2BLMessage Send
+    #   IP2Connection conn [IN]
+    #   UI4 timeout [IN]
+    def Send(conn, timeout)
+      @ole._invoke(6, [conn, timeout], [VT_BYREF|VT_DISPATCH, VT_UI4])
+    end
+
+    # method VOID Post
+    #   IP2Connection conn [IN]
+    def Post(conn)
+      @ole._invoke(7, [conn], [VT_BYREF|VT_DISPATCH])
+    end
+
+    # method VOID SendAsync
+    #   IP2Connection conn [IN]
+    #   UI4 timeout [IN]
+    #   DISPATCH event [IN]
+    def SendAsync(conn, timeout, event)
+      @ole._invoke(8, [conn, timeout, event], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH])
+    end
+
+    # method VOID SendAsync2
+    #   IP2Connection conn [IN]
+    #   UI4 timeout [IN]
+    #   DISPATCH event [IN]
+    #   I8 event_param [IN]
+    def SendAsync2(conn, timeout, event, event_param)
+      @ole._invoke(9, [conn, timeout, event, event_param], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH, VT_I8])
     end
   end
 end # module P2Ruby

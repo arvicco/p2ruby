@@ -35,6 +35,7 @@ module P2Ruby
   end
 end
 
+require 'extension'
 require 'p2ruby/router'
 require 'p2ruby/library'
 require 'p2ruby/p2class'

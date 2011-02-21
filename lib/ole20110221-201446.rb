@@ -66,33 +66,33 @@ class CP2Connection < P2Class # P2ClientGate_P2Connection_1
   end
 
   # property VOID AppName
-  def AppName=()
-    @ole._setproperty(2, [], [VT_BSTR])
+  def AppName=(val)
+    @ole._setproperty(2, [val], [VT_BSTR])
   end
 
   # property VOID Host
-  def Host=()
-    @ole._setproperty(4, [], [VT_BSTR])
+  def Host=(val)
+    @ole._setproperty(4, [val], [VT_BSTR])
   end
 
   # property VOID Port
-  def Port=()
-    @ole._setproperty(5, [], [VT_UI4])
+  def Port=(val)
+    @ole._setproperty(5, [val], [VT_UI4])
   end
 
   # property VOID Password
-  def Password=()
-    @ole._setproperty(6, [], [VT_VARIANT])
+  def Password=(val)
+    @ole._setproperty(6, [val], [VT_VARIANT])
   end
 
   # property VOID Timeout
-  def Timeout=()
-    @ole._setproperty(7, [], [VT_UI4])
+  def Timeout=(val)
+    @ole._setproperty(7, [val], [VT_UI4])
   end
 
   # property VOID LoginStr
-  def LoginStr=()
-    @ole._setproperty(8, [], [VT_BSTR])
+  def LoginStr=(val)
+    @ole._setproperty(8, [val], [VT_BSTR])
   end
 
   # method UI4 Connect
@@ -116,65 +116,65 @@ class CP2Connection < P2Class # P2ClientGate_P2Connection_1
   end
 
   # method VOID ProcessMessage
-  #   UI4 _cookie [OUT]
-  #   UI4 _pollTimeout [IN]
-  def ProcessMessage(_cookie, _pollTimeout)
-    keep_lastargs @ole._invoke(13, [_cookie, _pollTimeout], [VT_BYREF|VT_UI4, VT_UI4])
+  #   UI4 cookie [OUT]
+  #   UI4 poll_timeout [IN]
+  def ProcessMessage(cookie, poll_timeout)
+    keep_lastargs @ole._invoke(13, [cookie, poll_timeout], [VT_BYREF|VT_UI4, VT_UI4])
   end
 
   # method UI4 RegisterReceiver
-  #   IP2MessageReceiver _newReceiver [IN]
-  def RegisterReceiver(_newReceiver)
-    @ole._invoke(14, [_newReceiver], [VT_BYREF|VT_DISPATCH])
+  #   IP2MessageReceiver new_receiver [IN]
+  def RegisterReceiver(new_receiver)
+    @ole._invoke(14, [new_receiver], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID UnRegisterReceiver
-  #   UI4 _cookie [IN]
-  def UnRegisterReceiver(_cookie)
-    @ole._invoke(15, [_cookie], [VT_UI4])
+  #   UI4 cookie [IN]
+  def UnRegisterReceiver(cookie)
+    @ole._invoke(15, [cookie], [VT_UI4])
   end
 
   # method BSTR ResolveService
-  #   BSTR _service [IN]
-  def ResolveService(_service)
-    @ole._invoke(16, [_service], [VT_BSTR])
+  #   BSTR service [IN]
+  def ResolveService(service)
+    @ole._invoke(16, [service], [VT_BSTR])
   end
 
   # method UI4 ProcessMessage2
-  #   UI4 _pollTimeout [IN]
-  def ProcessMessage2(_pollTimeout)
-    @ole._invoke(17, [_pollTimeout], [VT_UI4])
+  #   UI4 poll_timeout [IN]
+  def ProcessMessage2(poll_timeout)
+    @ole._invoke(17, [poll_timeout], [VT_UI4])
   end
 
   # method UI4 Connect2
-  #   BSTR _connStr [IN]
-  def Connect2(_connStr)
-    @ole._invoke(18, [_connStr], [VT_BSTR])
+  #   BSTR conn_str [IN]
+  def Connect2(conn_str)
+    @ole._invoke(18, [conn_str], [VT_BSTR])
   end
 
   # method UI4 ProcessMessage3
-  #   UI4 _pollTimeout [IN]
-  def ProcessMessage3(_pollTimeout)
-    @ole._invoke(19, [_pollTimeout], [VT_UI4])
+  #   UI4 poll_timeout [IN]
+  def ProcessMessage3(poll_timeout)
+    @ole._invoke(19, [poll_timeout], [VT_UI4])
   end
 
   # HRESULT GetConn
-  #   OLE_HANDLE _pVal [OUT]
-  def GetConn(_pVal)
-    keep_lastargs @ole._invoke(1610678272, [_pVal], [VT_BYREF|VT_BYREF|VT_DISPATCH])
+  #   OLE_HANDLE p_val [OUT]
+  def GetConn(p_val)
+    keep_lastargs @ole._invoke(1610678272, [p_val], [VT_BYREF|VT_BYREF|VT_DISPATCH])
   end
 
   # HRESULT GetConnPtr
-  #   OLE_HANDLE _pVal [OUT]
-  def GetConnPtr(_pVal)
-    keep_lastargs @ole._invoke(1610678273, [_pVal], [VT_BYREF|VT_BYREF|VT_DISPATCH])
+  #   OLE_HANDLE p_val [OUT]
+  def GetConnPtr(p_val)
+    keep_lastargs @ole._invoke(1610678273, [p_val], [VT_BYREF|VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID ConnectionStatusChanged - EVENT in IP2ConnectionEvent
-  #   IP2Connection _conn [IN]
-  #   TConnectionStatus _newStatus [IN]
-  def ConnectionStatusChanged(_conn, _newStatus)
-    @ole._invoke(1, [_conn, _newStatus], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  #   TConnectionStatus new_status [IN]
+  def ConnectionStatusChanged(conn, new_status)
+    @ole._invoke(1, [conn, new_status], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
   end
 end
 
@@ -219,33 +219,33 @@ module IP2Connection
   end
 
   # property VOID AppName
-  def AppName=()
-    _setproperty(2, [], [VT_BSTR])
+  def AppName=(val)
+    _setproperty(2, [val], [VT_BSTR])
   end
 
   # property VOID Host
-  def Host=()
-    _setproperty(4, [], [VT_BSTR])
+  def Host=(val)
+    _setproperty(4, [val], [VT_BSTR])
   end
 
   # property VOID Port
-  def Port=()
-    _setproperty(5, [], [VT_UI4])
+  def Port=(val)
+    _setproperty(5, [val], [VT_UI4])
   end
 
   # property VOID Password
-  def Password=()
-    _setproperty(6, [], [VT_VARIANT])
+  def Password=(val)
+    _setproperty(6, [val], [VT_VARIANT])
   end
 
   # property VOID Timeout
-  def Timeout=()
-    _setproperty(7, [], [VT_UI4])
+  def Timeout=(val)
+    _setproperty(7, [val], [VT_UI4])
   end
 
   # property VOID LoginStr
-  def LoginStr=()
-    _setproperty(8, [], [VT_BSTR])
+  def LoginStr=(val)
+    _setproperty(8, [val], [VT_BSTR])
   end
 
   # method UI4 Connect
@@ -269,46 +269,46 @@ module IP2Connection
   end
 
   # method VOID ProcessMessage
-  #   UI4 _cookie [OUT]
-  #   UI4 _pollTimeout [IN]
-  def ProcessMessage(_cookie, _pollTimeout)
-    keep_lastargs _invoke(13, [_cookie, _pollTimeout], [VT_BYREF|VT_UI4, VT_UI4])
+  #   UI4 cookie [OUT]
+  #   UI4 poll_timeout [IN]
+  def ProcessMessage(cookie, poll_timeout)
+    keep_lastargs _invoke(13, [cookie, poll_timeout], [VT_BYREF|VT_UI4, VT_UI4])
   end
 
   # method UI4 RegisterReceiver
-  #   IP2MessageReceiver _newReceiver [IN]
-  def RegisterReceiver(_newReceiver)
-    _invoke(14, [_newReceiver], [VT_BYREF|VT_DISPATCH])
+  #   IP2MessageReceiver new_receiver [IN]
+  def RegisterReceiver(new_receiver)
+    _invoke(14, [new_receiver], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID UnRegisterReceiver
-  #   UI4 _cookie [IN]
-  def UnRegisterReceiver(_cookie)
-    _invoke(15, [_cookie], [VT_UI4])
+  #   UI4 cookie [IN]
+  def UnRegisterReceiver(cookie)
+    _invoke(15, [cookie], [VT_UI4])
   end
 
   # method BSTR ResolveService
-  #   BSTR _service [IN]
-  def ResolveService(_service)
-    _invoke(16, [_service], [VT_BSTR])
+  #   BSTR service [IN]
+  def ResolveService(service)
+    _invoke(16, [service], [VT_BSTR])
   end
 
   # method UI4 ProcessMessage2
-  #   UI4 _pollTimeout [IN]
-  def ProcessMessage2(_pollTimeout)
-    _invoke(17, [_pollTimeout], [VT_UI4])
+  #   UI4 poll_timeout [IN]
+  def ProcessMessage2(poll_timeout)
+    _invoke(17, [poll_timeout], [VT_UI4])
   end
 
   # method UI4 Connect2
-  #   BSTR _connStr [IN]
-  def Connect2(_connStr)
-    _invoke(18, [_connStr], [VT_BSTR])
+  #   BSTR conn_str [IN]
+  def Connect2(conn_str)
+    _invoke(18, [conn_str], [VT_BSTR])
   end
 
   # method UI4 ProcessMessage3
-  #   UI4 _pollTimeout [IN]
-  def ProcessMessage3(_pollTimeout)
-    _invoke(19, [_pollTimeout], [VT_UI4])
+  #   UI4 poll_timeout [IN]
+  def ProcessMessage3(poll_timeout)
+    _invoke(19, [poll_timeout], [VT_UI4])
   end
 end
 
@@ -318,17 +318,17 @@ module IP2MessageReceiver
   attr_reader :lastargs
 
   # method VOID GetFilter
-  #   VARIANT _from [OUT]
-  #   VARIANT _type [OUT]
-  #   VARIANT _category [OUT]
-  def GetFilter(_from, _type, _category)
-    keep_lastargs _invoke(1, [_from, _type, _category], [VT_BYREF|VT_VARIANT, VT_BYREF|VT_VARIANT, VT_BYREF|VT_VARIANT])
+  #   VARIANT from [OUT]
+  #   VARIANT type [OUT]
+  #   VARIANT category [OUT]
+  def GetFilter(from, type, category)
+    keep_lastargs _invoke(1, [from, type, category], [VT_BYREF|VT_VARIANT, VT_BYREF|VT_VARIANT, VT_BYREF|VT_VARIANT])
   end
 
   # method VOID PutMessage
-  #   DISPATCH _pMsg [IN]
-  def PutMessage(_pMsg)
-    _invoke(2, [_pMsg], [VT_DISPATCH])
+  #   DISPATCH p_msg [IN]
+  def PutMessage(p_msg)
+    _invoke(2, [p_msg], [VT_DISPATCH])
   end
 end
 
@@ -338,10 +338,10 @@ module IP2ConnectionEvent
   attr_reader :lastargs
 
   # method VOID ConnectionStatusChanged
-  #   IP2Connection _conn [IN]
-  #   TConnectionStatus _newStatus [IN]
-  def ConnectionStatusChanged(_conn, _newStatus)
-    _invoke(1, [_conn, _newStatus], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  #   TConnectionStatus new_status [IN]
+  def ConnectionStatusChanged(conn, new_status)
+    _invoke(1, [conn, new_status], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
   end
 end
 
@@ -366,10 +366,10 @@ module IP2AsyncMessageEvents
   attr_reader :lastargs
 
   # method HRESULT DeliveryEvent
-  #   IP2BLMessage _reply [IN]
-  #   UI4 _errCode [IN]
-  def DeliveryEvent(_reply, _errCode)
-    _invoke(1, [_reply, _errCode], [VT_BYREF|VT_DISPATCH, VT_UI4])
+  #   IP2BLMessage reply [IN]
+  #   UI4 err_code [IN]
+  def DeliveryEvent(reply, err_code)
+    _invoke(1, [reply, err_code], [VT_BYREF|VT_DISPATCH, VT_UI4])
   end
 end
 
@@ -399,50 +399,50 @@ module IP2BLMessage
   end
 
   # property VOID DestAddr
-  def DestAddr=()
-    _setproperty(4, [], [VT_BSTR])
+  def DestAddr=(val)
+    _setproperty(4, [val], [VT_BSTR])
   end
 
   # property VARIANT Field
-  #   BSTR _Name [IN]
+  #   BSTR name [IN]
   def Field
     @_Field ||= OLEProperty.new(self, 5, [VT_BSTR], [VT_BSTR, VT_VARIANT])
   end
 
   # I8 FieldAsLONGLONG: property FieldAsULONGLONG
-  #   BSTR _Name [IN]
+  #   BSTR name [IN]
   def FieldAsLONGLONG
     @_FieldAsLONGLONG ||= OLEProperty.new(self, 10, [VT_BSTR], [VT_BSTR, VT_I8])
   end
 
   # method IP2BLMessage Send
-  #   IP2Connection _conn [IN]
-  #   UI4 _Timeout [IN]
-  def Send(_conn, _Timeout)
-    _invoke(6, [_conn, _Timeout], [VT_BYREF|VT_DISPATCH, VT_UI4])
+  #   IP2Connection conn [IN]
+  #   UI4 timeout [IN]
+  def Send(conn, timeout)
+    _invoke(6, [conn, timeout], [VT_BYREF|VT_DISPATCH, VT_UI4])
   end
 
   # method VOID Post
-  #   IP2Connection _conn [IN]
-  def Post(_conn)
-    _invoke(7, [_conn], [VT_BYREF|VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  def Post(conn)
+    _invoke(7, [conn], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID SendAsync
-  #   IP2Connection _conn [IN]
-  #   UI4 _Timeout [IN]
-  #   DISPATCH _event [IN]
-  def SendAsync(_conn, _Timeout, _event)
-    _invoke(8, [_conn, _Timeout, _event], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  #   UI4 timeout [IN]
+  #   DISPATCH event [IN]
+  def SendAsync(conn, timeout, event)
+    _invoke(8, [conn, timeout, event], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH])
   end
 
   # method VOID SendAsync2
-  #   IP2Connection _conn [IN]
-  #   UI4 _Timeout [IN]
-  #   DISPATCH _event [IN]
-  #   I8 _eventParam [IN]
-  def SendAsync2(_conn, _Timeout, _event, _eventParam)
-    _invoke(9, [_conn, _Timeout, _event, _eventParam], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH, VT_I8])
+  #   IP2Connection conn [IN]
+  #   UI4 timeout [IN]
+  #   DISPATCH event [IN]
+  #   I8 event_param [IN]
+  def SendAsync2(conn, timeout, event, event_param)
+    _invoke(9, [conn, timeout, event, event_param], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH, VT_I8])
   end
 end
 
@@ -452,11 +452,11 @@ module IP2AsyncSendEvent2
   attr_reader :lastargs
 
   # HRESULT SendAsync2Reply: method AsyncSendReply
-  #   IP2BLMessage _reply [IN]
-  #   UI4 _errCode [IN]
-  #   I8 _eventParam [IN]
-  def SendAsync2Reply(_reply, _errCode, _eventParam)
-    _invoke(1, [_reply, _errCode, _eventParam], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_I8])
+  #   IP2BLMessage reply [IN]
+  #   UI4 err_code [IN]
+  #   I8 event_param [IN]
+  def SendAsync2Reply(reply, err_code, event_param)
+    _invoke(1, [reply, err_code, event_param], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_I8])
   end
 end
 
@@ -510,50 +510,50 @@ class CP2BLMessage < P2Class # P2ClientGate_P2BLMessage_1
   end
 
   # property VOID DestAddr
-  def DestAddr=()
-    @ole._setproperty(4, [], [VT_BSTR])
+  def DestAddr=(val)
+    @ole._setproperty(4, [val], [VT_BSTR])
   end
 
   # property VARIANT Field
-  #   BSTR _Name [IN]
+  #   BSTR name [IN]
   def Field
     @_Field ||= OLEProperty.new(@ole, 5, [VT_BSTR], [VT_BSTR, VT_VARIANT])
   end
 
   # I8 FieldAsLONGLONG: property FieldAsULONGLONG
-  #   BSTR _Name [IN]
+  #   BSTR name [IN]
   def FieldAsLONGLONG
     @_FieldAsLONGLONG ||= OLEProperty.new(@ole, 10, [VT_BSTR], [VT_BSTR, VT_I8])
   end
 
   # method IP2BLMessage Send
-  #   IP2Connection _conn [IN]
-  #   UI4 _Timeout [IN]
-  def Send(_conn, _Timeout)
-    @ole._invoke(6, [_conn, _Timeout], [VT_BYREF|VT_DISPATCH, VT_UI4])
+  #   IP2Connection conn [IN]
+  #   UI4 timeout [IN]
+  def Send(conn, timeout)
+    @ole._invoke(6, [conn, timeout], [VT_BYREF|VT_DISPATCH, VT_UI4])
   end
 
   # method VOID Post
-  #   IP2Connection _conn [IN]
-  def Post(_conn)
-    @ole._invoke(7, [_conn], [VT_BYREF|VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  def Post(conn)
+    @ole._invoke(7, [conn], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID SendAsync
-  #   IP2Connection _conn [IN]
-  #   UI4 _Timeout [IN]
-  #   DISPATCH _event [IN]
-  def SendAsync(_conn, _Timeout, _event)
-    @ole._invoke(8, [_conn, _Timeout, _event], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  #   UI4 timeout [IN]
+  #   DISPATCH event [IN]
+  def SendAsync(conn, timeout, event)
+    @ole._invoke(8, [conn, timeout, event], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH])
   end
 
   # method VOID SendAsync2
-  #   IP2Connection _conn [IN]
-  #   UI4 _Timeout [IN]
-  #   DISPATCH _event [IN]
-  #   I8 _eventParam [IN]
-  def SendAsync2(_conn, _Timeout, _event, _eventParam)
-    @ole._invoke(9, [_conn, _Timeout, _event, _eventParam], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH, VT_I8])
+  #   IP2Connection conn [IN]
+  #   UI4 timeout [IN]
+  #   DISPATCH event [IN]
+  #   I8 event_param [IN]
+  def SendAsync2(conn, timeout, event, event_param)
+    @ole._invoke(9, [conn, timeout, event, event_param], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH, VT_I8])
   end
 end
 
@@ -587,22 +587,22 @@ class CP2BLMessageFactory < P2Class # P2ClientGate_P2BLMessageFactory_1
   end
 
   # method VOID Init
-  #   BSTR _structFile [IN]
-  #   BSTR _signFile [IN]
-  def Init(_structFile, _signFile)
-    @ole._invoke(1, [_structFile, _signFile], [VT_BSTR, VT_BSTR])
+  #   BSTR struct_file [IN]
+  #   BSTR sign_file [IN]
+  def Init(struct_file, sign_file)
+    @ole._invoke(1, [struct_file, sign_file], [VT_BSTR, VT_BSTR])
   end
 
   # method IP2BLMessage CreateMessageByName
-  #   BSTR _msgName [IN]
-  def CreateMessageByName(_msgName)
-    @ole._invoke(2, [_msgName], [VT_BSTR])
+  #   BSTR msg_name [IN]
+  def CreateMessageByName(msg_name)
+    @ole._invoke(2, [msg_name], [VT_BSTR])
   end
 
   # method IP2BLMessage CreateMessageById
-  #   UI4 _msgId [IN]
-  def CreateMessageById(_msgId)
-    @ole._invoke(3, [_msgId], [VT_UI4])
+  #   UI4 msg_id [IN]
+  def CreateMessageById(msg_id)
+    @ole._invoke(3, [msg_id], [VT_UI4])
   end
 end
 
@@ -612,22 +612,22 @@ module IP2BLMessageFactory
   attr_reader :lastargs
 
   # method VOID Init
-  #   BSTR _structFile [IN]
-  #   BSTR _signFile [IN]
-  def Init(_structFile, _signFile)
-    _invoke(1, [_structFile, _signFile], [VT_BSTR, VT_BSTR])
+  #   BSTR struct_file [IN]
+  #   BSTR sign_file [IN]
+  def Init(struct_file, sign_file)
+    _invoke(1, [struct_file, sign_file], [VT_BSTR, VT_BSTR])
   end
 
   # method IP2BLMessage CreateMessageByName
-  #   BSTR _msgName [IN]
-  def CreateMessageByName(_msgName)
-    _invoke(2, [_msgName], [VT_BSTR])
+  #   BSTR msg_name [IN]
+  def CreateMessageByName(msg_name)
+    _invoke(2, [msg_name], [VT_BSTR])
   end
 
   # method IP2BLMessage CreateMessageById
-  #   UI4 _msgId [IN]
-  def CreateMessageById(_msgId)
-    _invoke(3, [_msgId], [VT_UI4])
+  #   UI4 msg_id [IN]
+  def CreateMessageById(msg_id)
+    _invoke(3, [msg_id], [VT_UI4])
   end
 end
 
@@ -671,73 +671,73 @@ class CP2TableSet < P2Class # P2ClientGate_P2TableSet_1
   end
 
   # property VOID LifeNum
-  def LifeNum=()
-    @ole._setproperty(11, [], [VT_I4])
+  def LifeNum=(val)
+    @ole._setproperty(11, [val], [VT_I4])
   end
 
   # property BSTR FieldList
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def FieldList
     @_FieldList ||= OLEProperty.new(@ole, 4, [VT_BSTR], [VT_BSTR, VT_BSTR])
   end
 
   # I8 rev: property Rev
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def rev
     @_rev ||= OLEProperty.new(@ole, 5, [VT_BSTR], [VT_BSTR, VT_I8])
   end
 
   # property BSTR FieldTypes
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def FieldTypes
     @_FieldTypes ||= OLEProperty.new(@ole, 9, [VT_BSTR], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID InitFromIni
-  #   BSTR _structFile [IN]
-  #   BSTR _signFile [IN]
-  def InitFromIni(_structFile, _signFile)
-    @ole._invoke(1, [_structFile, _signFile], [VT_BSTR, VT_BSTR])
+  #   BSTR struct_file [IN]
+  #   BSTR sign_file [IN]
+  def InitFromIni(struct_file, sign_file)
+    @ole._invoke(1, [struct_file, sign_file], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID InitFromDB
-  #   BSTR _connectString [IN]
-  #   BSTR _signFile [IN]
-  def InitFromDB(_connectString, _signFile)
-    @ole._invoke(2, [_connectString, _signFile], [VT_BSTR, VT_BSTR])
+  #   BSTR connect_string [IN]
+  #   BSTR sign_file [IN]
+  def InitFromDB(connect_string, sign_file)
+    @ole._invoke(2, [connect_string, sign_file], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID AddTable
-  #   BSTR _tableName [IN]
-  #   BSTR _fieldlList [IN]
-  #   UI8 _rev [IN]
-  def AddTable(_tableName, _fieldlList, _rev)
-    @ole._invoke(3, [_tableName, _fieldlList, _rev], [VT_BSTR, VT_BSTR, VT_UI8])
+  #   BSTR table_name [IN]
+  #   BSTR fieldl_list [IN]
+  #   UI8 rev [IN]
+  def AddTable(table_name, fieldl_list, rev)
+    @ole._invoke(3, [table_name, fieldl_list, rev], [VT_BSTR, VT_BSTR, VT_UI8])
   end
 
   # method VOID DeleteTable
-  #   BSTR _tableName [IN]
-  def DeleteTable(_tableName)
-    @ole._invoke(6, [_tableName], [VT_BSTR])
+  #   BSTR table_name [IN]
+  def DeleteTable(table_name)
+    @ole._invoke(6, [table_name], [VT_BSTR])
   end
 
   # method VOID InitFromIni2
-  #   BSTR _iniFileName [IN]
-  #   BSTR _schemeName [IN]
-  def InitFromIni2(_iniFileName, _schemeName)
-    @ole._invoke(10, [_iniFileName, _schemeName], [VT_BSTR, VT_BSTR])
+  #   BSTR ini_file_name [IN]
+  #   BSTR scheme_name [IN]
+  def InitFromIni2(ini_file_name, scheme_name)
+    @ole._invoke(10, [ini_file_name, scheme_name], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID SetLifeNumToIni
-  #   BSTR _iniFileName [IN]
-  def SetLifeNumToIni(_iniFileName)
-    @ole._invoke(12, [_iniFileName], [VT_BSTR])
+  #   BSTR ini_file_name [IN]
+  def SetLifeNumToIni(ini_file_name)
+    @ole._invoke(12, [ini_file_name], [VT_BSTR])
   end
 
   # HRESULT GetScheme
-  #   OLE_HANDLE _pVal [OUT]
-  def GetScheme(_pVal)
-    keep_lastargs @ole._invoke(1610678272, [_pVal], [VT_BYREF|VT_BYREF|VT_DISPATCH])
+  #   OLE_HANDLE p_val [OUT]
+  def GetScheme(p_val)
+    keep_lastargs @ole._invoke(1610678272, [p_val], [VT_BYREF|VT_BYREF|VT_DISPATCH])
   end
 end
 
@@ -757,67 +757,67 @@ module IP2TableSet
   end
 
   # property VOID LifeNum
-  def LifeNum=()
-    _setproperty(11, [], [VT_I4])
+  def LifeNum=(val)
+    _setproperty(11, [val], [VT_I4])
   end
 
   # property BSTR FieldList
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def FieldList
     @_FieldList ||= OLEProperty.new(self, 4, [VT_BSTR], [VT_BSTR, VT_BSTR])
   end
 
   # I8 rev: property Rev
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def rev
     @_rev ||= OLEProperty.new(self, 5, [VT_BSTR], [VT_BSTR, VT_I8])
   end
 
   # property BSTR FieldTypes
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def FieldTypes
     @_FieldTypes ||= OLEProperty.new(self, 9, [VT_BSTR], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID InitFromIni
-  #   BSTR _structFile [IN]
-  #   BSTR _signFile [IN]
-  def InitFromIni(_structFile, _signFile)
-    _invoke(1, [_structFile, _signFile], [VT_BSTR, VT_BSTR])
+  #   BSTR struct_file [IN]
+  #   BSTR sign_file [IN]
+  def InitFromIni(struct_file, sign_file)
+    _invoke(1, [struct_file, sign_file], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID InitFromDB
-  #   BSTR _connectString [IN]
-  #   BSTR _signFile [IN]
-  def InitFromDB(_connectString, _signFile)
-    _invoke(2, [_connectString, _signFile], [VT_BSTR, VT_BSTR])
+  #   BSTR connect_string [IN]
+  #   BSTR sign_file [IN]
+  def InitFromDB(connect_string, sign_file)
+    _invoke(2, [connect_string, sign_file], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID AddTable
-  #   BSTR _tableName [IN]
-  #   BSTR _fieldlList [IN]
-  #   UI8 _rev [IN]
-  def AddTable(_tableName, _fieldlList, _rev)
-    _invoke(3, [_tableName, _fieldlList, _rev], [VT_BSTR, VT_BSTR, VT_UI8])
+  #   BSTR table_name [IN]
+  #   BSTR fieldl_list [IN]
+  #   UI8 rev [IN]
+  def AddTable(table_name, fieldl_list, rev)
+    _invoke(3, [table_name, fieldl_list, rev], [VT_BSTR, VT_BSTR, VT_UI8])
   end
 
   # method VOID DeleteTable
-  #   BSTR _tableName [IN]
-  def DeleteTable(_tableName)
-    _invoke(6, [_tableName], [VT_BSTR])
+  #   BSTR table_name [IN]
+  def DeleteTable(table_name)
+    _invoke(6, [table_name], [VT_BSTR])
   end
 
   # method VOID InitFromIni2
-  #   BSTR _iniFileName [IN]
-  #   BSTR _schemeName [IN]
-  def InitFromIni2(_iniFileName, _schemeName)
-    _invoke(10, [_iniFileName, _schemeName], [VT_BSTR, VT_BSTR])
+  #   BSTR ini_file_name [IN]
+  #   BSTR scheme_name [IN]
+  def InitFromIni2(ini_file_name, scheme_name)
+    _invoke(10, [ini_file_name, scheme_name], [VT_BSTR, VT_BSTR])
   end
 
   # method VOID SetLifeNumToIni
-  #   BSTR _iniFileName [IN]
-  def SetLifeNumToIni(_iniFileName)
-    _invoke(12, [_iniFileName], [VT_BSTR])
+  #   BSTR ini_file_name [IN]
+  def SetLifeNumToIni(ini_file_name)
+    _invoke(12, [ini_file_name], [VT_BSTR])
   end
 end
 
@@ -832,57 +832,57 @@ module CP2Record
   end
 
   # method BSTR GetValAsString
-  #   BSTR _fieldName [IN]
-  def GetValAsString(_fieldName)
-    _invoke(2, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsString(field_name)
+    _invoke(2, [field_name], [VT_BSTR])
   end
 
   # method BSTR GetValAsStringByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsStringByIndex(_fieldIndex)
-    _invoke(3, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsStringByIndex(field_index)
+    _invoke(3, [field_index], [VT_UI4])
   end
 
   # method I4 GetValAsLong
-  #   BSTR _fieldName [IN]
-  def GetValAsLong(_fieldName)
-    _invoke(4, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsLong(field_name)
+    _invoke(4, [field_name], [VT_BSTR])
   end
 
   # method I4 GetValAsLongByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsLongByIndex(_fieldIndex)
-    _invoke(5, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsLongByIndex(field_index)
+    _invoke(5, [field_index], [VT_UI4])
   end
 
   # method I2 GetValAsShort
-  #   BSTR _fieldName [IN]
-  def GetValAsShort(_fieldName)
-    _invoke(6, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsShort(field_name)
+    _invoke(6, [field_name], [VT_BSTR])
   end
 
   # method I2 GetValAsShortByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsShortByIndex(_fieldIndex)
-    _invoke(7, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsShortByIndex(field_index)
+    _invoke(7, [field_index], [VT_UI4])
   end
 
   # method VARIANT GetValAsVariant
-  #   BSTR _fieldName [IN]
-  def GetValAsVariant(_fieldName)
-    _invoke(8, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsVariant(field_name)
+    _invoke(8, [field_name], [VT_BSTR])
   end
 
   # method VARIANT GetValAsVariantByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsVariantByIndex(_fieldIndex)
-    _invoke(9, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsVariantByIndex(field_index)
+    _invoke(9, [field_index], [VT_UI4])
   end
 
   # HRESULT GetRec
-  #   OLE_HANDLE _pVal [OUT]
-  def GetRec(_pVal)
-    keep_lastargs _invoke(1610678272, [_pVal], [VT_BYREF|VT_BYREF|VT_DISPATCH])
+  #   OLE_HANDLE p_val [OUT]
+  def GetRec(p_val)
+    keep_lastargs _invoke(1610678272, [p_val], [VT_BYREF|VT_BYREF|VT_DISPATCH])
   end
 end
 
@@ -897,51 +897,51 @@ module IP2Record
   end
 
   # method BSTR GetValAsString
-  #   BSTR _fieldName [IN]
-  def GetValAsString(_fieldName)
-    _invoke(2, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsString(field_name)
+    _invoke(2, [field_name], [VT_BSTR])
   end
 
   # method BSTR GetValAsStringByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsStringByIndex(_fieldIndex)
-    _invoke(3, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsStringByIndex(field_index)
+    _invoke(3, [field_index], [VT_UI4])
   end
 
   # method I4 GetValAsLong
-  #   BSTR _fieldName [IN]
-  def GetValAsLong(_fieldName)
-    _invoke(4, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsLong(field_name)
+    _invoke(4, [field_name], [VT_BSTR])
   end
 
   # method I4 GetValAsLongByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsLongByIndex(_fieldIndex)
-    _invoke(5, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsLongByIndex(field_index)
+    _invoke(5, [field_index], [VT_UI4])
   end
 
   # method I2 GetValAsShort
-  #   BSTR _fieldName [IN]
-  def GetValAsShort(_fieldName)
-    _invoke(6, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsShort(field_name)
+    _invoke(6, [field_name], [VT_BSTR])
   end
 
   # method I2 GetValAsShortByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsShortByIndex(_fieldIndex)
-    _invoke(7, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsShortByIndex(field_index)
+    _invoke(7, [field_index], [VT_UI4])
   end
 
   # method VARIANT GetValAsVariant
-  #   BSTR _fieldName [IN]
-  def GetValAsVariant(_fieldName)
-    _invoke(8, [_fieldName], [VT_BSTR])
+  #   BSTR field_name [IN]
+  def GetValAsVariant(field_name)
+    _invoke(8, [field_name], [VT_BSTR])
   end
 
   # method VARIANT GetValAsVariantByIndex
-  #   UI4 _fieldIndex [IN]
-  def GetValAsVariantByIndex(_fieldIndex)
-    _invoke(9, [_fieldIndex], [VT_UI4])
+  #   UI4 field_index [IN]
+  def GetValAsVariantByIndex(field_index)
+    _invoke(9, [field_index], [VT_UI4])
   end
 end
 
@@ -1000,29 +1000,29 @@ class CP2DataStream < P2Class # P2ClientGate_P2DataStream_1
   end
 
   # property VOID TableSet
-  def TableSet=()
-    @ole._setproperty(1, [], [VT_BYREF|VT_DISPATCH])
+  def TableSet=(val)
+    @ole._setproperty(1, [val], [VT_BYREF|VT_DISPATCH])
   end
 
   # property VOID StreamName
-  def StreamName=()
-    @ole._setproperty(2, [], [VT_BSTR])
+  def StreamName=(val)
+    @ole._setproperty(2, [val], [VT_BSTR])
   end
 
   # property VOID DBConnString
-  def DBConnString=()
-    @ole._setproperty(3, [], [VT_BSTR])
+  def DBConnString=(val)
+    @ole._setproperty(3, [val], [VT_BSTR])
   end
 
   # VOID type: property Type
-  def type=()
-    @ole._setproperty(4, [], [VT_DISPATCH])
+  def type=(val)
+    @ole._setproperty(4, [val], [VT_DISPATCH])
   end
 
   # method VOID Open
-  #   IP2Connection _conn [IN]
-  def Open(_conn)
-    @ole._invoke(6, [_conn], [VT_BYREF|VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  def Open(conn)
+    @ole._invoke(6, [conn], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID Close
@@ -1031,81 +1031,81 @@ class CP2DataStream < P2Class # P2ClientGate_P2DataStream_1
   end
 
   # HRESULT GetScheme
-  #   OLE_HANDLE _pVal [OUT]
-  def GetScheme(_pVal)
-    keep_lastargs @ole._invoke(1610678272, [_pVal], [VT_BYREF|VT_BYREF|VT_DISPATCH])
+  #   OLE_HANDLE p_val [OUT]
+  def GetScheme(p_val)
+    keep_lastargs @ole._invoke(1610678272, [p_val], [VT_BYREF|VT_BYREF|VT_DISPATCH])
   end
 
   # HRESULT LinkDataBuffer
-  #   IP2DataStreamEvents _dataBuff [IN]
-  def LinkDataBuffer(_dataBuff)
-    @ole._invoke(1610678273, [_dataBuff], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStreamEvents data_buff [IN]
+  def LinkDataBuffer(data_buff)
+    @ole._invoke(1610678273, [data_buff], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamStateChanged - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  #   TDataStreamState _newState [IN]
-  def StreamStateChanged(_stream, _newState)
-    @ole._invoke(1, [_stream, _newState], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   TDataStreamState new_state [IN]
+  def StreamStateChanged(stream, new_state)
+    @ole._invoke(1, [stream, new_state], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
   end
 
   # method VOID StreamDataInserted - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataInserted(_stream, _tableName, _rec)
-    @ole._invoke(2, [_stream, _tableName, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   IP2Record rec [IN]
+  def StreamDataInserted(stream, table_name, rec)
+    @ole._invoke(2, [stream, table_name, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataUpdated - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataUpdated(_stream, _tableName, _Id, _rec)
-    @ole._invoke(3, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataUpdated(stream, table_name, id, rec)
+    @ole._invoke(3, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataDeleted - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataDeleted(_stream, _tableName, _Id, _rec)
-    @ole._invoke(4, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataDeleted(stream, table_name, id, rec)
+    @ole._invoke(4, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDatumDeleted - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _rev [IN]
-  def StreamDatumDeleted(_stream, _tableName, _rev)
-    @ole._invoke(5, [_stream, _tableName, _rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 rev [IN]
+  def StreamDatumDeleted(stream, table_name, rev)
+    @ole._invoke(5, [stream, table_name, rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
   end
 
   # method VOID StreamDBWillBeDeleted - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  def StreamDBWillBeDeleted(_stream)
-    @ole._invoke(6, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDBWillBeDeleted(stream)
+    @ole._invoke(6, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamLifeNumChanged - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  #   I4 _LifeNum [IN]
-  def StreamLifeNumChanged(_stream, _LifeNum)
-    @ole._invoke(7, [_stream, _LifeNum], [VT_BYREF|VT_DISPATCH, VT_I4])
+  #   IP2DataStream stream [IN]
+  #   I4 life_num [IN]
+  def StreamLifeNumChanged(stream, life_num)
+    @ole._invoke(7, [stream, life_num], [VT_BYREF|VT_DISPATCH, VT_I4])
   end
 
   # method VOID StreamDataBegin - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  def StreamDataBegin(_stream)
-    @ole._invoke(8, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataBegin(stream)
+    @ole._invoke(8, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataEnd - EVENT in IP2DataStreamEvents
-  #   IP2DataStream _stream [IN]
-  def StreamDataEnd(_stream)
-    @ole._invoke(9, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataEnd(stream)
+    @ole._invoke(9, [stream], [VT_BYREF|VT_DISPATCH])
   end
 end
 
@@ -1140,29 +1140,29 @@ module IP2DataStream
   end
 
   # property VOID TableSet
-  def TableSet=()
-    _setproperty(1, [], [VT_BYREF|VT_DISPATCH])
+  def TableSet=(val)
+    _setproperty(1, [val], [VT_BYREF|VT_DISPATCH])
   end
 
   # property VOID StreamName
-  def StreamName=()
-    _setproperty(2, [], [VT_BSTR])
+  def StreamName=(val)
+    _setproperty(2, [val], [VT_BSTR])
   end
 
   # property VOID DBConnString
-  def DBConnString=()
-    _setproperty(3, [], [VT_BSTR])
+  def DBConnString=(val)
+    _setproperty(3, [val], [VT_BSTR])
   end
 
   # VOID type: property Type
-  def type=()
-    _setproperty(4, [], [VT_DISPATCH])
+  def type=(val)
+    _setproperty(4, [val], [VT_DISPATCH])
   end
 
   # method VOID Open
-  #   IP2Connection _conn [IN]
-  def Open(_conn)
-    _invoke(6, [_conn], [VT_BYREF|VT_DISPATCH])
+  #   IP2Connection conn [IN]
+  def Open(conn)
+    _invoke(6, [conn], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID Close
@@ -1202,69 +1202,69 @@ module IP2DataStreamEvents
   attr_reader :lastargs
 
   # method VOID StreamStateChanged
-  #   IP2DataStream _stream [IN]
-  #   TDataStreamState _newState [IN]
-  def StreamStateChanged(_stream, _newState)
-    _invoke(1, [_stream, _newState], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   TDataStreamState new_state [IN]
+  def StreamStateChanged(stream, new_state)
+    _invoke(1, [stream, new_state], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
   end
 
   # method VOID StreamDataInserted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataInserted(_stream, _tableName, _rec)
-    _invoke(2, [_stream, _tableName, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   IP2Record rec [IN]
+  def StreamDataInserted(stream, table_name, rec)
+    _invoke(2, [stream, table_name, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataUpdated
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataUpdated(_stream, _tableName, _Id, _rec)
-    _invoke(3, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataUpdated(stream, table_name, id, rec)
+    _invoke(3, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataDeleted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataDeleted(_stream, _tableName, _Id, _rec)
-    _invoke(4, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataDeleted(stream, table_name, id, rec)
+    _invoke(4, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDatumDeleted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _rev [IN]
-  def StreamDatumDeleted(_stream, _tableName, _rev)
-    _invoke(5, [_stream, _tableName, _rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 rev [IN]
+  def StreamDatumDeleted(stream, table_name, rev)
+    _invoke(5, [stream, table_name, rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
   end
 
   # method VOID StreamDBWillBeDeleted
-  #   IP2DataStream _stream [IN]
-  def StreamDBWillBeDeleted(_stream)
-    _invoke(6, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDBWillBeDeleted(stream)
+    _invoke(6, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamLifeNumChanged
-  #   IP2DataStream _stream [IN]
-  #   I4 _LifeNum [IN]
-  def StreamLifeNumChanged(_stream, _LifeNum)
-    _invoke(7, [_stream, _LifeNum], [VT_BYREF|VT_DISPATCH, VT_I4])
+  #   IP2DataStream stream [IN]
+  #   I4 life_num [IN]
+  def StreamLifeNumChanged(stream, life_num)
+    _invoke(7, [stream, life_num], [VT_BYREF|VT_DISPATCH, VT_I4])
   end
 
   # method VOID StreamDataBegin
-  #   IP2DataStream _stream [IN]
-  def StreamDataBegin(_stream)
-    _invoke(8, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataBegin(stream)
+    _invoke(8, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataEnd
-  #   IP2DataStream _stream [IN]
-  def StreamDataEnd(_stream)
-    _invoke(9, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataEnd(stream)
+    _invoke(9, [stream], [VT_BYREF|VT_DISPATCH])
   end
 end
 
@@ -1298,15 +1298,15 @@ class CP2DataBuffer < P2Class # P2ClientGate_P2DataBuffer_1
   end
 
   # PTR TableRecords: property Records
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def TableRecords
     @_TableRecords ||= OLEProperty.new(@ole, 4, [VT_BSTR], [VT_BSTR, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID AttachToStream
-  #   IP2DataStream _stream [IN]
-  def AttachToStream(_stream)
-    @ole._invoke(1, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def AttachToStream(stream)
+    @ole._invoke(1, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID DetachFromStream
@@ -1320,15 +1320,15 @@ class CP2DataBuffer < P2Class # P2ClientGate_P2DataBuffer_1
   end
 
   # method I4 Count
-  #   BSTR _tableName [IN]
-  def Count(_tableName)
-    @ole._invoke(5, [_tableName], [VT_BSTR])
+  #   BSTR table_name [IN]
+  def Count(table_name)
+    @ole._invoke(5, [table_name], [VT_BSTR])
   end
 
   # method VOID Clear
-  #   BSTR _tableName [IN]
-  def Clear(_tableName)
-    @ole._invoke(6, [_tableName], [VT_BSTR])
+  #   BSTR table_name [IN]
+  def Clear(table_name)
+    @ole._invoke(6, [table_name], [VT_BSTR])
   end
 
   # VOID ClearAll: method Clear
@@ -1337,69 +1337,69 @@ class CP2DataBuffer < P2Class # P2ClientGate_P2DataBuffer_1
   end
 
   # method VOID StreamStateChanged
-  #   IP2DataStream _stream [IN]
-  #   TDataStreamState _newState [IN]
-  def StreamStateChanged(_stream, _newState)
-    @ole._invoke(1, [_stream, _newState], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   TDataStreamState new_state [IN]
+  def StreamStateChanged(stream, new_state)
+    @ole._invoke(1, [stream, new_state], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
   end
 
   # method VOID StreamDataInserted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataInserted(_stream, _tableName, _rec)
-    @ole._invoke(2, [_stream, _tableName, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   IP2Record rec [IN]
+  def StreamDataInserted(stream, table_name, rec)
+    @ole._invoke(2, [stream, table_name, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataUpdated
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataUpdated(_stream, _tableName, _Id, _rec)
-    @ole._invoke(3, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataUpdated(stream, table_name, id, rec)
+    @ole._invoke(3, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataDeleted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataDeleted(_stream, _tableName, _Id, _rec)
-    @ole._invoke(4, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataDeleted(stream, table_name, id, rec)
+    @ole._invoke(4, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDatumDeleted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _rev [IN]
-  def StreamDatumDeleted(_stream, _tableName, _rev)
-    @ole._invoke(5, [_stream, _tableName, _rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 rev [IN]
+  def StreamDatumDeleted(stream, table_name, rev)
+    @ole._invoke(5, [stream, table_name, rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
   end
 
   # method VOID StreamDBWillBeDeleted
-  #   IP2DataStream _stream [IN]
-  def StreamDBWillBeDeleted(_stream)
-    @ole._invoke(6, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDBWillBeDeleted(stream)
+    @ole._invoke(6, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamLifeNumChanged
-  #   IP2DataStream _stream [IN]
-  #   I4 _LifeNum [IN]
-  def StreamLifeNumChanged(_stream, _LifeNum)
-    @ole._invoke(7, [_stream, _LifeNum], [VT_BYREF|VT_DISPATCH, VT_I4])
+  #   IP2DataStream stream [IN]
+  #   I4 life_num [IN]
+  def StreamLifeNumChanged(stream, life_num)
+    @ole._invoke(7, [stream, life_num], [VT_BYREF|VT_DISPATCH, VT_I4])
   end
 
   # method VOID StreamDataBegin
-  #   IP2DataStream _stream [IN]
-  def StreamDataBegin(_stream)
-    @ole._invoke(8, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataBegin(stream)
+    @ole._invoke(8, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataEnd
-  #   IP2DataStream _stream [IN]
-  def StreamDataEnd(_stream)
-    @ole._invoke(9, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataEnd(stream)
+    @ole._invoke(9, [stream], [VT_BYREF|VT_DISPATCH])
   end
 end
 
@@ -1409,15 +1409,15 @@ module IP2DataBuffer
   attr_reader :lastargs
 
   # PTR TableRecords: property Records
-  #   BSTR _tableName [IN]
+  #   BSTR table_name [IN]
   def TableRecords
     @_TableRecords ||= OLEProperty.new(self, 4, [VT_BSTR], [VT_BSTR, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID AttachToStream
-  #   IP2DataStream _stream [IN]
-  def AttachToStream(_stream)
-    _invoke(1, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def AttachToStream(stream)
+    _invoke(1, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID DetachFromStream
@@ -1431,15 +1431,15 @@ module IP2DataBuffer
   end
 
   # method I4 Count
-  #   BSTR _tableName [IN]
-  def Count(_tableName)
-    _invoke(5, [_tableName], [VT_BSTR])
+  #   BSTR table_name [IN]
+  def Count(table_name)
+    _invoke(5, [table_name], [VT_BSTR])
   end
 
   # method VOID Clear
-  #   BSTR _tableName [IN]
-  def Clear(_tableName)
-    _invoke(6, [_tableName], [VT_BSTR])
+  #   BSTR table_name [IN]
+  def Clear(table_name)
+    _invoke(6, [table_name], [VT_BSTR])
   end
 
   # VOID ClearAll: method Clear
@@ -1489,14 +1489,14 @@ class CP2Application < P2Class # P2ClientGate_P2Application_1
   end
 
   # property VOID ParserType
-  def ParserType=()
-    @ole._setproperty(3, [], [VT_UI4])
+  def ParserType=(val)
+    @ole._setproperty(3, [val], [VT_UI4])
   end
 
   # method VOID StartUp
-  #   BSTR _iniFileName [IN]
-  def StartUp(_iniFileName)
-    @ole._invoke(1, [_iniFileName], [VT_BSTR])
+  #   BSTR ini_file_name [IN]
+  def StartUp(ini_file_name)
+    @ole._invoke(1, [ini_file_name], [VT_BSTR])
   end
 
   # method VOID CleanUp
@@ -1546,14 +1546,14 @@ module IP2Application
   end
 
   # property VOID ParserType
-  def ParserType=()
-    _setproperty(3, [], [VT_UI4])
+  def ParserType=(val)
+    _setproperty(3, [val], [VT_UI4])
   end
 
   # method VOID StartUp
-  #   BSTR _iniFileName [IN]
-  def StartUp(_iniFileName)
-    _invoke(1, [_iniFileName], [VT_BSTR])
+  #   BSTR ini_file_name [IN]
+  def StartUp(ini_file_name)
+    _invoke(1, [ini_file_name], [VT_BSTR])
   end
 
   # method VOID CleanUp
@@ -1610,68 +1610,68 @@ module OLE__Impl_IP2DataStreamEvents
   attr_reader :lastargs
 
   # method VOID StreamStateChanged
-  #   IP2DataStream _stream [IN]
-  #   TDataStreamState _newState [IN]
-  def StreamStateChanged(_stream, _newState)
-    _invoke(1, [_stream, _newState], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   TDataStreamState new_state [IN]
+  def StreamStateChanged(stream, new_state)
+    _invoke(1, [stream, new_state], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
   end
 
   # method VOID StreamDataInserted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataInserted(_stream, _tableName, _rec)
-    _invoke(2, [_stream, _tableName, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   IP2Record rec [IN]
+  def StreamDataInserted(stream, table_name, rec)
+    _invoke(2, [stream, table_name, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataUpdated
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataUpdated(_stream, _tableName, _Id, _rec)
-    _invoke(3, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataUpdated(stream, table_name, id, rec)
+    _invoke(3, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataDeleted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _Id [IN]
-  #   IP2Record _rec [IN]
-  def StreamDataDeleted(_stream, _tableName, _Id, _rec)
-    _invoke(4, [_stream, _tableName, _Id, _rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 id [IN]
+  #   IP2Record rec [IN]
+  def StreamDataDeleted(stream, table_name, id, rec)
+    _invoke(4, [stream, table_name, id, rec], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8, VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDatumDeleted
-  #   IP2DataStream _stream [IN]
-  #   BSTR _tableName [IN]
-  #   I8 _rev [IN]
-  def StreamDatumDeleted(_stream, _tableName, _rev)
-    _invoke(5, [_stream, _tableName, _rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
+  #   IP2DataStream stream [IN]
+  #   BSTR table_name [IN]
+  #   I8 rev [IN]
+  def StreamDatumDeleted(stream, table_name, rev)
+    _invoke(5, [stream, table_name, rev], [VT_BYREF|VT_DISPATCH, VT_BSTR, VT_I8])
   end
 
   # method VOID StreamDBWillBeDeleted
-  #   IP2DataStream _stream [IN]
-  def StreamDBWillBeDeleted(_stream)
-    _invoke(6, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDBWillBeDeleted(stream)
+    _invoke(6, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamLifeNumChanged
-  #   IP2DataStream _stream [IN]
-  #   I4 _LifeNum [IN]
-  def StreamLifeNumChanged(_stream, _LifeNum)
-    _invoke(7, [_stream, _LifeNum], [VT_BYREF|VT_DISPATCH, VT_I4])
+  #   IP2DataStream stream [IN]
+  #   I4 life_num [IN]
+  def StreamLifeNumChanged(stream, life_num)
+    _invoke(7, [stream, life_num], [VT_BYREF|VT_DISPATCH, VT_I4])
   end
 
   # method VOID StreamDataBegin
-  #   IP2DataStream _stream [IN]
-  def StreamDataBegin(_stream)
-    _invoke(8, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataBegin(stream)
+    _invoke(8, [stream], [VT_BYREF|VT_DISPATCH])
   end
 
   # method VOID StreamDataEnd
-  #   IP2DataStream _stream [IN]
-  def StreamDataEnd(_stream)
-    _invoke(9, [_stream], [VT_BYREF|VT_DISPATCH])
+  #   IP2DataStream stream [IN]
+  def StreamDataEnd(stream)
+    _invoke(9, [stream], [VT_BYREF|VT_DISPATCH])
   end
 end

@@ -14,6 +14,8 @@ describe P2Ruby::Message do
     show_ole
   end
 
+  its(:clsid) { should == '{A9A6C936-5A12-4518-9A92-90D75B41AF18}' }
+  its(:progid) { should == 'P2ClientGate.P2BLMessage.1' }
   its(:opts) { should have_key :name }
   its(:ole) { should be_a WIN32OLE }
 

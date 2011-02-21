@@ -54,15 +54,16 @@ class WIN32COMGen
     if method.size_opt_params >= 0
       method.size_opt_params.times do |i|
         if method.params[i]
-          param = method.params[i].name || "arg#{i}" + "=nil"
+          param = method.params[i].name.snake_case || "arg#{i}" + "=nil"
         else
           param = "arg#{i + size_required_params}=nil"
         end
-        args.push "_" + param
+        args.push param
       end
     else
       args.push "*args"
     end
+    args.push "val" if method.invoke_kind == 'PROPERTYPUT'
     args.join(", ")
   end
 
@@ -136,7 +137,7 @@ class WIN32COMGen
   def generate_method_args_help(method)
     args = []
     method.params.each_with_index { |param, i|
-      h = "  #   #{param.ole_type} _#{param.name}"
+      h = "  #   #{param.ole_type} #{param.name.snake_case}"
       inout = []
       inout.push "IN" if param.input?
       inout.push "OUT" if param.output?

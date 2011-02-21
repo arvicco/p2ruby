@@ -16,6 +16,8 @@ module P2Ruby
   #  Делать это необходимо до начала работы с другими объектами библиотеки.
   #
   class Application < P2Class
+    CLSID = '{08A95064-05C2-4EF4-8B5D-D6211C2C9880}'
+    PROGID = 'P2ClientGate.P2Application.1'
 
     attr_accessor :ini
 
@@ -50,6 +52,59 @@ module P2Ruby
         error "Attempt to obtain #{@instance} for different ini: #{ini}"
       end
       @instance ||= new ini
+    end
+
+    # Auto-generated OLE methods:
+
+    # property UI4 ParserType
+    def ParserType()
+      @ole._getproperty(3, [], [])
+    end
+
+    # property VOID ParserType
+    def ParserType=(val)
+      @ole._setproperty(3, [val], [VT_UI4])
+    end
+
+    # method VOID StartUp
+    #   BSTR ini_file_name [IN]
+    def StartUp(ini_file_name)
+      @ole._invoke(1, [ini_file_name], [VT_BSTR])
+    end
+
+    # method VOID CleanUp
+    def CleanUp()
+      @ole._invoke(2, [], [])
+    end
+
+    # method IP2Connection CreateP2Connection
+    def CreateP2Connection()
+      @ole._invoke(4, [], [])
+    end
+
+    # method IP2BLMessage CreateP2BLMessage
+    def CreateP2BLMessage()
+      @ole._invoke(5, [], [])
+    end
+
+    # method IP2BLMessageFactory CreateP2BLMessageFactory
+    def CreateP2BLMessageFactory()
+      @ole._invoke(6, [], [])
+    end
+
+    # method IP2DataBuffer CreateP2DataBuffer
+    def CreateP2DataBuffer()
+      @ole._invoke(7, [], [])
+    end
+
+    # method IP2DataStream CreateP2DataStream
+    def CreateP2DataStream()
+      @ole._invoke(8, [], [])
+    end
+
+    # method IP2TableSet CreateP2TableSet
+    def CreateP2TableSet()
+      @ole._invoke(9, [], [])
     end
 
   end

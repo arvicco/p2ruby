@@ -9,6 +9,8 @@ describe P2Ruby::Application, "singleton app object" do
     show_ole
   end
 
+  its(:clsid) { should == '{08A95064-05C2-4EF4-8B5D-D6211C2C9880}' }
+  its(:progid) { should == 'P2ClientGate.P2Application.1' }
   its(:opts) { should have_key :ini }
   its(:ini) { should == CLIENT_INI }
   its(:ole) { should be_a WIN32OLE }

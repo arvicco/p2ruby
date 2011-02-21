@@ -7,6 +7,8 @@ module P2Ruby
   # указать пользовательский ini-файл, содержащий такие схемы.
   #
   class MessageFactory < P2Class
+    CLSID = '{501786DA-CA02-45C1-B815-1C58C383265D}'
+    PROGID = 'P2ClientGate.P2BLMessageFactory.1'
 
     def initialize opts = {}
       # First we need to obtain Application instance... Yes, it IS freaking weird.
@@ -21,7 +23,29 @@ module P2Ruby
     end
 
     def message opts
-      P2Ruby::Message.new opts.merge( :ole => CreateMessageByName(opts[:name]))
+      P2Ruby::Message.new opts.merge(:ole => CreateMessageByName(opts[:name]))
     end
+
+    # Auto-generated OLE methods:
+
+    # method VOID Init
+    #   BSTR struct_file [IN]
+    #   BSTR sign_file [IN]
+    def Init(struct_file, sign_file)
+      @ole._invoke(1, [struct_file, sign_file], [VT_BSTR, VT_BSTR])
+    end
+
+    # method IP2BLMessage CreateMessageByName
+    #   BSTR msg_name [IN]
+    def CreateMessageByName(msg_name)
+      @ole._invoke(2, [msg_name], [VT_BSTR])
+    end
+
+    # method IP2BLMessage CreateMessageById
+    #   UI4 msg_id [IN]
+    def CreateMessageById(msg_id)
+      @ole._invoke(3, [msg_id], [VT_UI4])
+    end
+
   end
 end # module P2Ruby

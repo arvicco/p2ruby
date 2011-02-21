@@ -6,10 +6,12 @@ end
 
 shared_examples_for 'new connection' do
 
+  its(:clsid) { should == '{CCD42082-33E0-49EA-AED3-9FE39978EB56}' }
+  its(:progid) { should == 'P2ClientGate.P2Connection.1' }
   its(:opts) { should be_a Hash }
   its(:ole) { should be_a WIN32OLE }
   its(:Status) { should == P2::CS_CONNECTION_DISCONNECTED }
-  its(:status_text) { should == "Connection Disconnected" }
+  its(:status_text) { should == 'Connection Disconnected' }
 
   it 'raises on NodeName access' do
     expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
@@ -26,7 +28,7 @@ describe P2Ruby::Connection do
     start_router
     P2Ruby::Application.reset CLIENT_INI
   end
-  after(:all){stop_router}
+  after(:all) { stop_router }
 
   describe '.new' do
     context 'with options' do
