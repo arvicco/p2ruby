@@ -5,72 +5,29 @@ module P2Ruby
   # Основной интерфейс объекта, который используется приложением для создания и работы
   # с соединениями, а также приема и обработки сообщений.
   #
+  # Notes: Свойства AppName, NodeName, Host, Port, Password и Timeout должны быть заданы до
+  # момента вызова метода Connect. В случае изменения данных свойств для того, чтобы
+  # изменения вступили в силу необходимо провести последовательный вызов методов
+  # Disconnect и Connect. Параметры аутентификации роутера (LoginStr) должны быть
+  # заданы до момента вызова метода Login.
+  #
   class Connection < P2Class
     CLSID = '{CCD42082-33E0-49EA-AED3-9FE39978EB56}'
     PROGID = 'P2ClientGate.P2Connection.1'
-    #    •	AppName [in/out] BSTR — имя приложения, для которого необходимо установить соединение.
-    #       Имя приложения должно быть уникальным в рамках одного роутера.
-    #    •	NodeName [out] BSTR — имя роутера.
-    #    •	Host [in/out] BSTR — IP-адрес узла либо UNC-имя.
-    #    •	Port [in/out] ULONG — номер порта TCP/IP.
-    #    •	Password [in] BSTR — пароль для локального соединения.
-    #    •	Timeout [in/out] ULONG — таймаут, в течение которого ожидается установка локального соединения.
-    #    •	LoginStr [in/out] BSTR — строка с аутентификационной информацией роутера (логии/пароль).
-    #       Формат строки: USERNAME=;PASSWORD=. Например, USERNAME=3@ivanov;PASSWORD=qwerty.
-    #
-    #    Свойства AppName, NodeName, Host, Port, Password и Timeout должны быть заданы до
-    #    момента вызова метода Connect. В случае изменения данных свойств для того, чтобы
-    #    изменения вступили в силу необходимо провести последовательный вызов методов Disconnect и Connect.
-    #    Параметры аутентификации роутера (LoginStr) должны быть заданы до момента вызова метода Login.
-    #
+
     def initialize opts = {}
 
-      # First we need to obtain Application singleton (for a given ini file)... Yes, it IS weird.
+      # First we need to obtain Application singleton (for a given ini file)...
+      # Yes, it IS weird - ini file used by Connection is manipulated in Application.
       @app = P2Ruby::Application.instance opts[:ini]
 
-      # app_name, node_name, host, port, password, timeout, login_str, lib = Library.default
       super opts
-
-      # This is class var, not constant... since P2 constants are only loaded by Application instance...
-      @@status_messages ||= {P2::CS_CONNECTION_DISCONNECTED => 'Connection Disconnected',
-                             #  •	0x00000001 — соединение с роутером еще не установлено.
-                             P2::CS_CONNECTION_CONNECTED => 'Connection Connected',
-                             #  •	0x00000002 — соединение с роутером установлено.
-                             P2::CS_CONNECTION_INVALID => 'Connection Invalid',
-                             #  •	0x00000004 - нарушен протокол работы соединения, дальнейшая
-                             #    работа возможна только после повторной установки соединения.
-                             P2::CS_CONNECTION_BUSY => 'Connection Busy',
-                             #  •	0x00000008 — соединение временно заблокировано функцией получения сообщения.
-                             P2::CS_ROUTER_DISCONNECTED => 'Router Disconnected',
-                             #  •	0x00010000  — роутер запущен, но не присоединен к сети.
-                             #    Роутер не создает удаленных исходящих соединений, имени
-                             #    не имеет, принимает только локальные соединения, при этом
-                             #    локальные приложения могут взаимодействовать между собой через роутер.
-                             P2::CS_ROUTER_RECONNECTING => 'Router Reconnecting',
-                             #  •	0x00020000 — роутер получил аутентификационную информацию
-                             #    (имя и пароль), пытается установить исходящее соединение,
-                             #    но ни одно исходящее соединение еще не установлено.
-                             P2::CS_ROUTER_CONNECTED => 'Router Connected',
-                             #  •	0x00040000 — роутер установил по крайней мере одно исходящее
-                             #    соединение, аутентификационная информация подтверждена.
-                             P2::CS_ROUTER_LOGINFAILED => 'Router Login Failed',
-                             #  •	0x00080000 — по крайней мере один из сервисов отклонил
-                             #    аутентификационную информацию. В этом случае аутентификационная
-                             #    информация становится недействительной. Для продолжения работы
-                             #    необходимо провести последовательный вызов методов Logout и Login.
-                             P2::CS_ROUTER_NOCONNECT => 'Router No Connect'
-                             #  •	0x00100000 — за заданное количество попыток роутер не смог
-                             #    установить ни одного исходящего соединения, но аутентификационная
-                             #    информация подтверждена. Роутер больше не будет пытаться
-                             #    установить исходящие соединения. Для продолжения работы
-                             #    необходимо провести последовательный вызов методов Logout и Login.
-      }
     end
 
     #  Connection and Router status in text format
     #
     def status_text
-      @@status_messages.map { |k, v| (k & @ole.status).zero? ? nil : v }.compact.join(', ')
+      P2::CS_MESSAGES.map { |k, v| (k & @ole.status).zero? ? nil : v }.compact.join(', ')
     end
 
     # Tests if connection to local Router exists

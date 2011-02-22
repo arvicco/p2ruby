@@ -30,10 +30,6 @@ module P2Ruby
 
       super :ini => @ini
 
-      # Application is created before any other P2 object,
-      # need to load P2 constants (same for all P2 classes)
-      WIN32OLE.const_load(@ole, P2ClientGate) unless defined? P2ClientGate::CONSTANTS
-
       @ole.StartUp @ini.to_s
     end
 
