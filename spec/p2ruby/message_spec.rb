@@ -9,6 +9,7 @@ describe P2Ruby::Message do
                              :dest_addr => "FINTER_FORTS3.Dispatcher",
                              :field => {
                                  "P2_Category" => "FORTS_MSG",
+                                 :P2_Type => 1,
                                  "isin" => "RTS-3.11",
                                  :price => "184500",
                                  :amount => 1,
@@ -34,6 +35,7 @@ describe P2Ruby::Message do
   context 'working with named property Field' do
     it 'initializes Field named properties correctly' do
       subject.Field["P2_Category"].should == "FORTS_MSG"
+      subject.Field["P2_Type"].should == 1
       subject.Field['isin'].should == "RTS-3.11"
       subject.Field['price'].should == "184500"
       subject.Field['amount'].should == 1

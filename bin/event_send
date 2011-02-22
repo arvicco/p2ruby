@@ -1,0 +1,124 @@
+#!/usr/bin/env ruby
+# encoding: Windows-1251
+
+require 'pathname'
+lib = (Pathname.new(__FILE__).dirname + '../lib').expand_path.to_s
+$:.unshift lib unless $:.include?(lib)
+require 'p2ruby'
+
+# This script replicates SimpleSend.js functionality
+
+# First we need to cd into p2 main dir (and make sure Router is started)
+ROUTER_INI = Dir["../../spec/**/client_router.ini"].first
+ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
+router = P2Ruby::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
+
+sleep 0.3
+puts "Router started at #{ROUTER_PATH}..."
+
+begin
+  # создаем объект Connection
+  $conn = P2Ruby::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
+                                :host => "127.0.0.1", # IP Адрес
+                                :port => 4001) # и порт локального роутера
+
+  def loop_loop
+    start = Time.now
+    while Time.now-start < 1
+      $conn.ProcessMessage2(100)
+#      WIN32OLE_EVENT.message_loop
+      print '.'
+      sleep 0.1
+    end
+  end
+
+  p $conn.ole
+
+  print "Event created"
+  ev = WIN32OLE_EVENT.new($conn.ole, 'IP2ConnectionEvent')
+
+  ev.on_event do |*args|
+    p "EVENT!!!!!!! #{args.inspect}"
+    args[1].ole_type.tap { |k| p [k.name, k.progid, k.guid, k.implemented_ole_types] }
+    p $conn.status_text
+  end
+
+  loop_loop
+  puts "Connecting"
+
+  error = $conn.Connect() # устанавливаем соединение с локальным роутером
+
+  loop_loop
+  p $conn.status_text
+  puts "Disconnecting"
+
+  error = $conn.Disconnect() # рвем соединение с локальным роутером
+
+  loop_loop
+  p $conn.status_text
+  puts "Connecting"
+
+  error = $conn.Connect() # устанавливаем соединение с локальным роутером
+
+  loop_loop
+  p $conn.status_text
+  puts "Outlogging"
+
+  error = $conn.Logout() # устанавливаем соединение с локальным роутером
+  loop_loop
+
+  p $conn.status_text
+
+  loop_loop
+
+  srv_addr = $conn.ResolveService("FORTS_SRV") # ищем адрес сервера приема заявок
+
+  puts "FORTS_SRV server address: #{srv_addr}..."
+
+  # создаем и инициализируем фабрику объектов-сообщений
+  msgs = P2Ruby::MessageFactory.new :ini => "p2fortsgate_messages.ini"
+
+  puts "Msg Factory inited..."
+
+  # создаем и заполняем сообщение
+  msg = msgs.message :name => "FutAddOrder",
+                     :dest_addr => srv_addr,
+                     :field => {
+                         "P2_Category" => "FORTS_MSG",
+                         "P2_Type" => 1,
+                         "isin" => "RTS-3.11",
+                         :price => "185500",
+                         :amount => 1,
+                         "client_code" => "001",
+                         "type" => 1,
+                         "dir" => 1}
+
+  puts "Msg created, Sending it..."
+
+  raw_msg = msg.Send($conn.ole, 5000) # посылаем, ждем ответа в течение 5000 миллисекунд
+
+  msg = P2Ruby::Message.new :ole => raw_msg
+  c = msg.Field["P2_Category"]
+  t = msg.Field["P2_Type"]
+
+  puts "Reply: category #{c}; type #{t}"
+
+  if c == "FORTS_MSG" && t == 101
+    code = msg.Field["code"] # разбираем ответ
+    if code == 0
+      puts "Adding order Ok, Order_id = #{msg.Field["order_id"]}"
+    else
+      puts "Adding order fail, logic error = #{msg.Field["message"]}"
+    end
+  elsif c == "FORTS_MSG" && t == 100
+    puts "Adding order fail, system level error " +
+             "#{msg.Field["code"]} #{msg.Field["message"]}"
+  else
+    puts "Unexpected MQ message recieved; category #{c}; type #{t}"
+  end
+
+rescue => e
+  raise e
+ensure
+  router.exit
+end

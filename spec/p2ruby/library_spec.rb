@@ -11,7 +11,7 @@ describe P2Ruby::Library do
       p2sta = p2libs.find { |t| t.name !~ /MTA/ }
       p2sta.should_not be_nil
       print 'P2ClientGate (STA) OLE types: '
-      p2sta.ole_types.map { |k| p [k.name, k.progid, k.guid] }
+      p2sta.ole_types.map { |k| p [k.name, k.progid, k.guid, k.implemented_ole_types] }
     end
 
     it 'wraps STA P2ClientGate typelib' do
@@ -37,5 +37,5 @@ describe P2Ruby::Library do
       end
     end
 
-  end # when initialized with MTA type
+  end # when initialized
 end
