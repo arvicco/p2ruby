@@ -17,7 +17,7 @@ module P2Ruby
       @ini = Pathname(opts[:ini] || "./p2fortsgate_messages.ini")
       error "Wrong ini file name" unless @ini.expand_path.exist?
 
-      super "P2BLMessageFactory", opts
+      super opts
 
       @ole.Init @ini.to_s, "Not used"
     end

@@ -28,7 +28,7 @@ module P2Ruby
       @ini = Pathname(ini || "./P2ClientGate.ini").expand_path
       error "Wrong ini file #{@ini}" unless @ini.exist?
 
-      super "P2Application", :ini => @ini
+      super :ini => @ini
 
       # Application is created before any other P2 object,
       # need to load P2 constants (same for all P2 classes)

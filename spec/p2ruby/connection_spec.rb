@@ -118,7 +118,7 @@ describe P2Ruby::Connection do
 
   describe '#Connect2 '
   #  Connect2 ( [in] BSTR connStr, [out, retval] ULONG* errClass);
-  #  Создание локального соединения приложения с роутером. Выпущен в дополнение к методу Connection.Connect.
+  #  Создание локального соединения приложения с роутером. Дополнение к методу Connect.
 
   describe '#ProcessMessage'
   #  ProcessMessage ( [out] ULONG* cookie,  [in] ULONG pollTimeout);
@@ -130,7 +130,8 @@ describe P2Ruby::Connection do
   describe '#ProcessMessage2'
   #  ProcessMessage2 ( [in] ULONG pollTimeout, [out, retval] ULONG* cookie);
   #  Прием и обработка сообщений. Выпущен в дополнение к методу Connection.ProcessMessage,
-  #  так как тот не позволял в интерпретированных языках (JScript) получить результат работы функции (cookie).
+  #  так как тот не позволял в интерпретированных языках (JScript) получить результат
+  #  работы функции (cookie).
 
   describe '#RegisterReceiver'
   #  RegisterReceiver ( [in] IP2MessageReceiver* newReceiver, [out,retval] ULONG* cookie);
@@ -160,7 +161,7 @@ describe P2Ruby::Connection do
       @conn.should be_logged
     end
 
-    it 'returns full server address by service name' do
+    it 'returns full server address, given a service name' do
       @conn.ResolveService('FORTS_OPTINFO_REPL').should == "FINTER_FORTS3.inter_info"
       @conn.ResolveService('FORTS_FUTINFO_REPL').should == "FINTER_FORTS3.inter_info"
       @conn.ResolveService('FORTS_POS_REPL').should == "FINTER_FORTS3.inter_pos"
@@ -200,5 +201,9 @@ describe P2Ruby::Connection do
         @conn.should be_logged # Need to wait for Server to react to logout
       end
     end
+  end #Logout()
+
+  describe '#event_handler' do
+    it 'provides access to IP2ConnectionEvent event interface'
   end
 end

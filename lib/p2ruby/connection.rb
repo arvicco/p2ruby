@@ -29,7 +29,7 @@ module P2Ruby
       @app = P2Ruby::Application.instance opts[:ini]
 
       # app_name, node_name, host, port, password, timeout, login_str, lib = Library.default
-      super "P2Connection", opts
+      super opts
 
       # This is class var, not constant... since P2 constants are only loaded by Application instance...
       @@status_messages ||= {P2::CS_CONNECTION_DISCONNECTED => 'Connection Disconnected',

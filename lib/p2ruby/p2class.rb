@@ -9,12 +9,12 @@ module P2Ruby
 
     attr_reader :opts, :ole, :lastargs
 
-    def initialize name, opts = {}
+    def initialize opts = {}
       @opts = opts.dup
 
       # OLE object may be provided directly (Message)
       @ole = @opts[:ole]
-      @ole ||= WIN32OLE.new (@opts[:lib] || Library.default).find name
+      @ole ||= WIN32OLE.new clsid # (@opts[:lib] || Library.default).find name
 
       @opts.each do |key, val|
         # OLE object set properties may be given as options

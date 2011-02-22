@@ -14,7 +14,7 @@ module P2Ruby
       # First we need to obtain Application instance... Yes, it IS freaking weird.
       error "Connection/Application should be created first" unless P2Ruby::Application.instance
 
-      super "P2BLMessage", opts
+      super opts
     end
 
     # Auto-generated OLE methods:

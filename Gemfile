@@ -17,7 +17,7 @@
 
 source :gemcutter
 
-gem 'win_gui', '>=0.2.18', :path => '/Dev/apps/win/win_gui'
+gem 'win_gui', '>=0.2.19'#, :path => '/Dev/apps/win/win_gui'
 
 group :cucumber do
   gem 'cucumber'

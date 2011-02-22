@@ -21,7 +21,7 @@
     </requirement>
     <requirement>
       <requirement>
-        <dependency name="win_gui" version="0" bound="GREATER_OR_EQUAL" url="file:///Dev/apps/win/win_gui" git="false" path="true" doRequire="true" />
+        <dependency name="win_gui" version="0.2.19" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
@@ -44,6 +44,10 @@
     <orderEntry type="library" scope="PROVIDED" name="[gem] gherkin (v2.3.3, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/gherkin-2.3.3)" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] json (v1.4.6, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/json-1.4.6)" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] term-ansicolor (v1.0.5, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/term-ansicolor-1.0.5)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] rake (v0.8.7, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/rake-0.8.7)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] win (v0.3.24, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/win-0.3.24)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] ffi (v1.0.5, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/ffi-1.0.5)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] win_gui (vFile.open('VERSION').read.strip, /Users/vb/Dev/apps/win/win_gui) from path" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] bundler (v1.0.10, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/bundler-1.0.10)" level="application" />
   </component>
 </module>
