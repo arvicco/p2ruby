@@ -203,7 +203,50 @@ describe P2Ruby::Connection do
     end
   end #Logout()
 
-  describe '#event_handler' do
-    it 'provides access to IP2ConnectionEvent event interface'
-  end
+  describe '#events' do
+    before(:each) do
+      @conn = P2Ruby::Connection.new :app_name => random_name,
+                                     :host => "127.0.0.1", :port => 4001
+      @conn.Connect()
+      @events = @conn.events
+      @event_fired = false
+    end
+
+    it 'provides access to (IP2ConnectionEvent interface) events' do
+      @events.should be_kind_of WIN32OLE_EVENT
+    end
+
+    it 'allows setting callbacks for IP2ConnectionEvent interface events' do
+      @events.on_event do |event_name, ole, status|
+        @event_fired = true
+        p "EVENT: #{event_name}, #{ole}, #{status}"
+        event_name.should == "ConnectionStatusChanged"
+        ole.ole_type.name.should == "IP2Connection"
+        status.should be_kind_of Fixnum
+      end
+
+      @conn.ProcessMessage2(100) # Grabs messages/events from queue
+      @event_fired.should == true
+    end
+
+    it 'allows setting explicit handler for IP2ConnectionEvent events' do
+      class TestHandler
+        attr_accessor :event_fired
+
+        def onConnectionStatusChanged(ole, status)
+          puts "StatusTextChanged"
+          @event_fired = true
+          p "HANDLER EVENT (ConnectionStatusChanged): #{ole}, #{status}"
+          ole.ole_type.name.should == "IP2Connection"
+          status.is_a?(Fixnum).should == true # We are inside Handler class, no #be_kind_of
+        end
+      end
+
+      @events.handler = TestHandler.new
+      @conn.ProcessMessage2(100) # Grabs messages/events from queue
+
+      @events.handler.should be_a TestHandler
+      @events.handler.event_fired.should == true
+    end
+  end #events
 end

@@ -85,6 +85,12 @@ module P2Ruby
       @ole.status & P2::CS_ROUTER_CONNECTED != 0
     end
 
+    # Returns Win32OLE event wrapper for IP2ConnectionEvent event interface
+    #
+    def events(event_interface = 'IP2ConnectionEvent')
+      @events ||= WIN32OLE_EVENT.new(@ole, event_interface)
+    end
+
     # Auto-generated OLE methods:
 
     # property I4 Status
