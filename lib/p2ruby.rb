@@ -8,7 +8,7 @@ Bundler.require(:default)
 
 # Namespace for loading P2ClientGate constants and helper methods
 module P2Ruby
-#  enum TConnectionStatus Ч состо€ние соединени€/роутера. ¬озможны следующие значени€:
+  #  enum TConnectionStatus Ч состо€ние соединени€/роутера. ¬озможны следующие значени€:
   # Ч соединение с роутером еще не установлено.
   CS_CONNECTION_DISCONNECTED = 1
   # - соединение с роутером установлено.
@@ -48,7 +48,6 @@ module P2Ruby
                  CS_ROUTER_LOGINFAILED => 'Router Login Failed',
                  CS_ROUTER_NOCONNECT => 'Router No Connect'}
 
-# module TRequestType
   # enum TRequestType Ч тип потока репликации. “ип потока определ€ет источник и способ
   # получени€ данных (снэпшот/онлайн), а также метод хранени€ удаленных на сервере
   # записей в локальной Ѕƒ клиента. ¬озможны следующие значени€:
@@ -74,7 +73,6 @@ module P2Ruby
   #   только дополн€емых данных, например, сделок, с момента открыти€ потока.
   RT_REMOTE_ONLINE = 8
 
-# module TDataStreamState
   # enum TDataStreamState Ч состо€ние потока репликации. ¬озможны следующие состо€ни€:
   # ?	0 Ч поток закрыт.
   DS_STATE_CLOSE = 0
@@ -127,3 +125,4 @@ require 'p2ruby/application'
 require 'p2ruby/connection'
 require 'p2ruby/message_factory'
 require 'p2ruby/message'
+require 'p2ruby/data_stream'
