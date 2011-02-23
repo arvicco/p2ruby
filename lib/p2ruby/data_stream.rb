@@ -11,86 +11,100 @@ module P2Ruby
       super opts
     end
 
-    #  DataS tream state in text format
+    # Tests if replication stream is opened (that is, receiving data)
     #
-    def state_text
-      P2::CS_MESSAGES.map { |k, v| (k & @ole.status).zero? ? nil : v }.compact.join(', ')
+    def opened?
+      @ole.State & P2::CS_CONNECTION_CONNECTED |
+          @ole.State & P2::DS_STATE_LOCAL_SNAPSHOT |
+          @ole.State & P2::DS_STATE_REMOTE_SNAPSHOT |
+          @ole.State & P2::DS_STATE_ONLINE |
+          @ole.State & P2::DS_STATE_REOPEN != 0
     end
 
-#    # Tests if connection to local Router exists
-#    #
-#    def connected?
-#      @ole.status & P2::CS_CONNECTION_CONNECTED != 0
-#    end
-#
-#    # Tests if local Router is authenticated with RTS server
-#    #
-#    def logged?
-#      @ole.status & P2::CS_ROUTER_CONNECTED != 0
-#    end
+    alias open? opened?
 
-#    # Returns Win32OLE event wrapper for IP2ConnectionEvent event interface
-#    #
-#    def events(event_interface = 'IP2ConnectionEvent')
-#      @events ||= WIN32OLE_EVENT.new(@ole, event_interface)
-#    end
+    # Returns Win32OLE event wrapper for IP2DataStreamEvents event interface
+    #
+    def events(event_interface = 'IP2DataStreamEvents')
+      @events ||= WIN32OLE_EVENT.new(@ole, event_interface)
+    end
 
     # Auto-generated OLE methods:
 
     # property IP2TableSet TableSet
+    #  - набор таблиц в схеме репликации. Свойство задается чтением клиентской схемы из
+    #    ini-файла (см. описание COM-объекта TableSet) или автоматически при получении
+    #    схемы от сервера репликации.
     def TableSet()
       @ole._getproperty(1, [], [])
     end
 
-    # property BSTR StreamName
+    # property BSTR StreamName — имя потока репликации.
     def StreamName()
       @ole._getproperty(2, [], [])
     end
 
     # property BSTR DBConnString
+    # — строка соединения с БД. Перечень параметров для соединения с БД зависит от того,
+    #   какой драйвер используется для установки соединения: P2DBSQLite.dll или P2DBODBC.dll.
+    #   Задание в данном параметре пустой строки позволяет реализовывать вариант
+    #   безбазового клиента репликации. Такой клиент в БД ничего не пишет, а лишь
+    #   получает данные от сервера репликации. В безбазовом клиенте нотификация
+    #   IP2DataStreamEvents::StreamDataUpdated не вызывается.
+    #
+    #  Примеры строк:
+    #  'P2DBSQLite.dll;dbTest.ini;С:\dbTest'
+    #  'P2DBODBC.dll;crypto.ini;DRIVER={SQLServer};SERVER=TEST1;DATABASE=crypto;UID=autotest; PWD=autotest'
+    #
     def DBConnString()
       @ole._getproperty(3, [], [])
     end
 
     # TRequestType type: property Type
+    # — тип потока репликации. Тип потока определяет источник и способ получения данных
+    #   (снэпшот/онлайн), а также метод хранения удаленных на сервере записей в локальной
+    #   БД клиента.
+    #
     def Type()
       @ole._getproperty(4, [], [])
     end
 
-    # property TDataStreamState State
+    # property TDataStreamState State — состояние потока репликации.
     def State()
       @ole._getproperty(5, [], [])
     end
 
-    # property VOID TableSet
+    # property VOID TableSet - набор таблиц в схеме репликации
     def TableSet=(val)
       @ole._setproperty(1, [val], [VT_BYREF|VT_DISPATCH])
     end
 
-    # property VOID StreamName
+    # property VOID StreamName — имя потока репликации.
     def StreamName=(val)
       @ole._setproperty(2, [val], [VT_BSTR])
     end
 
-    # property VOID DBConnString
+    # property VOID DBConnString — строка соединения с БД. See DBConnString().
     def DBConnString=(val)
       @ole._setproperty(3, [val], [VT_BSTR])
     end
 
-    # VOID type: property Type
+    # VOID type: property Type — тип потока репликации
     # ???????? Changed signature from Dispatch to Int manually, possible problems?
     # ???????? Also changed name from type to Type, reserved in OLE?
+    #
     def Type=(val)
-      @ole._setproperty(4, [val], [VT_I4]) #][VT_DISPATCH])
+      @ole._setproperty(4, [val], [VT_I4]) #VT_DISPATCH])
     end
 
     # method VOID Open
-    #   IP2Connection conn [IN]
+    # Открытие потока репликационных данных.
+    #   IP2Connection conn [IN] — указатель на интерфейс соединения.
     def Open(conn)
       @ole._invoke(6, [conn], [VT_BYREF|VT_DISPATCH])
     end
 
-    # method VOID Close
+    # method VOID Close - закрытие потока репликационных данных.
     def Close()
       @ole._invoke(7, [], [])
     end

@@ -50,5 +50,6 @@
     <orderEntry type="library" scope="PROVIDED" name="[gem] win_gui (vFile.open('VERSION').read.strip, /Users/vb/Dev/apps/win/win_gui) from path" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] bundler (v1.0.10, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/bundler-1.0.10)" level="application" />
   </component>
+  <component name="RModuleSettingsStorage" number="2" string0="$MODULE_DIR$/lib" string1="$MODULE_DIR$/spec" />
 </module>
 
