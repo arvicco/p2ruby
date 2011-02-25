@@ -12,7 +12,7 @@ module P2Ruby
 
     def initialize opts = {}
 #      # First we need to obtain Application instance... Yes, it IS freaking weird.
-#      error "Connection/Application should be created first" unless P2Ruby::Application.instance
+      error "Connection/Application should be created first" unless P2Ruby::Application.instance
 
       @ini = Pathname(opts[:ini] || "./p2fortsgate_messages.ini")
       error "Wrong ini file name" unless @ini.expand_path.exist?

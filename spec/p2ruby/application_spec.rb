@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'spec_helper'
 
 describe P2Ruby::Application, "singleton app object" do

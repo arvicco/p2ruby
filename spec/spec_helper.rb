@@ -59,6 +59,7 @@ def start_router opts ={}
     WinGui::App.launch(:dir => dir, :path => path, :args => args,
                        :title => title, :timeout => timeout)
   end
+  sleep 0.1
 end
 
 def restart_router

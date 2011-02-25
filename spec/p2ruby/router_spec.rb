@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'spec_helper'
+
 describe P2Ruby::Router, "Driver for Router server app" do
   before(:all) { stop_router }
   after(:all) { stop_router }

@@ -1,8 +1,9 @@
+# encoding: utf-8
 require 'spec_helper'
 
 describe P2Ruby::Message do
   before(:all) do
-#    P2Ruby::Application.reset CLIENT_INI
+    P2Ruby::Application.reset CLIENT_INI
     @factory = P2Ruby::MessageFactory.new :ini => MESSAGE_INI
   end
   subject { @factory.message :name => "FutAddOrder",
