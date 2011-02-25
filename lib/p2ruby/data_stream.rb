@@ -101,6 +101,7 @@ module P2Ruby
     # ќткрытие потока репликационных данных.
     #   IP2Connection conn [IN] Ч указатель на интерфейс соединени€.
     def Open(conn)
+      conn = conn.respond_to?(:ole) ? conn.ole : conn
       @ole._invoke(6, [conn], [VT_BYREF|VT_DISPATCH])
     end
 

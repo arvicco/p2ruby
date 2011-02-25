@@ -26,8 +26,8 @@ module P2Ruby
 
     #  Connection and Router status in text format
     #
-    def status_text
-      P2::CS_MESSAGES.map { |k, v| (k & @ole.status).zero? ? nil : v }.compact.join(', ')
+    def status_text status = @ole.status
+      P2::CS_MESSAGES.map { |k, v| (k & status).zero? ? nil : v }.compact.join(', ')
     end
 
     # Tests if connection to local Router exists
