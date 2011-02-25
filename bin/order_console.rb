@@ -94,33 +94,18 @@ end
 
 def PrintMsg(reply, errCode)
   if (errCode == 0)
-    $log.puts reply.parse_reply
+
   else
     $log.puts "Delivery errorCode: #{errCode}"
   end
 end
 
-# Signal handlers
+# Signal Handler
 ####################################
 Signal.trap("INT") do |signo|
   puts "Send sync message?"
   if 'y' == gets.chomp
-    $log.puts "Sending sync message..."
-    msg = msgs.message :name => "FutAddOrder",
-                       :dest_addr => srv_addr,
-                       :field => {
-                           "P2_Category" => "FORTS_MSG",
-                           "P2_Type" => 1,
-                           "isin" => "RTS-3.11",
-                           :price => "185500",
-                           :amount => 1,
-                           "client_code" => "001",
-                           "type" => 1,
-                           "dir" => 1}
-    raw_reply = msg.Send(conn.ole, 5000) # посылаем, ждем ответа в течение 5000 миллисекунд
-    reply = P2::Message.new :ole => raw_reply
-
-    PrintMsg(reply, errCode)
+    $send = true
   else
     puts "Interrupted... (#{signo})"
     $exit = true
@@ -133,6 +118,7 @@ end
 
 $log = STDOUT # File.new "log\\order_console.log", 'w'  #  STDOUT #
 $exit = false
+$send = false
 
 #####################################
 start_router do
@@ -146,5 +132,26 @@ start_router do
   puts "Press any key to send message"
   msgs = P2::MessageFactory.new :ini => MESSAGE_INI
 
-  conn.ProcessMessage2(1000) until $exit && conn.connected?
+  until $exit
+    conn.ProcessMessage2(1000)
+    if $send
+      $log.puts "Sending sync message..."
+      msg = msgs.message :name => "FutAddOrder",
+                         :dest_addr => srv_addr,
+                         :field => {
+                             "P2_Category" => "FORTS_MSG",
+                             "P2_Type" => 1,
+                             "isin" => "RTS-3.11",
+                             :price => "185500",
+                             :amount => 1,
+                             "client_code" => "001",
+                             "type" => 1,
+                             "dir" => 1}
+      reply = msg.Send(conn, 1000)
+
+      $log.puts reply.parse_reply
+
+      $send = false
+    end
+  end
 end
