@@ -1,8 +1,8 @@
-module P2Ruby
+module P2
   # Represents P2ClientGate OLE type library.
   # Only works with STA version ( Ruby WIN32OLE limitation ).
   class Library < WIN32OLE_TYPELIB
-    include P2Ruby
+    include P2
 
     # Returns default lib if not explicitely instantiated
     #
@@ -21,4 +21,4 @@ module P2Ruby
     end
 
   end # class Library
-end # module P2Ruby
+end # module P2

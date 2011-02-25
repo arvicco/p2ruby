@@ -1,4 +1,4 @@
-module P2Ruby
+module P2
   # Represents P2 client application
   #  ќсновной объект библиотеки P2ClientGate, предназначенный дл€ ее инициализации.
   #  ќн позвол€ет задавать параметры инициализации, отличные от параметров по умолчанию
@@ -108,6 +108,6 @@ module P2Ruby
     end
 
   end
-end # module P2Ruby
+end # module P2
 
 

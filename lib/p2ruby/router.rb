@@ -1,8 +1,8 @@
-module P2Ruby
+module P2
   # Represents external Driver for P2 Router server app
   class Router
     ROUTER_TITLE = Regexp.new('P2MQRouter - ')
-    include P2Ruby
+    include P2
 
     def self.find
       router = WinGui::App.find :title => ROUTER_TITLE
@@ -41,5 +41,5 @@ module P2Ruby
     end
 
   end # class Router
-end # module P2Ruby
+end # module P2
 

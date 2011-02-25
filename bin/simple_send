@@ -11,7 +11,7 @@ start_router do
   P2::Application.reset CLIENT_INI
 
   # Creating Connection object
-  conn = P2Ruby::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
+  conn = P2::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
                                 :host => "127.0.0.1", # IP Адрес
                                 :port => 4001) # и порт локального роутера
 
@@ -24,7 +24,7 @@ start_router do
   puts "FORTS_SRV server address: #{server_address}..."
 
   # создаем и инициализируем фабрику объектов-сообщений
-  msgs = P2Ruby::MessageFactory.new :ini => MESSAGE_INI
+  msgs = P2::MessageFactory.new :ini => MESSAGE_INI
 
   puts "Msg Factory inited..."
 

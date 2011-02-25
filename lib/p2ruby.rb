@@ -7,7 +7,7 @@ require 'bundler/setup'
 Bundler.require(:default)
 
 # Namespace for loading P2ClientGate constants and helper methods
-module P2Ruby
+module P2
   #  enum TConnectionStatus Ч состо€ние соединени€/роутера. ¬озможны следующие значени€:
   # Ч соединение с роутером еще не установлено.
   CS_CONNECTION_DISCONNECTED = 1
@@ -94,28 +94,28 @@ module P2Ruby
   P2ERR_OK = P2MQ_ERRORCLASS_OK = P2ERR_COMMON_BEGIN = 0x0000
   P2MQ_ERRORCLASS_IS_USELESS = 0x0001
 
-  # Any P2Ruby-specific Error
+  # Any P2-specific Error
   class Error < StandardError
   end
 
-  # Allows extended manipulation of all P2Ruby-specific exceptions (Error aspect)
+  # Allows extended manipulation of all P2-specific exceptions (Error aspect)
   def error *args
     if args.first.is_a? Exception
       raise args.first
     else
-      raise P2Ruby::Error.new *args
+      raise P2::Error.new *args
     end
   end
 
-  # Mainly to enable P2Ruby#error both in instance and class methods
+  # Mainly to enable P2#error both in instance and class methods
   def self.included(host)
     host.extend self
   end
 end
 
-# Aliases for P2Ruby
-P2 = P2Ruby
-P2ClientGate = P2Ruby
+# Aliases for P2
+P2Ruby = P2
+P2ClientGate = P2
 
 require 'extension'
 require 'p2ruby/router'

@@ -59,16 +59,16 @@ shared_examples_for 'new connection' do
   end
 end
 
-describe P2Ruby::Connection do
+describe P2::Connection do
   before(:all) do
     start_router
-    P2Ruby::Application.reset CLIENT_INI
+    P2::Application.reset CLIENT_INI
   end
   after(:all) { stop_router }
 
   describe '.new' do
     context 'with options' do
-      subject { P2Ruby::Connection.new :ini => CLIENT_INI,
+      subject { P2::Connection.new :ini => CLIENT_INI,
                                        :app_name => random_name,
                                        :host => "localhost",
                                        :port => 3333,
@@ -96,7 +96,7 @@ describe P2Ruby::Connection do
     context 'by default' do
       # Ini file is still necessary if Application instance does not exist yet. Otherwise
       # Connection#new will SEGFAULT looking for default "P2ClientGate.ini" in current dir
-      subject { P2Ruby::Connection.new }
+      subject { P2::Connection.new }
 
       its(:AppName) { should == '' }
       its(:Host) { should == '' }
@@ -110,7 +110,7 @@ describe P2Ruby::Connection do
   describe '#Connect()', 'creates local connection to Router' do
     context 'with correct connection parameters' do
       it 'connects successfully' do
-        @conn = P2Ruby::Connection.new :app_name => random_name,
+        @conn = P2::Connection.new :app_name => random_name,
                                        :host => "127.0.0.1", :port => 4001
         @conn.Connect().should == P2::P2ERR_OK
         @conn.NodeName.should == ROUTER_LOGIN
@@ -121,7 +121,7 @@ describe P2Ruby::Connection do
 
     context 'with wrong connection parameters' do
       it 'fails to connect' do
-        @conn = P2Ruby::Connection.new :app_name => random_name, :timeout => 200,
+        @conn = P2::Connection.new :app_name => random_name, :timeout => 200,
                                        :host => "127.0.0.1", :port => 1313
         expect { @conn.Connect() }.to raise_error /Couldn't connect to MQ/
         @conn.should_not be_connected
@@ -133,7 +133,7 @@ describe P2Ruby::Connection do
   describe '#Disconnect()', 'drops local connection to Router' do
     context 'when connected to Router' do
       before do
-        @conn = P2Ruby::Connection.new :app_name => random_name,
+        @conn = P2::Connection.new :app_name => random_name,
                                        :host => "127.0.0.1", :port => 4001
         @conn.Connect()
         @conn.should be_connected
@@ -149,7 +149,7 @@ describe P2Ruby::Connection do
 
     context 'when NOT connected to Router' do
       it 'it`s noop' do
-        @conn = P2Ruby::Connection.new :app_name => random_name,
+        @conn = P2::Connection.new :app_name => random_name,
                                        :host => "127.0.0.1", :port => 1313
         @conn.Disconnect()
         @conn.should_not be_connected
@@ -195,7 +195,7 @@ describe P2Ruby::Connection do
     #  Х	address Ч полный адрес приложени€.
 
     before(:all) do
-      @conn = P2Ruby::Connection.new :app_name => random_name,
+      @conn = P2::Connection.new :app_name => random_name,
                                      :host => "127.0.0.1", :port => 4001
       @conn.Connect()
       @conn.should be_connected
@@ -227,7 +227,7 @@ describe P2Ruby::Connection do
   describe '#Logout(void)', 'drops Router connection to uplink (RTS)' do
     context 'when Router is connected' do
       before(:all) do
-        @conn = P2Ruby::Connection.new :app_name => random_name,
+        @conn = P2::Connection.new :app_name => random_name,
                                        :host => "127.0.0.1", :port => 4001
         @conn.Connect()
         @conn.should be_connected
@@ -246,7 +246,7 @@ describe P2Ruby::Connection do
 
   describe '#events' do
     before(:each) do
-      @conn = P2Ruby::Connection.new :app_name => random_name,
+      @conn = P2::Connection.new :app_name => random_name,
                                      :host => "127.0.0.1", :port => 4001
       @conn.Connect()
       @events = @conn.events

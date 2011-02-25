@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe P2Ruby::Router, "Driver for Router server app" do
+describe P2::Router, "Driver for Router server app" do
   before(:all) { stop_router }
   after(:all) { stop_router }
 
@@ -12,16 +12,16 @@ describe P2Ruby::Router, "Driver for Router server app" do
 
   it "raises error on invalid ini file" do
     expect { described_class.new :path => ROUTER_PATH, :ini => 'blah' }.
-        to raise_error P2Ruby::Error, /Wrong ini file name/
+        to raise_error P2::Error, /Wrong ini file name/
   end
 
   it 'is impossible to find unlaunched Router' do
-    @app = P2Ruby::Router.find
+    @app = P2::Router.find
     @app.should be_nil
   end
 
   context "router initialized with :path => #{ROUTER_PATH}, :ini => #{ROUTER_INI}" do
-    before(:all) { @router = P2Ruby::Router.new :dir => TEST_DIR, # To avoid file litter in BASE_DIR
+    before(:all) { @router = P2::Router.new :dir => TEST_DIR, # To avoid file litter in BASE_DIR
                                                 :path => ROUTER_PATH, :ini => ROUTER_INI }
     subject { @router }
 
@@ -31,8 +31,8 @@ describe P2Ruby::Router, "Driver for Router server app" do
     end
 
     it 'is possible to find already launched Router' do
-      router = P2Ruby::Router.find
-      router.should be_a P2Ruby::Router
+      router = P2::Router.find
+      router.should be_a P2::Router
     end
 
     its(:opts) { should have_key :path }

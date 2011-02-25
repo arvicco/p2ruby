@@ -1,4 +1,4 @@
-module P2Ruby
+module P2
   # Represents P2 Message
   # Объект предназначен для создания сообщений. При этом он позволяет при создании сообщений
   # оперировать не только схемой сообщений по умолчанию (заданной в P2ClientGate.ini),
@@ -12,7 +12,7 @@ module P2Ruby
 
     def initialize opts = {}
 #      # First we need to obtain Application instance... Yes, it IS freaking weird.
-#      error "Connection/Application should be created first" unless P2Ruby::Application.instance
+#      error "Connection/Application should be created first" unless P2::Application.instance
 
       super opts
     end
@@ -144,5 +144,5 @@ module P2Ruby
       @ole._invoke(9, [conn, timeout, event, event_param], [VT_BYREF|VT_DISPATCH, VT_UI4, VT_DISPATCH, VT_I8])
     end
   end
-end # module P2Ruby
+end # module P2
 

@@ -1,9 +1,9 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe P2Ruby::MessageFactory do
-  before(:all) { P2Ruby::Application.reset CLIENT_INI }
-  subject { P2Ruby::MessageFactory.new :ini => MESSAGE_INI }
+describe P2::MessageFactory do
+  before(:all) { P2::Application.reset CLIENT_INI }
+  subject { P2::MessageFactory.new :ini => MESSAGE_INI }
 
   it 'wraps P2ClientGate.P2BLMessageFactory OLE class' do
     subject.ole_type.name.should == 'IP2BLMessageFactory'
@@ -33,34 +33,34 @@ describe P2Ruby::MessageFactory do
     end
   end
 
-  describe '#message', 'creates P2Ruby::Message according to scheme' do
-    # This is a P2Ruby object wrapper for CreateMessageByName
+  describe '#message', 'creates P2::Message according to scheme' do
+    # This is a P2 object wrapper for CreateMessageByName
 
-    it 'creates P2Ruby::Message wrapper given message opts' do
+    it 'creates P2::Message wrapper given message opts' do
       msg = subject.message :name => "FutAddOrder", :dest_addr => 'Blah'
-      msg.should be_a P2Ruby::Message
+      msg.should be_a P2::Message
       msg.DestAddr.should == "Blah"
       p msg.Id
     end
 
-    it 'creates P2Ruby::Message wrapper given a name and opts' do
+    it 'creates P2::Message wrapper given a name and opts' do
       msg = subject.message "FutAddOrder", :dest_addr => 'Blah'
-      msg.should be_a P2Ruby::Message
+      msg.should be_a P2::Message
       msg.DestAddr.should == "Blah"
     end
 
-    it 'creates P2Ruby::Message wrapper given a name WITHOUT opts' do
+    it 'creates P2::Message wrapper given a name WITHOUT opts' do
       msg = subject.message "FutAddOrder"
-      msg.should be_a P2Ruby::Message
+      msg.should be_a P2::Message
     end
 
-    it 'fails to create P2Ruby::Message wrapper given wrong number of args' do
+    it 'fails to create P2::Message wrapper given wrong number of args' do
       [[], ["One", "two", {}], ['one', 'two', 'three']].each do |args|
         expect { msg = subject.message *args }.to raise_error ArgumentError
       end
     end
 
-    it 'fails to create P2Ruby::Message wrapper given wrong message name' do
+    it 'fails to create P2::Message wrapper given wrong message name' do
       expect { msg = subject.message 'Impossible' }.
           to raise_error /Couldn't create BL message by name/
     end

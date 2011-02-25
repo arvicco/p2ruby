@@ -1,4 +1,4 @@
-module P2Ruby
+module P2
 
   # Represents P2 replication Data Stream.
   # Основной интерфейс объекта используемый для организации получения репликационных данных.
@@ -192,6 +192,6 @@ module P2Ruby
       @ole._invoke(9, [stream], [VT_BYREF|VT_DISPATCH])
     end
   end
-end # module P2Ruby
+end # module P2
 
 

@@ -6,24 +6,24 @@ def baseless_opts
    :type => P2::RT_COMBINED_DYNAMIC}
 end
 
-describe P2Ruby::DataStream do
+describe P2::DataStream do
   before(:all) do
     start_router
-    P2Ruby::Application.reset CLIENT_INI
-    @conn = P2Ruby::Connection.new :app_name => 'DSTest',
+    P2::Application.reset CLIENT_INI
+    @conn = P2::Connection.new :app_name => 'DSTest',
                                    :host => "127.0.0.1", :port => 4001
     @conn.Connect
     @conn.should be_connected
     @conn.should be_logged
     # Disconnected connection, for comparison
-    @disconn = P2Ruby::Connection.new :app_name => 'DSTestDisconnected',
+    @disconn = P2::Connection.new :app_name => 'DSTestDisconnected',
                                       :host => "127.0.0.1", :port => 4001
   end
 
   after(:all) { stop_router }
 
   context 'initializing Baseless' do
-    subject { P2Ruby::DataStream.new baseless_opts }
+    subject { P2::DataStream.new baseless_opts }
     describe '.new' do
       it 'wraps P2ClientGate.P2DataStream OLE class' do
         subject.ole_type.name.should == 'IP2DataStream'
@@ -45,7 +45,7 @@ describe P2Ruby::DataStream do
       subject.Type = P2::RT_LOCAL
       subject.DBConnString = 'Blah'
       subject.StreamName = 'BLAH_REPL'
-#    subject.TableSet = P2Ruby::TableSet.new
+#    subject.TableSet = P2::TableSet.new
 
       subject.Type.should == P2::RT_LOCAL
       subject.DBConnString.should == 'Blah'
@@ -72,7 +72,7 @@ describe P2Ruby::DataStream do
   end
 
   context 'when initialized Baseless' do
-    subject { P2Ruby::DataStream.new baseless_opts }
+    subject { P2::DataStream.new baseless_opts }
     describe '#Open()' do
       it 'opens replication data stream via connection' do
         subject.Open(@conn)
@@ -121,7 +121,7 @@ describe P2Ruby::DataStream do
 
   describe '#events' do
     before do
-      @ds = P2Ruby::DataStream.new baseless_opts
+      @ds = P2::DataStream.new baseless_opts
       @events = @ds.events
       @events_fired = 0
     end
@@ -168,7 +168,7 @@ describe P2Ruby::DataStream do
   end #events
 
   context 'when baseless data stream is open' do
-    subject { P2Ruby::DataStream.new(baseless_opts).tap { |ds| ds.Open @conn } }
+    subject { P2::DataStream.new(baseless_opts).tap { |ds| ds.Open @conn } }
 
   end # when baseless data stream is open
 end

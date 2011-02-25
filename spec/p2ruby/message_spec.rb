@@ -1,10 +1,10 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe P2Ruby::Message do
+describe P2::Message do
   before(:all) do
-    P2Ruby::Application.reset CLIENT_INI
-    @factory = P2Ruby::MessageFactory.new :ini => MESSAGE_INI
+    P2::Application.reset CLIENT_INI
+    @factory = P2::MessageFactory.new :ini => MESSAGE_INI
   end
   subject { @factory.message :name => "FutAddOrder",
                              :dest_addr => "FINTER_FORTS3.Dispatcher",
@@ -92,14 +92,14 @@ describe P2Ruby::Message do
   context 'with active connection' do
     before(:all) do
       start_router
-      P2Ruby::Application.reset CLIENT_INI
-      @conn = P2Ruby::Connection.new :app_name => 'DSTest',
+      P2::Application.reset CLIENT_INI
+      @conn = P2::Connection.new :app_name => 'DSTest',
                                      :host => "127.0.0.1", :port => 4001
       @conn.Connect
       @conn.should be_connected
       @conn.should be_logged
       # Disconnected connection, for comparison
-      @disconn = P2Ruby::Connection.new :app_name => 'DSTestDisconnected',
+      @disconn = P2::Connection.new :app_name => 'DSTestDisconnected',
                                         :host => "127.0.0.1", :port => 4001
     end
 

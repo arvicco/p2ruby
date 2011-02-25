@@ -17,7 +17,7 @@ $LOAD_PATH.unshift LIB_PATH.to_s
 require 'version'
 
 NAME = 'p2ruby'
-CLASS_NAME = P2Ruby
+CLASS_NAME = P2
 
 # Load rakefile tasks
 Dir['tasks/*.rake'].sort.each { |file| load file }

@@ -34,7 +34,7 @@ def start_router opts ={}
 
   router = WinGui::App.launch(:dir => dir, :path => path, :args => args,
                               :title => title, :timeout => timeout)
-#  router = P2Ruby::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
+#  router = P2::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
 
   sleep 0.3
   puts "Router started at #{ROUTER_PATH}..."

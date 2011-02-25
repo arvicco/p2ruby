@@ -150,7 +150,7 @@ Signal.trap("INT") do |signo|
                            "type" => 1,
                            "dir" => 1}
     raw_reply = msg.Send(conn.ole, 5000) # посылаем, ждем ответа в течение 5000 миллисекунд
-    reply = P2Ruby::Message.new :ole => raw_reply
+    reply = P2::Message.new :ole => raw_reply
 
     PrintMsg(reply, errCode)
   else

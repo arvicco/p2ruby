@@ -11,13 +11,13 @@ require 'p2ruby'
 # First we need to cd into p2 main dir (and make sure Router is started)
 ROUTER_INI = Dir["../../spec/**/client_router.ini"].first
 ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
-router = P2Ruby::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
+router = P2::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
 
 sleep 0.3
 puts "Router started at #{ROUTER_PATH}..."
 
 # Now creating Connection object
-@conn = P2Ruby::Connection.new(:app_name => "RbConnEventsThreaded",
+@conn = P2::Connection.new(:app_name => "RbConnEventsThreaded",
                                :host => "127.0.0.1",
                                :port => 4001)
 

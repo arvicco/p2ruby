@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe P2Ruby do
-  include P2Ruby
+describe P2 do
+  include P2
 
   it 'has P2ClientGate constants pre-defined' do
     CS_CONNECTION_DISCONNECTED.should == 1
@@ -40,7 +40,7 @@ describe P2Ruby do
   end
 
   it 'has error handler'do
-    expect { error 'Blah'}.to raise_error P2Ruby::Error, /Blah/
+    expect { error 'Blah'}.to raise_error P2::Error, /Blah/
   end
 end
 

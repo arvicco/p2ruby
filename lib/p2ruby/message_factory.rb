@@ -1,4 +1,4 @@
-module P2Ruby
+module P2
   # Represents P2 Message Factory
   # Объект предназначен для создания сообщений. При этом он позволяет при создании сообщений
   # оперировать не только схемой сообщений по умолчанию (заданной в P2ClientGate.ini),
@@ -12,7 +12,7 @@ module P2Ruby
 
     def initialize opts = {}
 #      # First we need to obtain Application instance... Yes, it IS freaking weird.
-      error "Connection/Application should be created first" unless P2Ruby::Application.instance
+      error "Connection/Application should be created first" unless P2::Application.instance
 
       @ini = Pathname(opts[:ini] || "./p2fortsgate_messages.ini")
       error "Wrong ini file name" unless @ini.expand_path.exist?
@@ -40,7 +40,7 @@ module P2Ruby
           raise ArgumentError.new
       end
       message = name ? CreateMessageByName(name) : CreateMessageById(opts[:id])
-      P2Ruby::Message.new opts.merge(:ole => message)
+      P2::Message.new opts.merge(:ole => message)
     end
 
     # Auto-generated OLE methods:
@@ -67,4 +67,4 @@ module P2Ruby
     end
 
   end
-end # module P2Ruby
+end # module P2

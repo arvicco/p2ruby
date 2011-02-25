@@ -3,7 +3,7 @@
 
 Gem::Specification.new do |gem|
   gem.name        = "p2ruby"
-  gem.version     = File.open('VERSION').read.strip # = ::P2Ruby::VERSION # - conflicts with Bundler
+  gem.version     = File.open('VERSION').read.strip # = ::P2::VERSION # - conflicts with Bundler
   gem.summary     = "FIXME: New project p2ruby"
   gem.description = "FIXME: New project p2ruby"
   gem.authors     = ["arvicco"]

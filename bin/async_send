@@ -11,14 +11,14 @@ require 'p2ruby'
 # First we need to cd into p2 main dir (and make sure Router is started)
 ROUTER_INI = Dir["../../spec/**/client_router.ini"].first
 ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
-router = P2Ruby::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
+router = P2::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
 
 sleep 0.3
 puts "Router started at #{ROUTER_PATH}..."
 
 begin
   # создаем объект Connection
-  conn = P2Ruby::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
+  conn = P2::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
                                 :host => "127.0.0.1", # IP Адрес
                                 :port => 4001) # и порт локального роутера
 
@@ -28,7 +28,7 @@ begin
   puts "FORTS_SRV server address: #{srv_addr}..."
 
   # создаем и инициализируем фабрику объектов-сообщений
-  msgs = P2Ruby::MessageFactory.new :ini => "p2fortsgate_messages.ini"
+  msgs = P2::MessageFactory.new :ini => "p2fortsgate_messages.ini"
 
   puts "Msg Factory inited..."
 
@@ -77,7 +77,7 @@ begin
 
   p "Never gets here"
 
-  msg = P2Ruby::Message.new :ole => raw_msg
+  msg = P2::Message.new :ole => raw_msg
   c = msg.Field["P2_Category"]
   t = msg.Field["P2_Type"]
 

@@ -1,4 +1,4 @@
-module P2Ruby
+module P2
 
   # Represents Connection to local P2 Router.
   # Several connections may exist per one Application.
@@ -19,7 +19,7 @@ module P2Ruby
 
       # First we need to obtain Application singleton (for a given ini file)...
       # Yes, it IS weird - ini file used by Connection is manipulated in Application.
-      @app = P2Ruby::Application.instance opts[:ini]
+      @app = P2::Application.instance opts[:ini]
 
       super opts
     end
@@ -245,6 +245,6 @@ module P2Ruby
       @ole._invoke(1, [conn, new_status], [VT_BYREF|VT_DISPATCH, VT_DISPATCH])
     end
   end
-end # module P2Ruby
+end # module P2
 
 
