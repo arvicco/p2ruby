@@ -3,23 +3,10 @@
 
 require_relative 'start_script'
 
-router = start_router
-
 # This script replicates P2AddOrderConsole.cpp functionality (but for async Send)
 
-$log = STDOUT #File.new "Log\\P2AddOrderConsole.log", 'w'
-
-#####################################
-def showerror(e)
-  $log.puts e
-#  fprintf(g_fLog, "COM error occured\n");
-#  fprintf(g_fLog, "\tError:        %08lx\n", e.Error());
-#  fprintf(g_fLog, "\tErrorMessage: %s\n", e.ErrorMessage());
-#  fprintf(g_fLog, "\tSource:       %s\n", static_cast<LPCTSTR>(e.Source()));
-#  fprintf(g_fLog, "\tDescription:  %s\n", static_cast<LPCTSTR>(e.Description()));
-end
-
-#####################################
+# Event processing classes
+######################################
 class CConnEvent < P2::Connection
   def initialize app_name #("P2ClientGate.P2Connection")
     # создаем объект Connection
@@ -118,6 +105,21 @@ class CDSEvents < P2::DataStream
 end
 
 #####################################
+#class CAsyncMessageEvent :
+#####################################
+#class CAsyncSendEvent2 :
+
+# Global functions
+#####################################
+def showerror(e)
+  $log.puts e
+#  fprintf(g_fLog, "COM error occured\n");
+#  fprintf(g_fLog, "\tError:        %08lx\n", e.Error());
+#  fprintf(g_fLog, "\tErrorMessage: %s\n", e.ErrorMessage());
+#  fprintf(g_fLog, "\tSource:       %s\n", static_cast<LPCTSTR>(e.Source()));
+#  fprintf(g_fLog, "\tDescription:  %s\n", static_cast<LPCTSTR>(e.Description()));
+end
+
 def PrintMsg(reply, errCode)
   if (errCode == 0)
     $log.puts reply.parse_reply
@@ -126,14 +128,8 @@ def PrintMsg(reply, errCode)
   end
 end
 
-#####################################
-#class CAsyncMessageEvent :
-#####################################
-#class CAsyncSendEvent2 :
-
+# Signal handlers
 ####################################
-$exit = false
-
 Signal.trap("INT") do |signo|
   puts "Send sync message?"
   if 'y' == gets.chomp
@@ -159,24 +155,23 @@ Signal.trap("INT") do |signo|
   end
 end
 
+# Main execution logics
 #####################################
 #void ThreadProc(void* name)
 
+$log = STDOUT #File.new "Log\\P2AddOrderConsole.log", 'w'
+$exit = false
 
 #####################################
-begin
+start_router do
   P2::Application.reset CLIENT_INI
   conn = CConnEvent.new "RbOrderConsole"
   dsFUTNFO = CDSEvents.new conn, "FUTINFO"
+
   srv_addr = conn.ResolveService("FORTS_SRV")
 
   puts "Press any key to send message"
   msgs = P2::MessageFactory.new :ini => MESSAGE_INI
 
   conn.ProcessMessage2(1000) until $exit
-rescue => e
-  showerror(e)
-  raise e
-ensure
-  router.exit
 end
