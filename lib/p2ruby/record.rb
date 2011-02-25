@@ -18,22 +18,23 @@ module P2
       each.join '|' || ''
     end
 
-    # Access Record's fields by either name or index
+    # Access Record's fields by either name or index, encoding is
+    # converted to Windows-1251
     def [] id
       case id
         when Integer
           GetValAsStringByIndex(id)
         else
           GetValAsString(id.to_s)
-      end
+      end.force_encoding('IBM866').encode('CP1251', :undef => :replace)
     end
 
     # Yields all fields (basis for mixed in Enumerable methods)
     def each
       if block_given?
-        (0..(Count()-1)).each { |i| yield GetValAsStringByIndex(i) }
+        (0...Count()).each { |i| yield self[i] }
       else
-        (0..(Count()-1)).map { |i| GetValAsStringByIndex(i) }
+        (0...Count()).map { |i| self[i] }
       end
     end
 
@@ -47,13 +48,13 @@ module P2
     # method BSTR GetValAsString
     #   BSTR field_name [IN]
     def GetValAsString(field_name)
-      _invoke(2, [field_name], [VT_BSTR]).force_encoding('IBM866').encode('CP1251')
+      _invoke(2, [field_name], [VT_BSTR])
     end
 
     # method BSTR GetValAsStringByIndex
     #   UI4 field_index [IN]
     def GetValAsStringByIndex(field_index)
-      _invoke(3, [field_index], [VT_UI4]).force_encoding('IBM866').encode('CP1251')
+      _invoke(3, [field_index], [VT_UI4])
     end
 
     # method I4 GetValAsLong

@@ -11,13 +11,13 @@ describe P2::DataStream do
     start_router
     P2::Application.reset CLIENT_INI
     @conn = P2::Connection.new :app_name => 'DSTest',
-                                   :host => "127.0.0.1", :port => 4001
+                               :host => "127.0.0.1", :port => 4001
     @conn.Connect
     @conn.should be_connected
     @conn.should be_logged
     # Disconnected connection, for comparison
     @disconn = P2::Connection.new :app_name => 'DSTestDisconnected',
-                                      :host => "127.0.0.1", :port => 4001
+                                  :host => "127.0.0.1", :port => 4001
   end
 
   after(:all) { stop_router }
@@ -39,6 +39,8 @@ describe P2::DataStream do
       its(:State) { should == P2::DS_STATE_CLOSE }
       its(:TableSet) { should == nil }
       its(:DBConnString) { should == '' }
+      its(:state_text) { should == 'Data Stream Closed' }
+
     end
 
     it 'is possible to set settable properties' do

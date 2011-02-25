@@ -11,14 +11,20 @@ module P2
       super opts
     end
 
+    #  Connection and Router status in text format
+    #
+    def state_text state = self.State
+      P2::DS_MESSAGES[state]
+    end
+
     # Tests if replication stream is opened (that is, receiving data)
     #
     def opened?
-      @ole.State & P2::CS_CONNECTION_CONNECTED |
-          @ole.State & P2::DS_STATE_LOCAL_SNAPSHOT |
-          @ole.State & P2::DS_STATE_REMOTE_SNAPSHOT |
-          @ole.State & P2::DS_STATE_ONLINE |
-          @ole.State & P2::DS_STATE_REOPEN != 0
+      @ole.State == P2::CS_CONNECTION_CONNECTED ||
+          @ole.State == P2::DS_STATE_LOCAL_SNAPSHOT ||
+          @ole.State == P2::DS_STATE_REMOTE_SNAPSHOT ||
+          @ole.State == P2::DS_STATE_ONLINE ||
+          @ole.State == P2::DS_STATE_REOPEN
     end
 
     alias open? opened?
@@ -43,6 +49,7 @@ module P2
     def StreamName()
       @ole._getproperty(2, [], [])
     end
+
     alias Name StreamName
     alias name StreamName
 
@@ -85,6 +92,7 @@ module P2
     def StreamName=(val)
       @ole._setproperty(2, [val], [VT_BSTR])
     end
+
     alias Name= StreamName=
     alias name= StreamName=
 

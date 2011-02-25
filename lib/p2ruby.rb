@@ -90,6 +90,15 @@ module P2
   # ?	6 (DS_STATE_ERROR) Ч ошибка.
   DS_STATE_ERROR = 6
 
+  DS_MESSAGES = {
+      DS_STATE_CLOSE => "Data Stream Closed",
+      DS_STATE_LOCAL_SNAPSHOT => "Data Stream in Local Snapshot",
+      DS_STATE_REMOTE_SNAPSHOT => "Data Stream in Remote Snapshot",
+      DS_STATE_ONLINE => "Data Stream Online",
+      DS_STATE_CLOSE_COMPLETE => "Data Stream Completed and Closed",
+      DS_STATE_REOPEN => "Data Stream Reopen",
+      DS_STATE_ERROR => "Data Stream Error"}
+
 # Error codes
   P2ERR_OK = P2MQ_ERRORCLASS_OK = P2ERR_COMMON_BEGIN = 0x0000
   P2MQ_ERRORCLASS_IS_USELESS = 0x0001
