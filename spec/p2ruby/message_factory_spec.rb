@@ -15,7 +15,7 @@ describe P2Ruby::MessageFactory do
   its(:opts) { should have_key :ini }
   its(:ole) { should be_a WIN32OLE }
 
-  describe '#Init()', 'is implicitely called by #new'
+  describe '#Init()', 'is implicitly called by #new'
   # Init ( BSTR structFile, BSTR signFile); - »нициализаци€ объекта.
   # јргументы
   # Х	structFile Ч ini-файл, содержащий схему сообщений.
@@ -36,10 +36,33 @@ describe P2Ruby::MessageFactory do
   describe '#message', 'creates P2Ruby::Message according to scheme' do
     # This is a P2Ruby object wrapper for CreateMessageByName
 
-    it 'creates P2Ruby::Message wrapper according to scheme' do
-      msg = subject.message :name => "FutAddOrder"
+    it 'creates P2Ruby::Message wrapper given message opts' do
+      msg = subject.message :name => "FutOrder", :dest_addr => 'Blah'
       msg.should be_a P2Ruby::Message
-#      msg.name.should == "FutAddOrder"
+      msg.DestAddr.should == "Blah"
+      p msg.Id
+    end
+
+    it 'creates P2Ruby::Message wrapper given a name and opts' do
+      msg = subject.message "FutAddOrder", :dest_addr => 'Blah'
+      msg.should be_a P2Ruby::Message
+      msg.DestAddr.should == "Blah"
+    end
+
+    it 'creates P2Ruby::Message wrapper given a name WITHOUT opts' do
+      msg = subject.message "FutAddOrder"
+      msg.should be_a P2Ruby::Message
+    end
+
+    it 'fails to create P2Ruby::Message wrapper given wrong number of args' do
+      [[], ["One", "two", {}], ['one', 'two', 'three']].each do |args|
+        expect { msg = subject.message *args }.to raise_error ArgumentError
+      end
+    end
+
+    it 'fails to create P2Ruby::Message wrapper given wrong message name' do
+      expect { msg = subject.message 'Impossible' }.
+          to raise_error /Couldn't create BL message by name/
     end
   end
 end

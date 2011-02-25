@@ -22,9 +22,24 @@ module P2Ruby
       @ole.Init @ini.to_s, "Not used"
     end
 
-    # Creates wrapped OLE Message object (by name or id?)
-    def message opts
-      message = opts[:name] ? CreateMessageByName(opts[:name]) : CreateMessageById(opts[:id])
+    # Creates wrapped OLE Message object (by name or options Hash)
+    def message *args
+      case args.size
+        when 1
+          if args.last.is_a? Hash
+            opts = args.last
+            name = opts[:name]
+          else
+            opts = {}
+            name = args.last
+          end
+        when 2
+          opts = args.last
+          name = args.first
+        else
+          raise ArgumentError.new
+      end
+      message = name ? CreateMessageByName(name) : CreateMessageById(opts[:id])
       P2Ruby::Message.new opts.merge(:ole => message)
     end
 
