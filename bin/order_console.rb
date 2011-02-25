@@ -7,12 +7,11 @@ router = start_router
 
 # This script replicates P2AddOrderConsole.cpp functionality (but for async Send)
 
-#$log = File.new "Log\\P2AddOrderConsole.log", 'w'
-#     SetConsoleOutputCP(1251); ?
+$log = STDOUT #File.new "Log\\P2AddOrderConsole.log", 'w'
 
 #####################################
 def showerror(e)
-  puts e
+  $log.puts e
 #  fprintf(g_fLog, "COM error occured\n");
 #  fprintf(g_fLog, "\tError:        %08lx\n", e.Error());
 #  fprintf(g_fLog, "\tErrorMessage: %s\n", e.ErrorMessage());
@@ -31,14 +30,15 @@ class CConnEvent < P2::Connection
 
   # IP2ConnectionEvent
   def onConnectionStatusChanged(conn, new_status)
-    puts "EVENT!"
-    puts status_text new_status
+    $log.puts "EVENT!"
+    $log.puts status_text new_status
   end
 end
 
 #####################################
 class CDSEvents < P2::DataStream
   def initialize conn, short_name
+    # создаем объект DataStream
     super :name => "FORTS_#{short_name}_REPL", :type => P2::RT_REMOTE_ONLINE#, #RT_COMBINED_DYNAMIC,
 #          :db_conn_string => "P2DBSqLiteD.dll;;Log\\#{short_name}_.db"
     self.events.handler = self
@@ -47,11 +47,11 @@ class CDSEvents < P2::DataStream
 
   def PrintRec(rec)
     unless rec.is_a? P2::Record
-      puts "Couldn't print record #{rec}"
+      $log.puts "Couldn't print record #{rec}"
       return
     end
 
-    puts (0..rec.Count).map { |i| rec.GetValAsStringByIndex(i) }.join "|"
+    $log.puts (0..rec.Count).map { |i| rec.GetValAsStringByIndex(i) }.join "|"
   end
 
   # IP2DataStreamEvents
@@ -74,52 +74,52 @@ class CDSEvents < P2::DataStream
       else
         str = ""
     end
-    puts "StreamStateChanged #{stream} - #{str}"
+    $log.puts "StreamStateChanged #{stream} - #{str}"
   end
 
   def onStreamDataInserted stream, tableName, rec
-    puts "StreamDataInserted #{stream} - #{tableName} - #{rec}"
+    $log.puts "StreamDataInserted #{stream} - #{tableName} - #{rec}"
     PrintRec(rec)
   end
 
   def onStreamDataUpdated(stream, tableName, id, rec)
-    puts "StreamDataUpdated #{stream} - #{tableName} - #{id} - #{rec}"
+    $log.puts "StreamDataUpdated #{stream} - #{tableName} - #{id} - #{rec}"
     PrintRec(rec)
   end
 
   def onStreamDataDeleted(stream, tableName, id, rec)
-    puts "StreamDataDeleted #{stream} - #{tableName} - #{id} - #{rec}"
+    $log.puts "StreamDataDeleted #{stream} - #{tableName} - #{id} - #{rec}"
     PrintRec(rec)
   end
 
   def onStreamDatumDeleted(stream, tableName, rev)
-    puts "StreamDatumDeleted #{stream} - #{tableName} - #{rev}"
+    $log.puts "StreamDatumDeleted #{stream} - #{tableName} - #{rev}"
     PrintRec(rec)
   end
 
   def onStreamDBWillBeDeleted(stream)
-    puts "StreamDBWillBeDeleted #{stream} "
+    $log.puts "StreamDBWillBeDeleted #{stream} "
   end
 
   def onStreamLifeNumChanged(stream, lifeNum)
-    puts "StreamLifeNumChanged #{stream} - #{lifeNum} "
+    $log.puts "StreamLifeNumChanged #{stream} - #{lifeNum} "
   end
 
   def onStreamDataBegin(stream)
-    puts "StreamDataBegin #{stream} "
+    $log.puts "StreamDataBegin #{stream} "
   end
 
   def onStreamDataEnd(stream)
-    puts "StreamDataEnd #{stream} "
+    $log.puts "StreamDataEnd #{stream} "
   end
 end
 
 #####################################
 def PrintMsg(reply, errCode)
   if (errCode == 0)
-    puts reply.parse_reply
+    $log.puts reply.parse_reply
   else
-    puts "Delivery errorCode: #{errCode}"
+    $log.puts "Delivery errorCode: #{errCode}"
   end
 end
 
@@ -134,7 +134,7 @@ $exit = false
 Signal.trap("INT") do |signo|
   puts "Send sync message?"
   if 'y' == gets.chomp
-    puts "Sending sync message..."
+    $log.puts "Sending sync message..."
     msg = msgs.message :name => "FutAddOrder",
                        :dest_addr => srv_addr,
                        :field => {

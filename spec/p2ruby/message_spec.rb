@@ -103,6 +103,8 @@ describe P2Ruby::Message do
                                         :host => "127.0.0.1", :port => 4001
     end
 
+    after(:all) { stop_router }
+
     describe '#Send()' do
       it 'syncronously sends via active connection with timeout' do
         subject.Send(@conn, 1000)
@@ -125,8 +127,13 @@ describe P2Ruby::Message do
 
     describe '#parse_reply' do
       it 'analyses message as a server reply, returns result text' do
-        reply = subject.Send(@conn, 1000)
-        p reply.parse_reply
+        msg = subject
+        reply = msg.Send(@conn, 1000)
+        reply.parse_reply.should =~ /Reply category: FORTS_MSG, type 101. Adding order Ok, Order_id:/
+
+        msg.Field['price'] = '1' # Price outside of limits
+        reply = msg.Send(@conn, 1000)
+        reply.parse_reply.should =~ /Reply category: FORTS_MSG, type 101. Adding order fail, logic error:/
       end
     end
   end
