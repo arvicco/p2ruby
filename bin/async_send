@@ -1,26 +1,15 @@
 #!/usr/bin/env ruby
 # encoding: Windows-1251
 
-require 'pathname'
-lib = (Pathname.new(__FILE__).dirname + '../lib').expand_path.to_s
-$:.unshift lib unless $:.include?(lib)
-require 'p2ruby'
+require_relative 'start_script'
 
 # This script replicates SimpleSend.js functionality
 
-# First we need to cd into p2 main dir (and make sure Router is started)
-ROUTER_INI = Dir["../../spec/**/client_router.ini"].first
-ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
-router = P2::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
-
-sleep 0.3
-puts "Router started at #{ROUTER_PATH}..."
-
-begin
+start_router do
   # создаем объект Connection
   conn = P2::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
-                                :host => "127.0.0.1", # IP Адрес
-                                :port => 4001) # и порт локального роутера
+                            :host => "127.0.0.1", # IP Адрес
+                            :port => 4001) # и порт локального роутера
 
   error = conn.Connect() # устанавливаем соединение с локальным роутером
   srv_addr = conn.ResolveService("FORTS_SRV") # ищем адрес сервера приема заявок
@@ -67,12 +56,12 @@ begin
   $LOOP = true
 
   def exit_event_loop
-      $LOOP = false
+    $LOOP = false
   end
 
   while $LOOP
-      WIN32OLE_EVENT.message_loop
-      sleep(0.1)
+    WIN32OLE_EVENT.message_loop
+    sleep(0.1)
   end
 
   p "Never gets here"
@@ -96,9 +85,4 @@ begin
   else
     puts "Unexpected MQ message recieved; category #{c}; type #{t}"
   end
-
-rescue => e
-  raise e
-ensure
-  router.exit
 end

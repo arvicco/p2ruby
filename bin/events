@@ -1,59 +1,50 @@
 #!/usr/bin/env ruby
 # encoding: Windows-1251
 
-require 'pathname'
-lib = (Pathname.new(__FILE__).dirname + '../lib').expand_path.to_s
-$:.unshift lib unless $:.include?(lib)
-require 'p2ruby'
+require_relative 'start_script'
 
 # This script replicates SimpleSend.js functionality
 
-# First we need to cd into p2 main dir (and make sure Router is started)
-ROUTER_INI = Dir["../../spec/**/client_router.ini"].first
-ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
-router = P2::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
-
-sleep 0.3
-puts "Router started at #{ROUTER_PATH}..."
+start_router do
 
 # Creating Connection - global var since we need to access it inside Object#loop_loop
-$conn = P2::Connection.new(:app_name => "RbConnEvents",
-                               :host => "127.0.0.1",
-                               :port => 4001)
+  $conn = P2::Connection.new(:app_name => "RbConnEvents",
+                             :host => "127.0.0.1",
+                             :port => 4001)
 
-def loop_loop
-  start = Time.now
-  while Time.now-start < 0.05
-    $conn.ProcessMessage2(100)
+  def loop_loop
+    start = Time.now
+    while Time.now-start < 0.05
+      $conn.ProcessMessage2(100)
 #      WIN32OLE_EVENT.message_loop
-    print '.'
+      print '.'
+    end
+    p $conn.status_text
   end
-  p $conn.status_text
+
+  $conn.events.on_event do |*args|
+    p "EVENT!!!!!!! #{args.inspect}"
+    args[1].ole_type.tap { |k| p [k.name, k.progid, k.guid, k.implemented_ole_types] }
+    p $conn.status_text
+  end
+
+  print "Event handler created"
+
+  loop_loop
+  puts "Connecting"
+  error = $conn.Connect() # устанавливаем соединение с локальным роутером
+
+  loop_loop
+  puts "Disconnecting"
+  error = $conn.Disconnect() # рвем соединение с локальным роутером
+
+  loop_loop
+  puts "Connecting"
+  error = $conn.Connect() # устанавливаем соединение с локальным роутером
+
+  loop_loop
+  puts "Outlogging"
+  error = $conn.Logout() # рвем соединение с РТС
+
+  loop_loop
 end
-
-$conn.events.on_event do |*args|
-  p "EVENT!!!!!!! #{args.inspect}"
-  args[1].ole_type.tap { |k| p [k.name, k.progid, k.guid, k.implemented_ole_types] }
-  p $conn.status_text
-end
-
-print "Event handler created"
-
-loop_loop
-puts "Connecting"
-error = $conn.Connect() # устанавливаем соединение с локальным роутером
-
-loop_loop
-puts "Disconnecting"
-error = $conn.Disconnect() # рвем соединение с локальным роутером
-
-loop_loop
-puts "Connecting"
-error = $conn.Connect() # устанавливаем соединение с локальным роутером
-
-loop_loop
-puts "Outlogging"
-error = $conn.Logout() # рвем соединение с РТС
-
-loop_loop
-router.exit

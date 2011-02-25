@@ -1,58 +1,49 @@
 #!/usr/bin/env ruby
 # encoding: Windows-1251
 
-require 'pathname'
-lib = (Pathname.new(__FILE__).dirname + '../lib').expand_path.to_s
-$:.unshift lib unless $:.include?(lib)
-require 'p2ruby'
+require_relative 'start_script'
 
 # This script replicates SimpleSend.js functionality
 
-# First we need to cd into p2 main dir (and make sure Router is started)
-ROUTER_INI = Dir["../../spec/**/client_router.ini"].first
-ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
-router = P2::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
-
-sleep 0.3
-puts "Router started at #{ROUTER_PATH}..."
+start_router do
 
 # Now creating Connection object
-@conn = P2::Connection.new(:app_name => "RbConnEventsThreaded",
-                               :host => "127.0.0.1",
-                               :port => 4001)
+  @conn = P2::Connection.new(:app_name => "RbConnEventsThreaded",
+                             :host => "127.0.0.1",
+                             :port => 4001)
 
 # Possible (performance) problems, since STA library is used?
-Thread.new do
-  @conn.events.on_event do |*args|
-    p "EVENT!!!!!!! #{args.inspect}"
-    args[1].ole_type.tap { |k| p [k.name, k.progid, k.guid, k.implemented_ole_types] }
-    p @conn.status_text
-  end
+  Thread.new do
+    @conn.events.on_event do |*args|
+      p "EVENT!!!!!!! #{args.inspect}"
+      args[1].ole_type.tap { |k| p [k.name, k.progid, k.guid, k.implemented_ole_types] }
+      p @conn.status_text
+    end
 
-  print "Event handler created, entering message loop...\n"
+    print "Event handler created, entering message loop...\n"
 
-  loop do
-    @conn.ProcessMessage2(100)
+    loop do
+      @conn.ProcessMessage2(100)
 #      WIN32OLE_EVENT.message_loop
-    print '.'
+      print '.'
+    end
   end
+
+  print "Connecting...\n"
+
+  error = @conn.Connect() # устанавливаем соединение с локальным роутером
+
+  print "Disconnecting...\n"
+
+  error = @conn.Disconnect() # рвем соединение с локальным роутером
+
+  print "Connecting...\n"
+
+  error = @conn.Connect() # устанавливаем соединение с локальным роутером
+
+  print "Outlogging...\n"
+
+  error = @conn.Logout() # рвем соединение с РТС
+
+  sleep 0.5
 end
-
-print "Connecting...\n"
-
-error = @conn.Connect() # устанавливаем соединение с локальным роутером
-
-print "Disconnecting...\n"
-
-error = @conn.Disconnect() # рвем соединение с локальным роутером
-
-print "Connecting...\n"
-
-error = @conn.Connect() # устанавливаем соединение с локальным роутером
-
-print "Outlogging...\n"
-
-error = @conn.Logout() # рвем соединение с РТС
-
-sleep 0.5
-router.exit
