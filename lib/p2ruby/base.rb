@@ -3,7 +3,7 @@ module P2
   # This is P2 Base class that defines common functionality.
   # All Ruby P2 classes serve as transparent proxy for OLE objects in P2ClientGate library.
   #
-  class P2Class
+  class Base
     include P2
     include WIN32OLE::VARIANT
 

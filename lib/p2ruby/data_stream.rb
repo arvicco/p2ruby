@@ -3,7 +3,7 @@ module P2
   # Represents P2 replication Data Stream.
   # Основной интерфейс объекта используемый для организации получения репликационных данных.
   #
-  class DataStream < P2Class
+  class DataStream < Base
     CLSID = '{914893CB-0864-4FBB-856A-92C3A1D970F8}'
     PROGID = 'P2ClientGate.P2DataStream.1'
 

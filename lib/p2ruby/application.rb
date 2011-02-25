@@ -15,7 +15,7 @@ module P2
   #  и изменяется с помощью стандартных методов get и put.
   #  Делать это необходимо до начала работы с другими объектами библиотеки.
   #
-  class Application < P2Class
+  class Application < Base
     CLSID = '{08A95064-05C2-4EF4-8B5D-D6211C2C9880}'
     PROGID = 'P2ClientGate.P2Application.1'
 

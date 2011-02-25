@@ -120,7 +120,7 @@ P2ClientGate = P2
 require 'extension'
 require 'p2ruby/router'
 require 'p2ruby/library'
-require 'p2ruby/p2class'
+require 'p2ruby/base'
 require 'p2ruby/application'
 require 'p2ruby/connection'
 require 'p2ruby/message_factory'

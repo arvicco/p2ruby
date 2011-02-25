@@ -11,7 +11,7 @@ module P2
   # Disconnect и Connect. Параметры аутентификации роутера (LoginStr) должны быть
   # заданы до момента вызова метода Login.
   #
-  class Connection < P2Class
+  class Connection < Base
     CLSID = '{CCD42082-33E0-49EA-AED3-9FE39978EB56}'
     PROGID = 'P2ClientGate.P2Connection.1'
 

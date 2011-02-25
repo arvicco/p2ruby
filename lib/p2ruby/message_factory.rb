@@ -6,7 +6,7 @@ module P2
   # Если требуется использовать другие схемы сообщений, следует при инициализации объекта
   # указать пользовательский ini-файл, содержащий такие схемы.
   #
-  class MessageFactory < P2Class
+  class MessageFactory < Base
     CLSID = '{501786DA-CA02-45C1-B815-1C58C383265D}'
     PROGID = 'P2ClientGate.P2BLMessageFactory.1'
 

@@ -303,7 +303,7 @@ STR
   end
 
   def define_class(klass, io = STDOUT)
-    io.puts "class #{klass.name} < P2Class # #{class_name(klass)}"
+    io.puts "class #{klass.name} < Base # #{class_name(klass)}"
     io.puts "  CLSID = '#{klass.guid}'"
     io.puts "  PROGID = '#{klass.progid}'"
     io.puts define_include

@@ -2,7 +2,7 @@ require 'win32ole'
 require 'win32ole/property'
 
 # P2Connection Class
-class CP2Connection < P2Class # P2ClientGate_P2Connection_1
+class CP2Connection < Base # P2ClientGate_P2Connection_1
   CLSID = '{CCD42082-33E0-49EA-AED3-9FE39978EB56}'
   PROGID = 'P2ClientGate.P2Connection.1'
   include WIN32OLE::VARIANT
@@ -461,7 +461,7 @@ module IP2AsyncSendEvent2
 end
 
 # P2BLMessage Class
-class CP2BLMessage < P2Class # P2ClientGate_P2BLMessage_1
+class CP2BLMessage < Base # P2ClientGate_P2BLMessage_1
   CLSID = '{A9A6C936-5A12-4518-9A92-90D75B41AF18}'
   PROGID = 'P2ClientGate.P2BLMessage.1'
   include WIN32OLE::VARIANT
@@ -558,7 +558,7 @@ class CP2BLMessage < P2Class # P2ClientGate_P2BLMessage_1
 end
 
 # P2BLMessageFactory Class
-class CP2BLMessageFactory < P2Class # P2ClientGate_P2BLMessageFactory_1
+class CP2BLMessageFactory < Base # P2ClientGate_P2BLMessageFactory_1
   CLSID = '{501786DA-CA02-45C1-B815-1C58C383265D}'
   PROGID = 'P2ClientGate.P2BLMessageFactory.1'
   include WIN32OLE::VARIANT
@@ -632,7 +632,7 @@ module IP2BLMessageFactory
 end
 
 # P2TableSet Class
-class CP2TableSet < P2Class # P2ClientGate_P2TableSet_1
+class CP2TableSet < Base # P2ClientGate_P2TableSet_1
   CLSID = '{C52E4892-894B-4C03-841F-97E893F7BCAE}'
   PROGID = 'P2ClientGate.P2TableSet.1'
   include WIN32OLE::VARIANT
@@ -946,7 +946,7 @@ module IP2Record
 end
 
 # P2DataStream Class
-class CP2DataStream < P2Class # P2ClientGate_P2DataStream_1
+class CP2DataStream < Base # P2ClientGate_P2DataStream_1
   CLSID = '{914893CB-0864-4FBB-856A-92C3A1D970F8}'
   PROGID = 'P2ClientGate.P2DataStream.1'
   include WIN32OLE::VARIANT
@@ -1269,7 +1269,7 @@ module IP2DataStreamEvents
 end
 
 # P2DataBuffer Class
-class CP2DataBuffer < P2Class # P2ClientGate_P2DataBuffer_1
+class CP2DataBuffer < Base # P2ClientGate_P2DataBuffer_1
   CLSID = '{30E32F86-2B2A-47E4-A3B9-FDA18197E6E0}'
   PROGID = 'P2ClientGate.P2DataBuffer.1'
   include WIN32OLE::VARIANT
@@ -1455,7 +1455,7 @@ module IP2TableRecords
 end
 
 # P2Application Class
-class CP2Application < P2Class # P2ClientGate_P2Application_1
+class CP2Application < Base # P2ClientGate_P2Application_1
   CLSID = '{08A95064-05C2-4EF4-8B5D-D6211C2C9880}'
   PROGID = 'P2ClientGate.P2Application.1'
   include WIN32OLE::VARIANT
