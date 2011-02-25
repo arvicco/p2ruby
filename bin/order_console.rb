@@ -1,25 +1,14 @@
 #!/usr/bin/env ruby
 # encoding: Windows-1251
 
-require 'pathname'
-lib = (Pathname.new(__FILE__).dirname + '../lib').expand_path.to_s
-$:.unshift lib unless $:.include?(lib)
-require 'p2ruby'
+require_relative 'start_script'
 
-# This script replicates P2@AddOrderConsole.cpp functionality (but for async Send)
+router = start_router
 
-# First we need to cd into p2 main dir (and make sure Router is started)
-ROUTER_INI = Dir["../../spec/**/client_router.ini"].first
-ROUTER_PATH = Dir["**/P2MQRouter.exe"].first
-router = P2Ruby::Router.new :path => ROUTER_PATH, :ini => ROUTER_INI
-
-sleep 0.3
-puts "Router started at #{ROUTER_PATH}..."
-#------------------------
+# This script replicates P2AddOrderConsole.cpp functionality (but for async Send)
 
 #$log = File.new "Log\\P2AddOrderConsole.log", 'w'
-##     SetConsoleOutputCP(1251); ?
-#
+#     SetConsoleOutputCP(1251); ?
 
 #####################################
 def showerror(e)
@@ -128,25 +117,7 @@ end
 #####################################
 def PrintMsg(reply, errCode)
   if (errCode == 0)
-    c = reply.Field["P2_Category"]
-    t = reply.Field["P2_Type"]
-
-    if c == "FORTS_MSG" && t == 101
-      code = reply.Field["code"]
-      if (code == 0)
-        orderId = reply.Field["order_id"]
-        puts "Adding order Ok, Order_id is #{orderId}"
-      else
-        message = reply.Field["message"]
-        puts "Adding order fail, logic error is #{message}"
-      end
-    elsif c == "FORTS_MSG" && t == 100
-      errCode = reply.Field["err_code"]
-      message = reply.Field["message"]
-      puts "Adding order fail, system level error #{errCode}: #{message}"
-    else
-      puts "Unexpected MQ message recieved; category #{c} type #{t}"
-    end
+    puts reply.parse_reply
   else
     puts "Delivery errorCode: #{errCode}"
   end

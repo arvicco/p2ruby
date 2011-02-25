@@ -87,5 +87,47 @@ describe P2Ruby::Message do
       p subject.Field["amount"]
       p subject.Field["type"]
     end
+  end # 'working with named property Field'
+
+  context 'with active connection' do
+    before(:all) do
+      start_router
+      P2Ruby::Application.reset CLIENT_INI
+      @conn = P2Ruby::Connection.new :app_name => 'DSTest',
+                                     :host => "127.0.0.1", :port => 4001
+      @conn.Connect
+      @conn.should be_connected
+      @conn.should be_logged
+      # Disconnected connection, for comparison
+      @disconn = P2Ruby::Connection.new :app_name => 'DSTestDisconnected',
+                                        :host => "127.0.0.1", :port => 4001
+    end
+
+    describe '#Send()' do
+      it 'syncronously sends via active connection with timeout' do
+        subject.Send(@conn, 1000)
+      end
+
+      it 'syncronously sends via raw connection ole' do
+        subject.Send(@conn.ole, 1000)
+      end
+
+      it 'fails to send via inactive connection' do
+        expect { subject.Send(@disconn, 1000) }.to raise_error /Coudln.t send MQ message/
+      end
+
+      it 'returns wrapped server reply message ' do
+        reply = subject.Send(@conn, 1000)
+        reply.should be_a P2::Message
+        reply.Field["P2_Category"].should == "FORTS_MSG"
+      end
+    end #Send()
+
+    describe '#parse_reply' do
+      it 'analyses message as a server reply, returns result text' do
+        reply = subject.Send(@conn, 1000)
+        p reply.parse_reply
+      end
+    end
   end
 end

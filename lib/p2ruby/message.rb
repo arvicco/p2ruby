@@ -17,6 +17,28 @@ module P2Ruby
       super opts
     end
 
+    # analyses message as a server reply, returns result text
+    def parse_reply
+      category = self.Field["P2_Category"]
+      type = self.Field["P2_Type"]
+
+      res = "Reply category: #{category}, type #{type}. "
+
+      if category == "FORTS_MSG" && type == 101
+        code = self.Field["code"]
+        if code == 0
+          res += "Adding order Ok, Order_id: #{self.Field["order_id"]}."
+        else
+          res += "Adding order fail, logic error: #{self.Field["message"]}."
+        end
+      elsif category == "FORTS_MSG" && type == 100
+        res += "Adding order fail, system level error: " +
+            "#{self.Field["code"]} #{self.Field["message"]}"
+      else
+        res += "Unexpected MQ message recieved."
+      end
+    end
+
     # Auto-generated OLE methods:
 
     # property BSTR Name
@@ -85,7 +107,9 @@ module P2Ruby
     #   UI4 timeout [IN]
     #  [out,retval] IP2BLMessage** reply);
     def Send(conn, timeout)
-      @ole._invoke(6, [conn, timeout], [VT_BYREF|VT_DISPATCH, VT_UI4])
+      conn = conn.respond_to?(:ole) ? conn.ole : conn
+      reply = @ole._invoke(6, [conn, timeout], [VT_BYREF|VT_DISPATCH, VT_UI4])
+      P2::Message.new :ole => reply
     end
 
     # method VOID Post

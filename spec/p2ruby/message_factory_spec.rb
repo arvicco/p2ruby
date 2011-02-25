@@ -37,7 +37,7 @@ describe P2Ruby::MessageFactory do
     # This is a P2Ruby object wrapper for CreateMessageByName
 
     it 'creates P2Ruby::Message wrapper given message opts' do
-      msg = subject.message :name => "FutOrder", :dest_addr => 'Blah'
+      msg = subject.message :name => "FutAddOrder", :dest_addr => 'Blah'
       msg.should be_a P2Ruby::Message
       msg.DestAddr.should == "Blah"
       p msg.Id
