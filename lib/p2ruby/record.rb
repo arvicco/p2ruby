@@ -47,13 +47,13 @@ module P2
     # method BSTR GetValAsString
     #   BSTR field_name [IN]
     def GetValAsString(field_name)
-      _invoke(2, [field_name], [VT_BSTR])
+      _invoke(2, [field_name], [VT_BSTR]).force_encoding('IBM866').encode('CP1251')
     end
 
     # method BSTR GetValAsStringByIndex
     #   UI4 field_index [IN]
     def GetValAsStringByIndex(field_index)
-      _invoke(3, [field_index], [VT_UI4])
+      _invoke(3, [field_index], [VT_UI4]).force_encoding('IBM866').encode('CP1251')
     end
 
     # method I4 GetValAsLong

@@ -7,8 +7,8 @@ require_relative 'start_script'
 
 # Event processing classes
 ######################################
-class CConnEvent < P2::Connection
-  def initialize app_name #("P2ClientGate.P2Connection")
+class ConnectionEvents < P2::Connection
+  def initialize app_name
     # создаем объект Connection
     super :app_name => app_name, :host => "127.0.0.1", :port => 4001
     self.events.handler = self
@@ -22,7 +22,7 @@ class CConnEvent < P2::Connection
 end
 
 #####################################
-class CDSEvents < P2::DataStream
+class DataStreamEvents < P2::DataStream
   def initialize conn, short_name
     # создаем объект DataStream
     super :stream_name => "FORTS_#{short_name}_REPL", :type => P2::RT_COMBINED_DYNAMIC #,
@@ -31,9 +31,8 @@ class CDSEvents < P2::DataStream
     self.Open(conn)
   end
 
-  def PrintRec(rec)
-    rec = P2::Record.new :ole => rec unless rec.is_a? P2::Record
-    $log.puts rec
+  def wrap(rec)
+    P2::Record.new :ole => rec unless rec.is_a? P2::Record
   end
 
 # IP2DataStreamEvents
@@ -56,42 +55,41 @@ class CDSEvents < P2::DataStream
       else
         str = ""
     end
-    $log.puts "StreamStateChanged #{stream} - #{str}"
+    $log.puts "StreamStateChanged #{stream.StreamName} - #{str}"
   end
 
   def onStreamDataInserted stream, tableName, rec
-    $log.puts "StreamDataInserted #{stream} - #{tableName} - #{rec}"
-    PrintRec(rec)
+#    return unless tableName == 'sys_messages'
+    $log.puts "StreamDataInserted #{stream.StreamName} - #{tableName}: #{wrap(rec)}"
+#    $log.puts "StreamDataInserted #{stream} - #{tableName} - #{rec}"
   end
 
   def onStreamDataUpdated(stream, tableName, id, rec)
-    $log.puts "StreamDataUpdated #{stream} - #{tableName} - #{id} - #{rec}"
-    PrintRec(rec)
+    $log.puts "StreamDataUpdated #{stream.StreamName} - #{tableName} - #{id}: #{wrap(rec)}"
   end
 
   def onStreamDataDeleted(stream, tableName, id, rec)
-    $log.puts "StreamDataDeleted #{stream} - #{tableName} - #{id} - #{rec}"
-    PrintRec(rec)
+    $log.puts "StreamDataDeleted #{stream.StreamName} - #{tableName} - #{id}: #{wrap(rec)}"
   end
 
   def onStreamDatumDeleted(stream, tableName, rev)
-    $log.puts "StreamDatumDeleted #{stream} - #{tableName} - #{rev}"
+    $log.puts "StreamDatumDeleted #{stream.StreamName} - #{tableName} - #{rev}"
   end
 
   def onStreamDBWillBeDeleted(stream)
-    $log.puts "StreamDBWillBeDeleted #{stream} "
+    $log.puts "StreamDBWillBeDeleted #{stream.name} "
   end
 
   def onStreamLifeNumChanged(stream, lifeNum)
-    $log.puts "StreamLifeNumChanged #{stream} - #{lifeNum} "
+    $log.puts "StreamLifeNumChanged #{stream.StreamName} - #{lifeNum} "
   end
 
   def onStreamDataBegin(stream)
-    $log.puts "StreamDataBegin #{stream} "
+    $log.puts "StreamDataBegin #{stream.StreamName} "
   end
 
   def onStreamDataEnd(stream)
-    $log.puts "StreamDataEnd #{stream} "
+    $log.puts "StreamDataEnd #{stream.StreamName} "
   end
 
 end
@@ -151,19 +149,19 @@ end
 #####################################
 #void ThreadProc(void* name)
 
-$log = STDOUT #File.new "Log\\P2AddOrderConsole.log", 'w'
+$log = File.new "log\\order_console.log", 'w'  #  STDOUT #
 $exit = false
 
 #####################################
 start_router do
   P2::Application.reset CLIENT_INI
-  conn = CConnEvent.new "RbOrderConsole"
-  dsFUTNFO = CDSEvents.new conn, "FUTINFO"
+  conn = ConnectionEvents.new "RbOrderConsole"
+  ds_events = DataStreamEvents.new conn, "FUTINFO"
 
   srv_addr = conn.ResolveService("FORTS_SRV")
 
   puts "Press any key to send message"
   msgs = P2::MessageFactory.new :ini => MESSAGE_INI
 
-  conn.ProcessMessage2(1000) until $exit
+  conn.ProcessMessage2(1000) until $exit && conn.connected?
 end

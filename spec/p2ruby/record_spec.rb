@@ -53,6 +53,7 @@ describe P2::Record do
   describe '#to_s' do
     it 'reveals fields content' do
       p subject.to_s
+      p subject.to_s.encoding
       subject.to_s.should =~ /\d+|\d|\d|.+RTS/
       subject.to_s.scan(/\|/).size.should == 12
     end
