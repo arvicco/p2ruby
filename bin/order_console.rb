@@ -17,8 +17,7 @@ class CConnEvent < P2::Connection
 
   # IP2ConnectionEvent
   def onConnectionStatusChanged(conn, new_status)
-    $log.puts "EVENT!"
-    $log.puts status_text new_status
+    $log.puts "EVENT ConnectionStatusChanged: #{conn} - #{status_text new_status}"
   end
 end
 
@@ -26,26 +25,18 @@ end
 class CDSEvents < P2::DataStream
   def initialize conn, short_name
     # создаем объект DataStream
-    super :stream_name => "FORTS_#{short_name}_REPL", :type => P2::RT_COMBINED_DYNAMIC#,
+    super :stream_name => "FORTS_#{short_name}_REPL", :type => P2::RT_COMBINED_DYNAMIC #,
 #          :DBConnString => "P2DBSqLiteD.dll;;Log\\#{short_name}_.db"
-    p self.Type
-    p self.DBConnString
-    p self.StreamName
-    p self.TableSet
     self.events.handler = self
     self.Open(conn)
   end
 
   def PrintRec(rec)
-    unless rec.is_a? P2::Record
-      $log.puts "Couldn't print record #{rec}"
-      return
-    end
-
-    $log.puts (0..rec.Count).map { |i| rec.GetValAsStringByIndex(i) }.join "|"
+    rec = P2::Record.new :ole => rec unless rec.is_a? P2::Record
+    $log.puts rec
   end
 
-  # IP2DataStreamEvents
+# IP2DataStreamEvents
   def onStreamStateChanged(stream, newState)
     case newState
       when DS_STATE_CLOSE
@@ -102,6 +93,7 @@ class CDSEvents < P2::DataStream
   def onStreamDataEnd(stream)
     $log.puts "StreamDataEnd #{stream} "
   end
+
 end
 
 #####################################
