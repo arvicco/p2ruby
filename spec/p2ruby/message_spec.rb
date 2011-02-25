@@ -83,7 +83,7 @@ describe P2Ruby::Message do
       print "P2_Type asLL "; p subject.FieldAsLONGLONG["P2_Type"]
       print "hedge asLL "; p subject.FieldAsLONGLONG["hedge"]
 
-      p subject.Field["dir"] ################################
+      p subject.Field["dir"]
       p subject.Field["amount"]
       p subject.Field["type"]
     end
@@ -132,7 +132,9 @@ describe P2Ruby::Message do
         reply.parse_reply.should =~ /Reply category: FORTS_MSG, type 101. Adding order Ok, Order_id:/
 
         msg.Field['price'] = '1' # Price outside of limits
+        puts reply.parse_reply
         reply = msg.Send(@conn, 1000)
+        puts reply.parse_reply
         reply.parse_reply.should =~ /Reply category: FORTS_MSG, type 101. Adding order fail, logic error:/
       end
     end

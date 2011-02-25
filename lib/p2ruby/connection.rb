@@ -63,6 +63,9 @@ module P2Ruby
       @ole._getproperty(2, [], [])
     end
 
+    alias Name AppName
+    alias name AppName
+
     # property BSTR NodeName
     #   имя роутера
     def NodeName()
@@ -100,6 +103,9 @@ module P2Ruby
     def AppName=(val)
       @ole._setproperty(2, [val], [VT_BSTR])
     end
+
+    alias Name= AppName=
+    alias name= AppName=
 
     # property VOID Host
     #   IP-адрес узла либо UNC-имя.

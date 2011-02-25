@@ -43,6 +43,8 @@ module P2Ruby
     def StreamName()
       @ole._getproperty(2, [], [])
     end
+    alias Name StreamName
+    alias name StreamName
 
     # property BSTR DBConnString
     # — строка соединения с БД. Перечень параметров для соединения с БД зависит от того,
@@ -83,6 +85,8 @@ module P2Ruby
     def StreamName=(val)
       @ole._setproperty(2, [val], [VT_BSTR])
     end
+    alias Name= StreamName=
+    alias name= StreamName=
 
     # property VOID DBConnString — строка соединения с БД. See DBConnString().
     def DBConnString=(val)

@@ -39,8 +39,12 @@ end
 class CDSEvents < P2::DataStream
   def initialize conn, short_name
     # создаем объект DataStream
-    super :name => "FORTS_#{short_name}_REPL", :type => P2::RT_REMOTE_ONLINE#, #RT_COMBINED_DYNAMIC,
-#          :db_conn_string => "P2DBSqLiteD.dll;;Log\\#{short_name}_.db"
+    super :stream_name => "FORTS_#{short_name}_REPL", :type => P2::RT_COMBINED_DYNAMIC#,
+#          :DBConnString => "P2DBSqLiteD.dll;;Log\\#{short_name}_.db"
+    p self.Type
+    p self.DBConnString
+    p self.StreamName
+    p self.TableSet
     self.events.handler = self
     self.Open(conn)
   end
@@ -94,7 +98,6 @@ class CDSEvents < P2::DataStream
 
   def onStreamDatumDeleted(stream, tableName, rev)
     $log.puts "StreamDatumDeleted #{stream} - #{tableName} - #{rev}"
-    PrintRec(rec)
   end
 
   def onStreamDBWillBeDeleted(stream)
@@ -162,13 +165,13 @@ end
 
 #####################################
 begin
+  P2::Application.reset CLIENT_INI
   conn = CConnEvent.new "RbOrderConsole"
   dsFUTNFO = CDSEvents.new conn, "FUTINFO"
-
   srv_addr = conn.ResolveService("FORTS_SRV")
 
   puts "Press any key to send message"
-  msgs = P2::MessageFactory.new :ini => "p2fortsgate_messages.ini"
+  msgs = P2::MessageFactory.new :ini => MESSAGE_INI
 
   conn.ProcessMessage2(1000) until $exit
 rescue => e

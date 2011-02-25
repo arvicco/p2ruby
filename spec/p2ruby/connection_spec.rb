@@ -19,6 +19,41 @@ shared_examples_for 'new connection' do
 #      its(:NodeName) { should == "??" }
   end
 
+  it 'is possible to set settable properties' do
+    # Notes: Свойства AppName, NodeName, Host, Port, Password и Timeout должны быть
+    # заданы до момента вызова метода Connect. В случае изменения данных свойств для
+    # того, чтобы изменения вступили в силу необходимо провести последовательный вызов
+    # методов Disconnect и Connect. Параметры аутентификации роутера (LoginStr) должны
+    # быть заданы до момента вызова метода Login.
+    subject.AppName ='REASSIGNED'
+    subject.Host ='REASSIGNED_HOST'
+    subject.Port =1313
+    subject.LoginStr ='REASSIGNED_STRING'
+    subject.Timeout =13
+    subject.Password ='REASSIGNED_PASS'
+
+    subject.AppName.should == 'REASSIGNED'
+    subject.Name.should == 'REASSIGNED'
+    subject.name.should == 'REASSIGNED'
+    subject.Host.should == 'REASSIGNED_HOST'
+    subject.Port.should == 1313
+    subject.LoginStr.should =='REASSIGNED_STRING'
+    subject.Timeout.should == 13
+    #    subject.Password.should == 'REASSIGNED_PASS' # - No accessor for Password!
+  end
+
+  it 'is possible to set/access AppName property through aliases' do
+    subject.Name ='Set through Name'
+    subject.AppName.should == 'Set through Name'
+    subject.Name.should == 'Set through Name'
+    subject.name.should == 'Set through Name'
+
+    subject.name ='Now set through name'
+    subject.AppName.should == 'Now set through name'
+    subject.Name.should == 'Now set through name'
+    subject.name.should == 'Now set through name'
+  end
+
   it 'is not connected right away' do
     subject.should_not be_connected
   end
@@ -50,6 +85,11 @@ describe P2Ruby::Connection do
       its(:Port) { should == 3333 }
       its(:Timeout) { should == 500 }
       its(:LoginStr) { should == "Blah" }
+
+      # Alias properties
+      its(:Name) { should =~ /APP-./ }
+      its(:name) { should =~ /APP-./ }
+
       it_behaves_like 'new connection'
     end
 

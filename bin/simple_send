@@ -6,7 +6,11 @@ require_relative 'start_script'
 # This script replicates SimpleSend.js functionality
 
 start_router do
-  # создаем объект Connection
+
+  # Resetting Application with correct ini file
+  P2::Application.reset CLIENT_INI
+
+  # Creating Connection object
   conn = P2Ruby::Connection.new(:app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
                                 :host => "127.0.0.1", # IP Адрес
                                 :port => 4001) # и порт локального роутера
@@ -20,7 +24,7 @@ start_router do
   puts "FORTS_SRV server address: #{server_address}..."
 
   # создаем и инициализируем фабрику объектов-сообщений
-  msgs = P2Ruby::MessageFactory.new :ini => "p2fortsgate_messages.ini"
+  msgs = P2Ruby::MessageFactory.new :ini => MESSAGE_INI
 
   puts "Msg Factory inited..."
 

@@ -29,7 +29,7 @@ module P2Ruby
         if code == 0
           res += "Adding order Ok, Order_id: #{self.Field["order_id"]}."
         else
-          res += "Adding order fail, logic error: #{self.Field["message"]}."
+          res += "Adding order fail, logic error: #{self.Field["message"]}"
         end
       elsif category == "FORTS_MSG" && type == 100
         res += "Adding order fail, system level error: " +
