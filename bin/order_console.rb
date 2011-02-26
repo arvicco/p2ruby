@@ -128,7 +128,6 @@ start_router do
 #  ds_futcommon = DataStreamEvents.new conn, "FORTS_FUTCOMMON"
   ds_index = DataStreamEvents.new conn, "RTS_INDEX"
 
-
   server_address = conn.ResolveService("FORTS_SRV")
 
   puts "Press Ctrl-C to send message or interrupt program"
