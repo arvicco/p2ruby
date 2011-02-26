@@ -360,7 +360,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	CLog log;
 	StartCOM CoInst;
 	SetConsoleCtrlHandler(CtrlHandler, TRUE);
-	try 
+	try
 	{
 		CConnEvent conn(L"P2FORTS_REPL");
 		CDSEvents dsFUTNFO(conn.GetConn(), L"FUTINFO");

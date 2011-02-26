@@ -18,24 +18,29 @@ module P2
     end
 
     # analyses message as a server reply, returns result text
-    def parse_reply
+    def parse_reply(encode = nil)
       category = self.Field["P2_Category"]
       type = self.Field["P2_Type"]
 
-      res = "Reply category: #{category}, type #{type}. "
+      res = "Reply category: #{category}, type #{type}. " +
+          if category == "FORTS_MSG" && type == 101
+            code = self.Field["code"]
+            if code == 0
+              "Adding order Ok, Order_id: #{self.Field["order_id"]}."
+            else
+              "Adding order fail, logic error: #{self.Field["message"]}"
+            end
+          elsif category == "FORTS_MSG" && type == 100
+            "Adding order fail, system level error: " +
+                "#{self.Field["code"]} #{self.Field["message"]}"
+          else
+            "Unexpected MQ message recieved."
+          end
 
-      if category == "FORTS_MSG" && type == 101
-        code = self.Field["code"]
-        if code == 0
-          res += "Adding order Ok, Order_id: #{self.Field["order_id"]}."
-        else
-          res += "Adding order fail, logic error: #{self.Field["message"]}"
-        end
-      elsif category == "FORTS_MSG" && type == 100
-        res += "Adding order fail, system level error: " +
-            "#{self.Field["code"]} #{self.Field["message"]}"
+      if encode
+        res.force_encoding('IBM866').encode(encode, :undef => :replace)
       else
-        res += "Unexpected MQ message recieved."
+        res
       end
     end
 

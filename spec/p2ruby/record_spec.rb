@@ -62,12 +62,12 @@ describe P2::Record do
   describe '#[]' do
     it 'provides access to field content by field name' do
       subject['name'].should =~ /RTS/
-      subject['moment'].should =~ Regexp.new(Time.now.strftime("%Y/%m/%d"))
+      subject['moment'].should =~ Regexp.new(Time.now.strftime("%Y/%m/"))
     end
 
     it 'provides access to field content by field index' do
       subject[3].should =~ /RTS/
-      subject[4].should =~ Regexp.new(Time.now.strftime("%Y/%m/%d"))
+      subject[4].should =~ Regexp.new(Time.now.strftime("%Y/%m/"))
     end
   end
 

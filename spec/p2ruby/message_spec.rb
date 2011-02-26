@@ -1,23 +1,27 @@
-# encoding: utf-8
+# encoding: CP1251
 require 'spec_helper'
+
+def get_message opts ={}
+  @factory.message :name => opts[:name] ||"FutAddOrder",
+                   :dest_addr => opts[:dest_addr] || "FINTER_FORTS3.Dispatcher",
+                   :field => opts[:field] || {
+                       "P2_Category" => opts[:P2_Category] || "FORTS_MSG",
+                       :P2_Type => opts[:P2_Type] || 1,
+                       "isin" => opts[:isin] || "RTS-3.11",
+                       :price => opts[:price] || "184500",
+                       :amount => opts[:amount] || 1,
+                       "client_code" => opts[:client_code] || "001",
+                       "type" => opts[:type] || 1,
+                       "dir" => opts[:dir] || 1
+                   }
+end
 
 describe P2::Message do
   before(:all) do
     P2::Application.reset CLIENT_INI
     @factory = P2::MessageFactory.new :ini => MESSAGE_INI
   end
-  subject { @factory.message :name => "FutAddOrder",
-                             :dest_addr => "FINTER_FORTS3.Dispatcher",
-                             :field => {
-                                 "P2_Category" => "FORTS_MSG",
-                                 :P2_Type => 1,
-                                 "isin" => "RTS-3.11",
-                                 :price => "184500",
-                                 :amount => 1,
-                                 "client_code" => "001",
-                                 "type" => 1,
-                                 "dir" => 1
-                             } }
+  subject { get_message }
 
   it 'is not instantiated directly, use MessageFactory instead'
 
@@ -94,13 +98,13 @@ describe P2::Message do
       start_router
       P2::Application.reset CLIENT_INI
       @conn = P2::Connection.new :app_name => 'DSTest',
-                                     :host => "127.0.0.1", :port => 4001
+                                 :host => "127.0.0.1", :port => 4001
       @conn.Connect
       @conn.should be_connected
       @conn.should be_logged
       # Disconnected connection, for comparison
       @disconn = P2::Connection.new :app_name => 'DSTestDisconnected',
-                                        :host => "127.0.0.1", :port => 4001
+                                    :host => "127.0.0.1", :port => 4001
     end
 
     after(:all) { stop_router }
@@ -126,16 +130,29 @@ describe P2::Message do
     end #Send()
 
     describe '#parse_reply' do
+      before(:all) do
+        @correct_order = get_message
+        @wrong_order = get_message :price => '1' # Price outside of limits
+      end
+
       it 'analyses message as a server reply, returns result text' do
-        msg = subject
-        reply = msg.Send(@conn, 1000)
+        reply = @correct_order.Send(@conn, 1000)
         reply.parse_reply.should =~ /Reply category: FORTS_MSG, type 101. Adding order Ok, Order_id:/
 
-        msg.Field['price'] = '1' # Price outside of limits
-        puts reply.parse_reply
-        reply = msg.Send(@conn, 1000)
-        puts reply.parse_reply
+        reply = @wrong_order.Send(@conn, 1000)
         reply.parse_reply.should =~ /Reply category: FORTS_MSG, type 101. Adding order fail, logic error:/
+      end
+
+      it 'correctly outputs Windows Cyrillics' do
+        pending 'freaking RSpec just does NOT output Cyrillics correctly, no matter what'
+        Encoding.default_internal, Encoding.default_external = ['cp1251'] * 2
+        lit = "ирокая электрификация южных губерний даст мощный толчок подъёму сельс"
+        reply = @wrong_order.Send(@conn, 1000)
+        puts "Source encoding: #{__ENCODING__}"
+        puts "Def ext/int encoding: #{Encoding.default_external}/#{Encoding.default_internal}"
+        puts "String literal: #{lit} - encoding: #{lit.encoding}"
+        puts "Reply: #{reply.parse_reply} - encoding: #{reply.parse_reply.encoding}"
+        lit.should =~ /miserable_failure/
       end
     end
   end

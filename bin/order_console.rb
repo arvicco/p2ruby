@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: Windows-1251
 
-require_relative 'start_script'
+require_relative 'script_helper'
 
 # This script replicates P2AddOrderConsole.cpp functionality (but for async Send)
 
@@ -10,7 +10,8 @@ require_relative 'start_script'
 class ConnectionEvents < P2::Connection
   def initialize app_name
     # Create Connection object
-    super :app_name => app_name, :host => "127.0.0.1", :port => 4001
+    super :ini => CLIENT_INI, :app_name => app_name,
+          :host => "127.0.0.1", :port => 4001
     self.events.handler = self
     self.Connect()
   end
@@ -25,7 +26,7 @@ end
 class DataStreamEvents < P2::DataStream
   def initialize conn, short_name
     # Create DataStream object
-    super :stream_name => "FORTS_#{short_name}_REPL", :type => P2::RT_COMBINED_DYNAMIC #,
+    super :stream_name => "#{short_name}_REPL", :type => P2::RT_COMBINED_DYNAMIC #,
 #          :DBConnString => "P2DBSqLiteD.dll;;Log\\#{short_name}_.db"
     self.events.handler = self
     self.Open(conn)
@@ -41,9 +42,8 @@ class DataStreamEvents < P2::DataStream
   end
 
   def onStreamDataInserted stream, table_name, rec
-#    return unless table_name == 'sys_messages'   # Single out one table events
+    return unless table_name == 'sys_messages' # Single out one table events
     $log.puts "StreamDataInserted #{stream.StreamName} - #{table_name}: #{wrap(rec)}"
-#    $log.puts "StreamDataInserted #{stream} - #{table_name} - #{rec}"
   end
 
   def onStreamDataUpdated(stream, table_name, id, rec)
@@ -59,11 +59,11 @@ class DataStreamEvents < P2::DataStream
   end
 
   def onStreamDBWillBeDeleted(stream)
-    $log.puts "StreamDBWillBeDeleted #{stream.name} "
+    $log.puts "StreamDBWillBeDeleted #{stream.StreamName} "
   end
 
-  def onStreamLifeNumChanged(stream, lifeNum)
-    $log.puts "StreamLifeNumChanged #{stream.StreamName} - #{lifeNum} "
+  def onStreamLifeNumChanged(stream, life_num)
+    $log.puts "StreamLifeNumChanged #{stream.StreamName} - #{life_num} "
   end
 
   def onStreamDataBegin(stream)
@@ -73,38 +73,33 @@ class DataStreamEvents < P2::DataStream
   def onStreamDataEnd(stream)
     $log.puts "StreamDataEnd #{stream.StreamName} "
   end
-
 end
 
 #####################################
-#class CAsyncMessageEvent :
+#class CAsyncMessageEvent : Not used, Async Send event interfaces not implemented :(
 #####################################
-#class CAsyncSendEvent2 :
+#class CAsyncSendEvent2 : Not used, Async Send event interfaces not implemented :(
 
 # Global functions
 #####################################
-def showerror(e)
-  $log.puts e
-#  fprintf(g_fLog, "COM error occured\n");
-#  fprintf(g_fLog, "\tError:        %08lx\n", e.Error());
-#  fprintf(g_fLog, "\tErrorMessage: %s\n", e.ErrorMessage());
-#  fprintf(g_fLog, "\tSource:       %s\n", static_cast<LPCTSTR>(e.Source()));
-#  fprintf(g_fLog, "\tDescription:  %s\n", static_cast<LPCTSTR>(e.Description()));
+def send_message conn, server_address, message_factory
+  $log.puts "Sending sync message..."
+
+  msg = message_factory.message ADD_ORDER_OPTS
+  msg.DestAddr = server_address
+
+  reply = msg.Send(conn, 1000)
+
+  $log.puts reply.parse_reply
+
+  $send = false
 end
 
-def PrintMsg(reply, errCode)
-  if (errCode == 0)
-
-  else
-    $log.puts "Delivery errorCode: #{errCode}"
-  end
-end
-
-# Signal Handler
+# Signal Handler (sends signals into main event loop via global variables)
 ####################################
 Signal.trap("INT") do |signo|
   puts "Send sync message?"
-  if 'y' == gets.chomp
+  if 'y' == STDIN.gets.chomp
     $send = true
   else
     puts "Interrupted... (#{signo})"
@@ -114,44 +109,33 @@ end
 
 # Main execution logics
 #####################################
-#void ThreadProc(void* name)
+# void ThreadProc(void* name) : Not sure why second event loop is needed?
 
-$log = STDOUT # File.new "log\\order_console.log", 'w'  #  STDOUT #
+$log = ARGV.first == 'log' ? File.new("log\\order_console.log", 'w') : STDOUT
 $exit = false
 $send = false
 
-#####################################
 start_router do
-  P2::Application.reset CLIENT_INI
   conn = ConnectionEvents.new "RbOrderConsole"
-  ds_futinfo = DataStreamEvents.new conn, "FUTINFO"
-#  ds_futtrade = DataStreamEvents.new conn, "FUTTRADE"
+  ds_futinfo = DataStreamEvents.new conn, "FORTS_FUTINFO"
+#  ds_pos = DataStreamEvents.new conn, "FORTS_POS"
+#  ds_part = DataStreamEvents.new conn, "FORTS_PART"
+#  ds_futtrade = DataStreamEvents.new conn, "FORTS_FUTTRADE"
+#  ds_optinfo = DataStreamEvents.new conn, "FORTS_OPTINFO"
+#  ds_futaggr = DataStreamEvents.new conn, "FORTS_OPTAGGR"
+#  ds_futaggr20 = DataStreamEvents.new conn, "FORTS_FUTAGGR20"
+#  ds_optcommon = DataStreamEvents.new conn, "FORTS_OPTCOMMON"
+#  ds_futcommon = DataStreamEvents.new conn, "FORTS_FUTCOMMON"
+  ds_index = DataStreamEvents.new conn, "RTS_INDEX"
 
-  srv_addr = conn.ResolveService("FORTS_SRV")
 
-  puts "Press any key to send message"
-  msgs = P2::MessageFactory.new :ini => MESSAGE_INI
+  server_address = conn.ResolveService("FORTS_SRV")
+
+  puts "Press Ctrl-C to send message or interrupt program"
+  message_factory = P2::MessageFactory.new :ini => MESSAGE_INI
 
   until $exit
+    send_message(conn, server_address, message_factory) if $send
     conn.ProcessMessage2(1000)
-    if $send
-      $log.puts "Sending sync message..."
-      msg = msgs.message :name => "FutAddOrder",
-                         :dest_addr => srv_addr,
-                         :field => {
-                             "P2_Category" => "FORTS_MSG",
-                             "P2_Type" => 1,
-                             "isin" => "RTS-3.11",
-                             :price => "185500",
-                             :amount => 1,
-                             "client_code" => "001",
-                             "type" => 1,
-                             "dir" => 1}
-      reply = msg.Send(conn, 1000)
-
-      $log.puts reply.parse_reply
-
-      $send = false
-    end
   end
 end
