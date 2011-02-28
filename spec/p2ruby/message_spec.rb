@@ -8,7 +8,7 @@ def get_message opts ={}
                        "P2_Category" => opts[:P2_Category] || "FORTS_MSG",
                        :P2_Type => opts[:P2_Type] || 1,
                        "isin" => opts[:isin] || "RTS-3.11",
-                       :price => opts[:price] || "184500",
+                       :price => opts[:price] || "186500",
                        :amount => opts[:amount] || 1,
                        "client_code" => opts[:client_code] || "001",
                        "type" => opts[:type] || 1,
@@ -42,7 +42,7 @@ describe P2::Message do
       subject.Field["P2_Category"].should == "FORTS_MSG"
       subject.Field["P2_Type"].should == 1
       subject.Field['isin'].should == "RTS-3.11"
-      subject.Field['price'].should == "184500"
+      subject.Field['price'].should == "186500"
       subject.Field['amount'].should == 1
       subject.Field['client_code'].should == "001"
       subject.Field['type'].should == 1

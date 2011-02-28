@@ -42,7 +42,8 @@ module P2
     #    ini-файла (см. описание COM-объекта TableSet) или автоматически при получении
     #    схемы от сервера репликации.
     def TableSet()
-      @ole._getproperty(1, [], [])
+      table_set = @ole._getproperty(1, [], [])
+      P2::TableSet.new :ole => table_set if table_set
     end
 
     # property BSTR StreamName Ч им€ потока репликации.
@@ -85,7 +86,8 @@ module P2
 
     # property VOID TableSet - набор таблиц в схеме репликации
     def TableSet=(val)
-      @ole._setproperty(1, [val], [VT_BYREF|VT_DISPATCH])
+      table = val.respond_to?(:ole) ? val.ole : val
+      @ole._setproperty(1, [table], [VT_BYREF|VT_DISPATCH])
     end
 
     # property VOID StreamName Ч им€ потока репликации.

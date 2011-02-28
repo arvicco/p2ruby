@@ -14,6 +14,7 @@ TEST_DIR = BASE_DIR + 'tmp/p2/'
 CLIENT_INI = BASE_DIR + 'spec/files/P2ClientGate.ini'
 CLIENT_INI1 = BASE_DIR + 'spec/files/P2ClientGate1.ini'
 MESSAGE_INI = BASE_DIR + 'spec/files/p2fortsgate_messages.ini'
+TABLESET_INI = BASE_DIR + 'spec/files/rts_index.ini'
 # start ./p2bin/P2MQRouter.exe /ini:CLIENT_router.ini
 ROUTER_INI = BASE_DIR + 'spec/files/client_router.ini'
 ROUTER_PATH = TEST_DIR + 'p2bin/P2MQRouter.exe'
@@ -59,7 +60,7 @@ def start_router opts ={}
     WinGui::App.launch(:dir => dir, :path => path, :args => args,
                        :title => title, :timeout => timeout)
   end
-  sleep 0.5
+  sleep 1
 end
 
 def restart_router

@@ -16,6 +16,9 @@ module P2
       @ole = @opts[:ole]
       @ole ||= WIN32OLE.new clsid # (@opts[:lib] || Library.default).find name
 
+      # Yields self to given block before setting properties (for initialization, etc...)
+      yield self if block_given?
+
       @opts.each do |key, val|
         # OLE object set properties may be given as options
         setter = "#{key.to_s.camel_case}="

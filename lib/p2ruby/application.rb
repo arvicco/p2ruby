@@ -28,9 +28,7 @@ module P2
       @ini = Pathname(ini || "./P2ClientGate.ini").expand_path
       error "Wrong ini file #{@ini}" unless @ini.exist?
 
-      super :ini => @ini
-
-      @ole.StartUp @ini.to_s
+      super(:ini => @ini) { StartUp @ini }
     end
 
     # Application is a Resettable Singleton:
@@ -67,8 +65,8 @@ module P2
     # method VOID StartUp
     # Инициализация библиотеки P2ClientGate с параметрами, заданными в пользовательском ini-файле.
     #   BSTR ini_file_name [IN]
-    def StartUp(ini_file_name)
-      @ole._invoke(1, [ini_file_name], [VT_BSTR])
+    def StartUp(ini_file) # May be given as a Pathname, call #to_s
+      @ole._invoke(1, [ini_file.to_s], [VT_BSTR])
     end
 
     # method VOID CleanUp

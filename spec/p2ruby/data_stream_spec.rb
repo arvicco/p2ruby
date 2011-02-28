@@ -47,12 +47,18 @@ describe P2::DataStream do
       subject.Type = P2::RT_LOCAL
       subject.DBConnString = 'Blah'
       subject.StreamName = 'BLAH_REPL'
-#    subject.TableSet = P2::TableSet.new
 
       subject.Type.should == P2::RT_LOCAL
       subject.DBConnString.should == 'Blah'
       subject.StreamName.should == 'BLAH_REPL'
-#    subject.TableSet.should == 'Blah'
+    end
+
+    it 'is possible to set either wrapped or unwrapped TableSet' do
+      subject.TableSet = P2::TableSet.new :ini => TABLESET_INI, :life_num => 1313
+      subject.TableSet.LifeNum.should == 1313
+
+      subject.TableSet = (P2::TableSet.new :ini => TABLESET_INI, :life_num => 131313).ole
+      subject.TableSet.LifeNum.should == 131313
     end
 
     it 'is possible to set/access StreamName property through aliases' do
@@ -174,4 +180,3 @@ describe P2::DataStream do
 
   end # when baseless data stream is open
 end
-

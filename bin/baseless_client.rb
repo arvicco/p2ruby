@@ -8,15 +8,6 @@
 require_relative 'script_helper'
 
 module P2BaselessClient #P2SimpleGate2Client
-  #/ The main entry point for the application.
-  class Class1
-    def Main
-      # TODO: Add code to start application here
-      cl = Client.new
-      return unless cl.Start(ARGV) == 0
-      cl.Run
-    end
-  end
   class Client
 
     def initialize
@@ -61,26 +52,27 @@ module P2BaselessClient #P2SimpleGate2Client
         @aggregates = P2::DataStream.new :DBConnString => "",
                                          :type => P2::RT_COMBINED_DYNAMIC,
                                          :name => @aggregatesID
-#        @aggregates.TableSet = new CP2TableSetClass()
+#        @aggregates.TableSet = P2::TableSet.new
 #        ## @aggregates.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
 #        @aggregates.TableSet.InitFromIni("orders_aggr.ini", "")
-#        @aggregates.TableSet.set_rev("orders_aggr", @curr_rev + 1)
+#        @aggregates.TableSet.Rev["orders_aggr"] = @curr_rev + 1
 
         # создаем объект "входящий поток репликации" для потока агрегированых заявок
         @trades = P2::DataStream.new :DBConnString => "",
                                      :type => P2::RT_COMBINED_DYNAMIC,
                                      :name => @tradesID
-#        @trades.TableSet = new CP2TableSetClass()
+#        @trades.TableSet = P2::TableSet.new
 #        @trades.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
-#        @trades.TableSet.set_rev("deal", @curr_rev_deal + 1)
+#        @trades.TableSet.Rev["deal"] = @curr_rev_deal + 1
 
         # регистрируем интерфейсы обратного вызова для получения данных
         @aggregates.events.handler = self
         @trades.events.handler = self
       rescue => e
+        raise e
         hRes = Marshal.GetHRForException(e)
-        Console.WriteLine("Exception #{e.Message}")
-        LogWriteLine("Exception #{e.Message}")
+        Console.WriteLine("Exception #{e.message}")
+        LogWriteLine(e)
         if (hRes == -2147205116) # P2ERR_INI_FILE_NOT_FOUND
           string s = "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
           Console.WriteLine("#{s}")
@@ -100,69 +92,73 @@ module P2BaselessClient #P2SimpleGate2Client
           begin
             while (!@stop)
               begin
-                if (@aggregates.State == P2::DS_STATE_ERROR || @aggregates.State == P2::DS_STATE_CLOSE)
+                if @aggregates.State == P2::DS_STATE_ERROR ||
+                    @aggregates.State == P2::DS_STATE_CLOSE
+
                   @aggregates.Close() if (@aggregates.State == P2::DS_STATE_ERROR)
                   # открываем поток репликации
-                  @aggregates.TableSet.set_rev("orders_aggr", @curr_rev + 1)
+#                  @aggregates.TableSet.Rev["orders_aggr"] = @curr_rev + 1
                   @aggregates.Open(@conn)
                 end
 
-                if (@trades.State == P2::DS_STATE_ERROR || @trades.State == P2::DS_STATE_CLOSE)
+                if @trades.State == P2::DS_STATE_ERROR ||
+                    @trades.State == P2::DS_STATE_CLOSE
+
                   @trades.Close() if (@trades.State == P2::DS_STATE_ERROR)
                   # открываем поток репликации
-                  @trades.TableSet.set_rev("deal", @curr_rev_deal + 1)
+#                  @trades.TableSet.Rev["deal"] = @curr_rev_deal + 1
                   @trades.Open(@conn)
                 end
-              rescue (System.Runtime.InteropServices.COMException e)
-                LogWriteLine("Exception {0} {1:X}", e.Message, e.ErrorCode)
+              rescue => e #(System.Runtime.InteropServices.COMException e)
+                LogWriteLine(e)
               end
               # обрабатываем пришедшее сообщение. 
               # Обработка идет в интерфейсах обратного вызова
               @conn.ProcessMessage2(100)
             end
-          rescue (System.Runtime.InteropServices.COMException e)
-            LogWriteLine("Exception {0} {1:X}", e.Message, e.ErrorCode)
+          rescue => e #(System.Runtime.InteropServices.COMException e)
+            LogWriteLine(e)
           end
 
           if (@aggregates.State != P2::DS_STATE_CLOSE)
             begin
               @aggregates.Close()
-            rescue (System.Runtime.InteropServices.COMException e)
-              LogWriteLine("Exception {0} {1:X}", e.Message, e.ErrorCode)
+            rescue => e #(System.Runtime.InteropServices.COMException e)
+              LogWriteLine(e)
             end
           end
 
           if (@trades.State != P2::DS_STATE_CLOSE)
             begin
               @trades.Close()
-            rescue (System.Runtime.InteropServices.COMException e)
-              LogWriteLine("Exception {0} {1:X}", e.Message, e.ErrorCode)
+            rescue => e #(System.Runtime.InteropServices.COMException e)
+              LogWriteLine(e)
             end
           end
 
           @conn.Disconnect()
-        rescue (System.Runtime.InteropServices.COMException e)
-          LogWriteLine("Exception {0} {1:X}", e.Message, e.ErrorCode)
-        rescue (System.Exception e)
-          LogWriteLine("System Exception {0} {1}", e.Message, e.Source)
+        rescue => e #(System.Runtime.InteropServices.COMException e)
+          LogWriteLine(e)
+        rescue => e #(System.Exception e)
+          LogWriteLine(e)
         end
       end
     end
 
     # Обработка состояния соединения
-    def onConnectionStatusChanged(conn, newStatus)
-      state = "MQ connection state " + @conn.status_text(newStatus)
+    def onConnectionStatusChanged(conn, new_status)
+      state = "MQ connection state " + @conn.status_text(new_status)
 
-      if ((newStatus & P2::CS_ROUTER_CONNECTED) != 0)
+      if ((new_status & P2::CS_ROUTER_CONNECTED) != 0)
         # Когда соединились - запрашиваем адрес сервера-обработчика
       end
       LogWriteLine(state)
     end
 
     # Обработка состояния потока репликации
-    def onStreamStateChanged(stream, newState)
-      state = "Stream " + stream.StreamName + " state: " + @trades.state_text(newState)
-      case newState
+    def onStreamStateChanged(stream, new_state)
+      state = "Stream " + stream.StreamName + " state: " + @trades.state_text(new_state)
+      case new_state
         when P2::DS_STATE_CLOSE, P2::DS_STATE_ERROR
           # @opened = false
       end
@@ -170,9 +166,9 @@ module P2BaselessClient #P2SimpleGate2Client
     end
 
     # вставка записи
-    def onStreamDataInserted(stream, tableName, rec)
+    def onStreamDataInserted(stream, table_name, rec)
       begin
-        LogWriteLine("Insert " + tableName)
+        LogWriteLine("Insert " + table_name)
 
         # Пришел поток FORTS_FUTAGGR20_REPL
         if (stream.StreamName == @aggregatesID)
@@ -194,67 +190,71 @@ module P2BaselessClient #P2SimpleGate2Client
           fields = @trades.TableSet.FieldList["deal"]
           fields.split(',').each do |field|
             begin
-              SaveDeal(fields, rec.GetValAsString(field))
-            rescue (System.Exception e)
+              SaveDeal(field, rec.GetValAsString(field))
+            rescue => e # (System.Exception e)
+              LogWriteLine(e)
             end
           end
           @saveDealFile.WriteLine("")
           @saveDealFile.Flush()
         end
 
-      rescue (System.Exception e)
-        LogWriteLine("!!!" + e.Message + "!!!" + e.Source)
+      rescue => e #(System.Exception e)
+        LogWriteLine(e)
       end
     end
 
     # удаление записи
-    def StreamDataDeleted(stream, tableName, id, rec)
+    def StreamDataDeleted(stream, table_name, id, rec)
       SaveRev(rec.GetValAsVariantByIndex(1))
-      LogWriteLine("Delete " + tableName + " " + id)
+      LogWriteLine("Delete " + table_name + " " + id)
     end
 
-    def onStreamLifeNumChanged(stream, lifeNum)
+    def onStreamLifeNumChanged(stream, life_num)
       if (stream.StreamName == "FORTS_FUTAGGR20_REPL")
-        @aggregates.TableSet.LifeNum = lifeNum
+        @aggregates.TableSet.LifeNum = life_num
         @aggregates.TableSet.SetLifeNumToIni("orders_aggr.ini")
       end
       if (stream.StreamName == "FORTS_FUTTRADE_REPL")
-        @trades.TableSet.LifeNum = lifeNum
+        @trades.TableSet.LifeNum = life_num
         @trades.TableSet.SetLifeNumToIni("forts_scheme.ini")
       end
     end
 
-    def LogWriteLine(s, *args)
-      if (@logFile == null)
-        @logFile = new StreamWriter("P2SimpleGate2Client.log", false, System.Text.Encoding.Unicode)
-      end
-      @logFile.WriteLine(s, args)
-      @logFile.Flush()
+    def LogWriteLine(*args)
+      LogWrite(*args)
+      LogWrite("\n")
     end
 
-    def LogWrite(s, *args)
-      if (@logFile == null)
-        @logFile = new StreamWriter("P2SimpleGate2Client.log", false, System.Text.Encoding.Unicode)
+    def LogWrite(*args)
+      if (@logFile == nil)
+        @logFile = File.new("log\\baseless_client.log", "w") # System.Text.Encoding.Unicode)
       end
-      @logFile.Write(s, args)
-      @logFile.Flush()
+#      @logFile.print(*args)
+      print(*args)
+      raise args.first if args.first.is_a? Exception
     end
 
     def SaveRev(rev)
       if (@saveRevFile == nil)
-        @saveRevFile = new StreamWriter(@saveRev, false, System.Text.Encoding.Unicode)
+        @saveRevFile = File.new(@saveRev, "w") # System.Text.Encoding.Unicode)
       end
-      @saveRevFile.WriteLine(rev.ToString())
-      @saveRevFile.Flush()
+      @saveRevFile.puts(rev.to_s)
     end
 
     def SaveDeal(field, value)
       if (@saveDealFile == nil)
-        @saveDealFile = new StreamWriter(@saveDeal, false, System.Text.Encoding.Unicode)
+        @saveDealFile = File.new(@saveDeal, "w") # System.Text.Encoding.Unicode)
       end
-      @saveDealFile.WriteLine(field + " = " + value)
-      @saveDealFile.Flush()
+      @saveDealFile.puts(field + " = " + value)
     end
 
   end
+end
+
+#/ The main entry point for the application.
+start_router do
+  client = P2BaselessClient::Client.new
+  exit 1 unless client.Start(ARGV) == 0
+  client.Run
 end
