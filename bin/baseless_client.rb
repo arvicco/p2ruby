@@ -28,6 +28,17 @@ module P2BaselessClient #P2SimpleGate2Client
       @trades_id = 'FORTS_FUTTRADE_REPL'
     end
 
+    # Exception handling wrapper for better readability
+    def try
+      begin
+        yield
+      rescue => e #(System.Runtime.InteropServices.COMException e)
+        LogWriteLine(e)
+      rescue => e #(System.Exception e)
+        LogWriteLine(e)
+      end
+    end
+
     def Start(args)
       begin
 
@@ -80,23 +91,23 @@ module P2BaselessClient #P2SimpleGate2Client
         LogWriteLine(e)
         if (hRes == -2147205116) # P2ERR_INI_FILE_NOT_FOUND
           string s = "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
-          Console.WriteLine("#{s}")
-          LogWriteLine("#{s}")
+          puts s
+          LogWriteLine s
         end
         return (hRes)
       end
       return (0)
     end
 
-    # ГЛАВНЫЙ ЦИКЛ
+    # Main event cycle
     def Run()
-      while (!@stop)
-        begin
-          # создаем соединение с роутером
+      until @stop
+        try do
+          # (Re)-connecting to Router
           @conn.Connect()
-          begin
-            while (!@stop)
-              begin
+          try do
+            until @stop
+              try do
                 if @aggregates.State == P2::DS_STATE_ERROR ||
                     @aggregates.State == P2::DS_STATE_CLOSE
 
@@ -114,38 +125,17 @@ module P2BaselessClient #P2SimpleGate2Client
 #                  @trades.TableSet.Rev["deal"] = @curr_rev_deal + 1
                   @trades.Open(@conn)
                 end
-              rescue => e #(System.Runtime.InteropServices.COMException e)
-                LogWriteLine(e)
               end
               # обрабатываем пришедшее сообщение. 
               # Обработка идет в интерфейсах обратного вызова
               @conn.ProcessMessage2(100)
             end
-          rescue => e #(System.Runtime.InteropServices.COMException e)
-            LogWriteLine(e)
           end
 
-          if (@aggregates.State != P2::DS_STATE_CLOSE)
-            begin
-              @aggregates.Close()
-            rescue => e #(System.Runtime.InteropServices.COMException e)
-              LogWriteLine(e)
-            end
-          end
-
-          if (@trades.State != P2::DS_STATE_CLOSE)
-            begin
-              @trades.Close()
-            rescue => e #(System.Runtime.InteropServices.COMException e)
-              LogWriteLine(e)
-            end
-          end
+          try { @aggregates.Close() } if (@aggregates.State != P2::DS_STATE_CLOSE)
+          try { @trades.Close() } if (@trades.State != P2::DS_STATE_CLOSE)
 
           @conn.Disconnect()
-        rescue => e #(System.Runtime.InteropServices.COMException e)
-          LogWriteLine(e)
-        rescue => e #(System.Exception e)
-          LogWriteLine(e)
         end
       end
     end
@@ -194,11 +184,7 @@ module P2BaselessClient #P2SimpleGate2Client
           @curr_rev_deal = rec.GetValAsLongByIndex(1)
           fields = @trades.TableSet.FieldList[table_name] #"deal"]
           fields.split(',').each do |field|
-            begin
-              SaveDeal(field, rec.GetValAsString(field))
-            rescue => e # (System.Exception e)
-              LogWriteLine(e)
-            end
+            try { SaveDeal(field, rec.GetValAsString(field)) }
           end
           @saveDealFile.puts("")
           @saveDealFile.flush()
