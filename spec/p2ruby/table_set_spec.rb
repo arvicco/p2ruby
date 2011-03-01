@@ -17,19 +17,6 @@ def get_table_set
 end
 
 describe P2::TableSet do
-  before(:all) do
-    start_router
-    get_table_set
-  end
-
-  after(:all) do
-    @ds.Close() if @ds.open?
-    @conn.Disconnect() if @conn.connected?
-    stop_router
-  end
-
-  subject { P2::TableSet.new :ole => @table_set }
-
   describe '.new' do
     context 'with directly instantiated TableSet' do
       subject { P2::TableSet.new :ini => TABLESET_INI, :life_num => 1313, :rev => {'rts_index'=>13} }
@@ -60,9 +47,32 @@ describe P2::TableSet do
         subject.LifeNum.should == 1
         subject.Rev['rts_index'].should == 1
       end
+    end
+
+    context 'with TableSet received from RTS' do
+      before(:all) do
+        start_router
+        get_table_set
+      end
+
+      after(:all) do
+        @ds.Close() if @ds.open?
+        @conn.Disconnect() if @conn.connected?
+        stop_router
+      end
+
+      subject { P2::TableSet.new :ole => @table_set }
 
     end
   end
+
+  describe '#InitFromIni'
+  describe '#InitFromIni2'
+
+  describe '#InitFromDB'
+  describe '#SetLifeNumToIni'
+  describe '#AddTable'
+  describe '#DeleteTable'
 
 #  describe '#to_s' do
 #    it 'reveals fields content' do

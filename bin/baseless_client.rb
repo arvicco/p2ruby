@@ -12,16 +12,20 @@ module P2BaselessClient #P2SimpleGate2Client
 
     def initialize
       @stop = false
+      # @destAddr = ""
 
-#      @destAddr = ""
-      @saveRev = "SaveRev.txt"
-      @saveDeal = "SaveDeal.txt"
+      # Tracking files
+      @log = 'log\baseless_client.log'
+      @saveRev = 'log\SaveRev.txt'
+      @saveDeal = 'log\SaveDeal.txt'
       @curr_rev = 0
       @curr_rev_deal = 0
 
-      # Идентификаторы потоков
-      @aggregatesID = "FORTS_FUTAGGR20_REPL"
-      @tradesID = "FORTS_FUTTRADE_REPL"
+      # Replication Streams
+      @aggregates_ini = 'spec\files\orders_aggr.ini'
+      @trades_ini = 'spec\files\fut_trades.ini'
+      @aggregates_id = 'FORTS_FUTAGGR20_REPL'
+      @trades_id = 'FORTS_FUTTRADE_REPL'
     end
 
     def Start(args)
@@ -51,18 +55,19 @@ module P2BaselessClient #P2SimpleGate2Client
         # создаем объект "входящий поток репликации" для потока агрегированых заявок
         @aggregates = P2::DataStream.new :DBConnString => "",
                                          :type => P2::RT_COMBINED_DYNAMIC,
-                                         :name => @aggregatesID
+                                         :name => @aggregates_id
 #        @aggregates.TableSet = P2::TableSet.new
-#        ## @aggregates.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
-#        @aggregates.TableSet.InitFromIni("orders_aggr.ini", "")
+#        #       @aggregates.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
+#        @aggregates.TableSet.InitFromIni(@aggregates_ini, "")
 #        @aggregates.TableSet.Rev["orders_aggr"] = @curr_rev + 1
 
         # создаем объект "входящий поток репликации" для потока агрегированых заявок
         @trades = P2::DataStream.new :DBConnString => "",
                                      :type => P2::RT_COMBINED_DYNAMIC,
-                                     :name => @tradesID
+                                     :name => @trades_id
 #        @trades.TableSet = P2::TableSet.new
-#        @trades.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
+#        @aggregates.TableSet.InitFromIni(@trades_ini, "")
+#        #        @trades.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
 #        @trades.TableSet.Rev["deal"] = @curr_rev_deal + 1
 
         # регистрируем интерфейсы обратного вызова для получения данных
@@ -171,7 +176,7 @@ module P2BaselessClient #P2SimpleGate2Client
         LogWriteLine("Insert " + table_name)
 
         # Пришел поток FORTS_FUTAGGR20_REPL
-        if (stream.StreamName == @aggregatesID)
+        if (stream.StreamName == @aggregates_id)
           SaveRev(rec.GetValAsVariantByIndex(1))
           @curr_rev = rec.GetValAsLongByIndex(1)
           count = rec.Count
@@ -185,9 +190,9 @@ module P2BaselessClient #P2SimpleGate2Client
         end
 
         # Пришел поток FORTS_FUTTRADE_REPL
-        if (stream.StreamName == @tradesID)
+        if (stream.StreamName == @trades_id)
           @curr_rev_deal = rec.GetValAsLongByIndex(1)
-          fields = @trades.TableSet.FieldList["deal"]
+          fields = @trades.TableSet.FieldList[table_name] #"deal"]
           fields.split(',').each do |field|
             begin
               SaveDeal(field, rec.GetValAsString(field))
@@ -195,8 +200,8 @@ module P2BaselessClient #P2SimpleGate2Client
               LogWriteLine(e)
             end
           end
-          @saveDealFile.WriteLine("")
-          @saveDealFile.Flush()
+          @saveDealFile.puts("")
+          @saveDealFile.flush()
         end
 
       rescue => e #(System.Exception e)
@@ -213,22 +218,21 @@ module P2BaselessClient #P2SimpleGate2Client
     def onStreamLifeNumChanged(stream, life_num)
       if (stream.StreamName == "FORTS_FUTAGGR20_REPL")
         @aggregates.TableSet.LifeNum = life_num
-        @aggregates.TableSet.SetLifeNumToIni("orders_aggr.ini")
+        @aggregates.TableSet.SetLifeNumToIni(@aggregates_ini)
       end
       if (stream.StreamName == "FORTS_FUTTRADE_REPL")
         @trades.TableSet.LifeNum = life_num
-        @trades.TableSet.SetLifeNumToIni("forts_scheme.ini")
+        @trades.TableSet.SetLifeNumToIni(@trades_ini)
       end
     end
 
     def LogWriteLine(*args)
-      LogWrite(*args)
-      LogWrite("\n")
+      LogWrite(*args, "\n")
     end
 
     def LogWrite(*args)
       if (@logFile == nil)
-        @logFile = File.new("log\\baseless_client.log", "w") # System.Text.Encoding.Unicode)
+        @logFile = File.new(@log, "w") # System.Text.Encoding.Unicode)
       end
 #      @logFile.print(*args)
       print(*args)
@@ -248,7 +252,6 @@ module P2BaselessClient #P2SimpleGate2Client
       end
       @saveDealFile.puts(field + " = " + value)
     end
-
   end
 end
 
