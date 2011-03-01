@@ -1,7 +1,37 @@
 require_relative 'script_helper'
+require 'pp'
 
 module P2BaselessClient #P2SimpleGate2Client
+
+  # This is an event proxy that just collects event statistics
+  class Statistician
+    def initialize real_handler
+      @real_handler = real_handler
+      @stats = {}
+
+      # Mock all event processing methods of real event handler
+      @real_handler.methods.select { |m| m =~/^on/ }.each do |method|
+        self.define_singleton_method(method) do |stream, key, *args|
+          @stats[method] ||= Hash.new(0)
+          @stats[method][key] += 1
+          @real_handler.send method, stream, key, *args
+        end
+      end
+    end
+
+    def inspect
+      @stats
+    end
+
+    def to_s
+      @stats
+    end
+  end
+
+  # Main class implementing business logics
   class Client
+
+    attr_accessor :stats
 
     def initialize
       @stop = false
@@ -27,8 +57,9 @@ module P2BaselessClient #P2SimpleGate2Client
         yield
       rescue => e #(System.Runtime.InteropServices.COMException e)
         LogWriteLine(e)
-      rescue => e #(System.Exception e)
-        LogWriteLine(e)
+        pp @stats
+#      rescue => e #(System.Exception e)
+#        LogWriteLine(e)
       end
     end
 
@@ -41,18 +72,16 @@ module P2BaselessClient #P2SimpleGate2Client
                                    :port => 4001,
                                    :AppName => "p2ruby_baseless"
 
-        @conn.events.handler = self
-
         if File.exists? @saveRev
           File.open(@saveRev) do |file|
-            p @curr_rev = file.readlines.last.chomp.to_i
+            @curr_rev = file.readlines.last.chomp.to_i
           end
         end
 
         if File.exists? @saveDeal
           File.open(@saveDeal) do |file|
             line = file.readlines.select { |l| l =~ /^replRev/ }.last
-            p @curr_rev_deal = line.split('=')[1].chomp.to_i
+            @curr_rev_deal = line.split('=')[1].chomp.to_i
           end
         end
 
@@ -60,10 +89,10 @@ module P2BaselessClient #P2SimpleGate2Client
         @aggregates = P2::DataStream.new :DBConnString => "",
                                          :type => P2::RT_COMBINED_DYNAMIC,
                                          :name => @aggregates_id
-#        @aggregates.TableSet = P2::TableSet.new
+        @aggregates.TableSet = P2::TableSet.new
 #        #       @aggregates.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
-#        @aggregates.TableSet.InitFromIni(@aggregates_ini, "")
-#        @aggregates.TableSet.Rev["orders_aggr"] = @curr_rev + 1
+        @aggregates.TableSet.InitFromIni(@aggregates_ini, "")
+        @aggregates.TableSet.Rev["orders_aggr"] = @curr_rev + 1
 
         # создаем объект "входящий поток репликации" для потока агрегированых заявок
         @trades = P2::DataStream.new :DBConnString => "",
@@ -74,13 +103,17 @@ module P2BaselessClient #P2SimpleGate2Client
 #        #        @trades.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
 #        @trades.TableSet.Rev["deal"] = @curr_rev_deal + 1
 
-        # регистрируем интерфейсы обратного вызова для получения данных
-        @aggregates.events.handler = self
-        @trades.events.handler = self
+        # регистрируем интерфейсы обратного вызова для получения cтатуса/данных
+        @stats = {:aggregates => Statistician.new(self),
+                  :trades => Statistician.new(self)}
+        @conn.events.handler = self
+        @aggregates.events.handler = @stats[:aggregates] # self
+        @trades.events.handler = @stats[:trades] # self
       rescue => e
         raise e
+        # Need to translate this code into Ruby:
         hRes = Marshal.GetHRForException(e)
-        Console.WriteLine("Exception #{e.message}")
+        puts e
         LogWriteLine(e)
         if (hRes == -2147205116) # P2ERR_INI_FILE_NOT_FOUND
           string s = "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
@@ -143,8 +176,8 @@ module P2BaselessClient #P2SimpleGate2Client
       begin
         LogWriteLine "Stream #{stream.StreamName} inserts into #{table_name} "
 
-        # Пришел поток FORTS_FUTAGGR20_REPL
         if (stream.StreamName == @aggregates_id)
+          # Пришел поток FORTS_FUTAGGR20_REPL
           SaveRev(rec.GetValAsVariantByIndex(1))
           @curr_rev = rec.GetValAsLongByIndex(1)
           count = rec.Count
@@ -155,14 +188,15 @@ module P2BaselessClient #P2SimpleGate2Client
               LogWriteLine(rec.GetValAsStringByIndex(i))
             end
           end
-        end
 
-        # Пришел поток FORTS_FUTTRADE_REPL
-        if (stream.StreamName == @trades_id)
+        elsif (stream.StreamName == @trades_id)
+          # Пришел поток FORTS_FUTTRADE_REPL
           @curr_rev_deal = rec.GetValAsLongByIndex(1)
           fields = @trades.TableSet.FieldList[table_name] #"deal"]
           fields.split(',').each do |field|
-            try { SaveDeal(field, rec.GetValAsString(field)) }
+            try do
+              SaveDeal(field, rec.GetValAsString(field))
+            end
           end
           @saveDealFile.puts("")
           @saveDealFile.flush()
@@ -221,7 +255,13 @@ end
 
 #/ The main entry point for the application.
 start_router do
-  client = P2BaselessClient::Client.new
-  exit 1 unless client.Start(ARGV) == 0
-  client.Run
+  begin
+    client = P2BaselessClient::Client.new
+    exit 1 unless client.Start(ARGV) == 0
+    client.Run
+  rescue => e
+    raise e
+  ensure
+    pp client.stats
+  end
 end
