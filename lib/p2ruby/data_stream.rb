@@ -17,17 +17,32 @@ module P2
       P2::DS_MESSAGES[state]
     end
 
-    # Tests if replication stream is opened (that is, receiving data)
+    # Tests if replication stream is in error state
+    #
+    def error?
+      self.State == P2::DS_STATE_ERROR
+    end
+
+    # Tests if replication stream is closed (or un-opened)
+    #
+    def closed?
+      self.State == P2::DS_STATE_CLOSE
+    end
+
+    # Tests if replication stream is opened (please note, it may still be in error state!)
     #
     def opened?
-      @ole.State == P2::CS_CONNECTION_CONNECTED ||
-          @ole.State == P2::DS_STATE_LOCAL_SNAPSHOT ||
-          @ole.State == P2::DS_STATE_REMOTE_SNAPSHOT ||
-          @ole.State == P2::DS_STATE_ONLINE ||
-          @ole.State == P2::DS_STATE_REOPEN
+      !closed?
     end
 
     alias open? opened?
+
+    def keep_alive(conn, revisions)
+      return unless closed? || error?
+      self.Close() if error?
+      revisions.each { |table, rev| self.TableSet.Rev[table.to_s] = rev }
+      self.Open(conn)
+    end
 
     # Returns Win32OLE event wrapper for IP2DataStreamEvents event interface
     #

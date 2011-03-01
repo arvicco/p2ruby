@@ -125,6 +125,48 @@ describe P2::DataStream do
         subject.should_not be_open
       end
     end
+
+    context 'testing stream state' do
+      describe 'unopened data stream' do
+
+        it 'is not open' do
+          subject.open?.should == false
+          subject.opened?.should == false
+        end
+
+        it 'is closed' do
+          subject.closed?.should == true
+        end
+
+        it 'is not error' do
+          subject.error?.should == false
+        end
+      end
+
+      describe 'opened data stream' do
+        before { subject.Open(@conn) }
+        it 'is open' do
+          subject.open?.should == true
+          subject.opened?.should == true
+        end
+
+        it 'is not closed' do
+          subject.closed?.should == false
+        end
+
+        it 'is not error' do
+          subject.error?.should == false
+        end
+      end
+
+      describe 'data stream in error' # how?
+    end
+
+    describe '#keep_alive' do
+      it 'does nothing unless data stream is closed or in error'
+      it 'opens data stream if it is closed'
+      it 'closes an then opens data stream that is in error'
+    end
   end # when initialized Baseless
 
   describe '#events' do
