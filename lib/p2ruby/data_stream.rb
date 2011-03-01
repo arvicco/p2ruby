@@ -37,10 +37,11 @@ module P2
 
     alias open? opened?
 
-    def keep_alive(conn, revisions)
+    # (Re)-opens stale data stream, optionally resetting table revisions of its TableSet
+    def keep_alive(conn, revisions={})
       return unless closed? || error?
       self.Close() if error?
-      revisions.each { |table, rev| self.TableSet.Rev[table.to_s] = rev }
+      revisions.each { |table, rev| self.TableSet.Rev[table.to_s] = rev } if self.TableSet
       self.Open(conn)
     end
 

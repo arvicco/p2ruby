@@ -1,10 +1,3 @@
-#using System
-#using System.IO
-#using System.Text
-#using System.Runtime.InteropServices
-#using P2ClientGate
-#using System.Threading
-
 require_relative 'script_helper'
 
 module P2BaselessClient #P2SimpleGate2Client
@@ -108,26 +101,11 @@ module P2BaselessClient #P2SimpleGate2Client
           try do
             until @stop
               try do
-                if @aggregates.State == P2::DS_STATE_ERROR ||
-                    @aggregates.State == P2::DS_STATE_CLOSE
-
-                  @aggregates.Close() if (@aggregates.State == P2::DS_STATE_ERROR)
-                  # открываем поток репликации
-#                  @aggregates.TableSet.Rev["orders_aggr"] = @curr_rev + 1
-                  @aggregates.Open(@conn)
-                end
-
-                if @trades.State == P2::DS_STATE_ERROR ||
-                    @trades.State == P2::DS_STATE_CLOSE
-
-                  @trades.Close() if (@trades.State == P2::DS_STATE_ERROR)
-                  # открываем поток репликации
-#                  @trades.TableSet.Rev["deal"] = @curr_rev_deal + 1
-                  @trades.Open(@conn)
-                end
+                @aggregates.keep_alive @conn, :orders_aggr => @curr_rev + 1
+                @trades.keep_alive @conn, :deal => @curr_rev_deal + 1
               end
-              # обрабатываем пришедшее сообщение. 
-              # Обработка идет в интерфейсах обратного вызова
+              # Actual processing of incoming messages happens in event callbacks
+              # Oбрабатываем пришедшее сообщение в интерфейсах обратного вызова
               @conn.ProcessMessage2(100)
             end
           end
@@ -152,7 +130,7 @@ module P2BaselessClient #P2SimpleGate2Client
 
     # Обработка состояния потока репликации
     def onStreamStateChanged(stream, new_state)
-      state = "Stream " + stream.StreamName + " state: " + @trades.state_text(new_state)
+      state = "Stream #{stream.StreamName} state: #{@trades.state_text(new_state)}"
       case new_state
         when P2::DS_STATE_CLOSE, P2::DS_STATE_ERROR
           # @opened = false
@@ -160,10 +138,10 @@ module P2BaselessClient #P2SimpleGate2Client
       LogWriteLine(state)
     end
 
-    # вставка записи
+    # Insert record
     def onStreamDataInserted(stream, table_name, rec)
       begin
-        LogWriteLine("Insert " + table_name)
+        LogWriteLine "Stream #{stream.StreamName} inserts into #{table_name} "
 
         # Пришел поток FORTS_FUTAGGR20_REPL
         if (stream.StreamName == @aggregates_id)
@@ -195,18 +173,18 @@ module P2BaselessClient #P2SimpleGate2Client
       end
     end
 
-    # удаление записи
-    def StreamDataDeleted(stream, table_name, id, rec)
+    # Delete record
+    def onStreamDataDeleted(stream, table_name, id, rec)
       SaveRev(rec.GetValAsVariantByIndex(1))
-      LogWriteLine("Delete " + table_name + " " + id)
+      LogWriteLine "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
     end
 
     def onStreamLifeNumChanged(stream, life_num)
-      if (stream.StreamName == "FORTS_FUTAGGR20_REPL")
+      if (stream.StreamName == @aggregates_id)
         @aggregates.TableSet.LifeNum = life_num
         @aggregates.TableSet.SetLifeNumToIni(@aggregates_ini)
       end
-      if (stream.StreamName == "FORTS_FUTTRADE_REPL")
+      if (stream.StreamName == @trades_id)
         @trades.TableSet.LifeNum = life_num
         @trades.TableSet.SetLifeNumToIni(@trades_ini)
       end
