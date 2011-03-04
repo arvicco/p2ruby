@@ -1,10 +1,41 @@
 require_relative 'script_helper'
 require 'pp'
 
+# Constants
+LOG_PATH = 'log\baseless_client.log'
+AGGR_PATH = 'log\SaveAggrRev.txt'
+DEAL_PATH = 'log\SaveDeal.txt'
+
+# Replication Streams
+AGGR_INI = 'spec\files\orders_aggr.ini'
+DEAL_INI = 'spec\files\fut_trades.ini'
+AGGR_ID = 'FORTS_FUTAGGR20_REPL'
+DEAL_ID = 'FORTS_FUTTRADE_REPL'
+
+# Extensions
+module P2
+  # Reopening P2::DataStream class to hack in #keep_alive method.
+  class DataStream < Base
+    # (Re)-opens stale data stream, optionally resetting table revisions of its TableSet
+    def keep_alive(conn, revisions={})
+      return unless closed? || error?
+      self.Close() if error?
+      revisions.each { |table, rev| self.TableSet.Rev[table.to_s] = rev } if self.TableSet
+      self.Open(conn)
+    end
+  end
+end
+
+# Global functions
+def log
+  STDOUT
+#  @log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
+end
+
 module P2BaselessClient #P2SimpleGate2Client
 
   # This is an event proxy that just collects event statistics
-  class Statistician
+  class Stats
     def initialize real_handler
       @real_handler = real_handler
       @stats = {}
@@ -35,31 +66,23 @@ module P2BaselessClient #P2SimpleGate2Client
 
     def initialize
       @stop = false
-      # @destAddr = ""
 
-      # Tracking files
-      @log = 'log\baseless_client.log'
-      @saveRev = 'log\SaveRev.txt'
-      @saveDeal = 'log\SaveDeal.txt'
-      @curr_rev = 0
-      @curr_rev_deal = 0
-
-      # Replication Streams
-      @aggregates_ini = 'spec\files\orders_aggr.ini'
-      @trades_ini = 'spec\files\fut_trades.ini'
-      @aggregates_id = 'FORTS_FUTAGGR20_REPL'
-      @trades_id = 'FORTS_FUTTRADE_REPL'
+      # Tracking stream table revisions
+      @aggr_rev = 0
+      @deal_rev = 0
     end
 
-    # Exception handling wrapper for better readability
+    # Exception handling wrapper for Win32OLE exceptions.
+    # Catch/log Win32OLE exceptions, pass on all others...
     def try
       begin
         yield
-      rescue => e #(System.Runtime.InteropServices.COMException e)
-        LogWriteLine(e)
+      rescue WIN32OLERuntimeError => e #(System.Runtime.InteropServices.COMException e)
+        log.puts "Ignoring caught Win32Ole runtime error:", e
+      rescue Exception => e #(System.Exception e)
         pp @stats
-#      rescue => e #(System.Exception e)
-#        LogWriteLine(e)
+        log.puts "Raising non-Win32Ole error:", e
+        raise e
       end
     end
 
@@ -72,55 +95,56 @@ module P2BaselessClient #P2SimpleGate2Client
                                    :port => 4001,
                                    :AppName => "p2ruby_baseless"
 
-        if File.exists? @saveRev
-          File.open(@saveRev) do |file|
-            @curr_rev = file.readlines.last.chomp.to_i
+        if File.exists? AGGR_PATH
+          File.open(AGGR_PATH) do |file|
+            @aggr_rev = file.readlines.last.chomp.to_i
           end
         end
 
-        if File.exists? @saveDeal
-          File.open(@saveDeal) do |file|
+        if File.exists? DEAL_PATH
+          File.open(DEAL_PATH) do |file|
             line = file.readlines.select { |l| l =~ /^replRev/ }.last
-            @curr_rev_deal = line.split('=')[1].chomp.to_i
+            rev = line.split('=')[1] if line
+            @deal_rev = rev.chomp.to_i if rev
           end
         end
 
         # создаем объект "входящий поток репликации" для потока агрегированых заявок
-        @aggregates = P2::DataStream.new :DBConnString => "",
-                                         :type => P2::RT_COMBINED_DYNAMIC,
-                                         :name => @aggregates_id
-        @aggregates.TableSet = P2::TableSet.new
-#        #       @aggregates.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
-        @aggregates.TableSet.InitFromIni(@aggregates_ini, "")
-        @aggregates.TableSet.Rev["orders_aggr"] = @curr_rev + 1
+        @aggr_stream = P2::DataStream.new :DBConnString => "",
+                                          :type => P2::RT_COMBINED_DYNAMIC,
+                                          :name => AGGR_ID
+        #noinspection RubyArgCount
+        @aggr_stream.TableSet = P2::TableSet.new
+#        #       @aggr_stream.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
+        @aggr_stream.TableSet.InitFromIni(AGGR_INI, "")
+        @aggr_stream.TableSet.Rev["orders_aggr"] = @aggr_rev + 1
 
         # создаем объект "входящий поток репликации" для потока агрегированых заявок
-        @trades = P2::DataStream.new :DBConnString => "",
-                                     :type => P2::RT_COMBINED_DYNAMIC,
-                                     :name => @trades_id
-#        @trades.TableSet = P2::TableSet.new
-#        @aggregates.TableSet.InitFromIni(@trades_ini, "")
-#        #        @trades.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
-#        @trades.TableSet.Rev["deal"] = @curr_rev_deal + 1
+        @deal_stream = P2::DataStream.new :DBConnString => "",
+                                          :type => P2::RT_COMBINED_DYNAMIC,
+                                          :name => DEAL_ID
+#        @deal_stream.TableSet = P2::TableSet.new
+#        @aggr_stream.TableSet.InitFromIni(DEAL_INI, "")
+#        #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
+#        @deal_stream.TableSet.Rev["deal"] = @deal_rev + 1
 
-        # регистрируем интерфейсы обратного вызова для получения cтатуса/данных
-        @stats = {:aggregates => Statistician.new(self),
-                  :trades => Statistician.new(self)}
+        # Creating Stats objects for collecting event statistics
+        @stats = {AGGR_ID => Stats.new(self),
+                  DEAL_ID => Stats.new(self)}
+        # Register event handlers for Connecyion and Data Stream events
         @conn.events.handler = self
-        @aggregates.events.handler = @stats[:aggregates] # self
-        @trades.events.handler = @stats[:trades] # self
-      rescue => e
-        raise e
-        # Need to translate this code into Ruby:
-        hRes = Marshal.GetHRForException(e)
-        puts e
-        LogWriteLine(e)
-        if (hRes == -2147205116) # P2ERR_INI_FILE_NOT_FOUND
-          string s = "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
-          puts s
-          LogWriteLine s
+        @aggr_stream.events.handler = @stats[AGGR_ID] # self
+        @deal_stream.events.handler = @stats[DEAL_ID] # self
+      rescue WIN32OLERuntimeError => e
+        p2_error = P2.p2_error e #Marshal.GetHRForException(e)
+        log.puts e
+        if p2_error == P2::P2ERR_INI_PATH_NOT_FOUND
+          log.puts "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
         end
-        return (hRes)
+        return p2_error
+      rescue Exception => e #(System.Exception e)
+        log.puts "Raising non-Win32Ole error in Start:", e
+        raise e
       end
       return (0)
     end
@@ -134,8 +158,8 @@ module P2BaselessClient #P2SimpleGate2Client
           try do
             until @stop
               try do
-                @aggregates.keep_alive @conn, :orders_aggr => @curr_rev + 1
-                @trades.keep_alive @conn, :deal => @curr_rev_deal + 1
+                @aggr_stream.keep_alive @conn, :orders_aggr => @aggr_rev + 1
+                @deal_stream.keep_alive @conn, :deal => @deal_rev + 1
               end
               # Actual processing of incoming messages happens in event callbacks
               # Oбрабатываем пришедшее сообщение в интерфейсах обратного вызова
@@ -143,8 +167,8 @@ module P2BaselessClient #P2SimpleGate2Client
             end
           end
 
-          try { @aggregates.Close() } if (@aggregates.State != P2::DS_STATE_CLOSE)
-          try { @trades.Close() } if (@trades.State != P2::DS_STATE_CLOSE)
+          try { @aggr_stream.Close() } if (@aggr_stream.State != P2::DS_STATE_CLOSE)
+          try { @deal_stream.Close() } if (@deal_stream.State != P2::DS_STATE_CLOSE)
 
           @conn.Disconnect()
         end
@@ -158,110 +182,89 @@ module P2BaselessClient #P2SimpleGate2Client
       if ((new_status & P2::CS_ROUTER_CONNECTED) != 0)
         # Когда соединились - запрашиваем адрес сервера-обработчика
       end
-      LogWriteLine(state)
+      log.puts(state)
     end
 
     # Обработка состояния потока репликации
     def onStreamStateChanged(stream, new_state)
-      state = "Stream #{stream.StreamName} state: #{@trades.state_text(new_state)}"
+      state = "Stream #{stream.StreamName} state: #{@deal_stream.state_text(new_state)}"
       case new_state
         when P2::DS_STATE_CLOSE, P2::DS_STATE_ERROR
           # @opened = false
       end
-      LogWriteLine(state)
+      log.puts(state)
     end
 
     # Insert record
     def onStreamDataInserted(stream, table_name, rec)
-      begin
-        LogWriteLine "Stream #{stream.StreamName} inserts into #{table_name} "
+      try do
+        log.puts "Stream #{stream.StreamName} inserts into #{table_name} "
 
-        if (stream.StreamName == @aggregates_id)
+        if stream.StreamName == AGGR_ID
           # Пришел поток FORTS_FUTAGGR20_REPL
-          SaveRev(rec.GetValAsVariantByIndex(1))
-          @curr_rev = rec.GetValAsLongByIndex(1)
-          count = rec.Count
-          (0...count).each do |i|
-            if (i != count - 1)
-              LogWrite(rec.GetValAsStringByIndex(i) + ";")
-            else
-              LogWriteLine(rec.GetValAsStringByIndex(i))
-            end
-          end
+          save_aggr_rev(rec)
 
-        elsif (stream.StreamName == @trades_id)
+        elsif stream.StreamName == DEAL_ID
           # Пришел поток FORTS_FUTTRADE_REPL
-          @curr_rev_deal = rec.GetValAsLongByIndex(1)
-          fields = @trades.TableSet.FieldList[table_name] #"deal"]
-          fields.split(',').each do |field|
-            try do
-              SaveDeal(field, rec.GetValAsString(field))
-            end
-          end
-          @saveDealFile.puts("")
-          @saveDealFile.flush()
+          save_deal_data(rec, table_name)
         end
-
-      rescue => e #(System.Exception e)
-        LogWriteLine(e)
       end
     end
 
     # Delete record
     def onStreamDataDeleted(stream, table_name, id, rec)
-      SaveRev(rec.GetValAsVariantByIndex(1))
-      LogWriteLine "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
+      save_aggr_rev(rec)
+      log.puts "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
     end
 
     def onStreamLifeNumChanged(stream, life_num)
-      if (stream.StreamName == @aggregates_id)
-        @aggregates.TableSet.LifeNum = life_num
-        @aggregates.TableSet.SetLifeNumToIni(@aggregates_ini)
+      if (stream.StreamName == AGGR_ID)
+        @aggr_stream.TableSet.LifeNum = life_num
+        @aggr_stream.TableSet.SetLifeNumToIni(AGGR_INI)
       end
-      if (stream.StreamName == @trades_id)
-        @trades.TableSet.LifeNum = life_num
-        @trades.TableSet.SetLifeNumToIni(@trades_ini)
+      if (stream.StreamName == DEAL_ID)
+        @deal_stream.TableSet.LifeNum = life_num
+        @deal_stream.TableSet.SetLifeNumToIni(DEAL_INI)
       end
     end
 
-    def LogWriteLine(*args)
-      LogWrite(*args, "\n")
+    def save_aggr_rev(rec)
+      @aggr_file ||= File.new(AGGR_PATH, "w") # System.Text.Encoding.Unicode)
+      @aggr_rev = rec.GetValAsLongByIndex(1)
+
+      (0...rec.Count).each { |i| log.print(rec.GetValAsStringByIndex(i) + "; ") }
+      log.puts ''
+
+      @aggr_file.puts @aggr_rev.to_s
+      @aggr_file.flush
     end
 
-    def LogWrite(*args)
-      if (@logFile == nil)
-        @logFile = File.new(@log, "w") # System.Text.Encoding.Unicode)
-      end
-#      @logFile.print(*args)
-      print(*args)
-      raise args.first if args.first.is_a? Exception
-    end
+    def save_deal_data(rec, table_name)
+      # Interrupt inside this method bubbles up instead of being caught... Why?
+      @deal_file ||= File.new(DEAL_PATH, "w") # System.Text.Encoding.Unicode)
+      @deal_rev = rec.GetValAsLongByIndex(1)
 
-    def SaveRev(rev)
-      if (@saveRevFile == nil)
-        @saveRevFile = File.new(@saveRev, "w") # System.Text.Encoding.Unicode)
+      fields = @deal_stream.TableSet.FieldList[table_name] #"deal"]
+      fields.split(',').each do |field|
+        @deal_file.puts(field + " = " + rec.GetValAsString(field))
       end
-      @saveRevFile.puts(rev.to_s)
-    end
 
-    def SaveDeal(field, value)
-      if (@saveDealFile == nil)
-        @saveDealFile = File.new(@saveDeal, "w") # System.Text.Encoding.Unicode)
-      end
-      @saveDealFile.puts(field + " = " + value)
+      @deal_file.puts ''
+      @deal_file.flush
     end
   end
 end
 
 #/ The main entry point for the application.
-start_router do
-  begin
-    client = P2BaselessClient::Client.new
-    exit 1 unless client.Start(ARGV) == 0
-    client.Run
-  rescue => e
-    raise e
-  ensure
-    pp client.stats
-  end
+router = start_router
+
+begin
+  client = P2BaselessClient::Client.new
+  exit 1 unless client.Start(ARGV) == 0
+  client.Run
+rescue Exception => e
+  puts "Caught in main loop: #{e.class}"
+  raise e
+ensure
+  router.exit
 end

@@ -103,6 +103,22 @@ module P2
   P2ERR_OK = P2MQ_ERRORCLASS_OK = P2ERR_COMMON_BEGIN = 0x0000
   P2MQ_ERRORCLASS_IS_USELESS = 0x0001
 
+  P2ERR_INI_BEGIN = 0x4000
+  P2ERR_INI_ALREADY_STARTED = P2ERR_INI_BEGIN
+  P2ERR_INI_FILE_NOT_FOUND = P2ERR_INI_BEGIN + 4
+
+  # Extracts P2 error code from WIN32OLERuntimeError HRESULT error code
+  def self.p2_error exception
+    match = exception.message.match /HRESULT error code:0x....(\d{4})/
+    code = match[1].to_i(16) if match
+  end
+
+  # Extracts P2 error code from WIN32OLERuntimeError HRESULT error code
+  def self.com_error exception
+    match = exception.message.match /HRESULT error code:0x(\d{4})/
+    code = match[1].to_i(16) if match
+  end
+
   # Any P2-specific Error
   class Error < StandardError
   end
