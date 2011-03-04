@@ -115,7 +115,7 @@ module P2BaselessClient #P2SimpleGate2Client
                                           :name => AGGR_ID
         #noinspection RubyArgCount
         @aggr_stream.TableSet = P2::TableSet.new
-#        #       @aggr_stream.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
+        #       @aggr_stream.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
         @aggr_stream.TableSet.InitFromIni(AGGR_INI, "")
         @aggr_stream.TableSet.Rev["orders_aggr"] = @aggr_rev + 1
 
@@ -123,10 +123,11 @@ module P2BaselessClient #P2SimpleGate2Client
         @deal_stream = P2::DataStream.new :DBConnString => "",
                                           :type => P2::RT_COMBINED_DYNAMIC,
                                           :name => DEAL_ID
-#        @deal_stream.TableSet = P2::TableSet.new
-#        @aggr_stream.TableSet.InitFromIni(DEAL_INI, "")
-#        #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
-#        @deal_stream.TableSet.Rev["deal"] = @deal_rev + 1
+        #noinspection RubyArgCount
+        @deal_stream.TableSet = P2::TableSet.new
+        @deal_stream.TableSet.InitFromIni(DEAL_INI, "")
+        #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
+        @deal_stream.TableSet.Rev["deal"] = @deal_rev + 1
 
         # Creating Stats objects for collecting event statistics
         @stats = {AGGR_ID => Stats.new(self),
