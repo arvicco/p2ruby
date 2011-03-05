@@ -18,10 +18,11 @@ module P2
   class DataStream < Base
     # (Re)-opens stale data stream, optionally resetting table revisions of its TableSet
     def keep_alive(conn, revisions={})
-      return unless closed? || error?
-      self.Close() if error?
-      revisions.each { |table, rev| self.TableSet.Rev[table.to_s] = rev } if self.TableSet
-      self.Open(conn)
+      if closed? || error?
+        self.Close() if error?
+        revisions.each { |table, rev| self.TableSet.Rev[table.to_s] = rev } if self.TableSet
+        self.Open(conn)
+      end
     end
   end
 end
@@ -67,9 +68,54 @@ module P2BaselessClient #P2SimpleGate2Client
     def initialize
       @stop = false
 
-      # Tracking stream table revisions
-      @aggr_rev = 0
-      @deal_rev = 0
+      begin
+        # Объект "соединение" и параметры соединения с приложением P2MQRouter
+        @conn = P2::Connection.new :ini => CLIENT_INI,
+                                   :host => "localhost",
+                                   :port => 4001,
+                                   :AppName => "p2ruby_baseless"
+
+        # Create "replication data stream" object for aggregated orders info
+        @aggr_stream = P2::DataStream.new :type => P2::RT_COMBINED_DYNAMIC,
+                                          :name => AGGR_ID,
+                                          :TableSet => P2::TableSet.new(:ini => AGGR_INI)
+
+        # Create "replication data stream" object for incoming trades/deals info
+        @deal_stream = P2::DataStream.new :type => P2::RT_COMBINED_DYNAMIC,
+                                          :name => DEAL_ID,
+                                          :TableSet => P2::TableSet.new(:ini => DEAL_INI)
+        #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
+
+        # Load previous table revisions of data streams
+        @current_rev ||= Hash.new(0)
+        @current_rev["orders_aggr"] = load_rev(AGGR_PATH)
+        @aggr_stream.TableSet.Rev["orders_aggr"] = @current_rev["orders_aggr"] + 1
+        @current_rev["deal"] = load_rev(DEAL_PATH)
+        @deal_stream.TableSet.Rev["deal"] = @current_rev["deal"] + 1
+
+        # Open files for writing received data (and tracking table revisions)
+        @aggr_file ||= File.new(AGGR_PATH, "w") # System.Text.Encoding.Unicode)
+        @deal_file ||= File.new(DEAL_PATH, "w") # System.Text.Encoding.Unicode)
+
+        # Create Stats objects  collect event statistics
+        @stats = {AGGR_ID => Stats.new(self),
+                  DEAL_ID => Stats.new(self)}
+
+        # Register event handlers for Connection and Data Stream events
+        @conn.events.handler = self
+        @aggr_stream.events.handler = @stats[AGGR_ID] # self
+        @deal_stream.events.handler = @stats[DEAL_ID] # self
+
+      rescue WIN32OLERuntimeError => e
+        log.puts e
+        if P2.p2_error(e) == P2::P2ERR_INI_PATH_NOT_FOUND #Marshal.GetHRForException(e)
+          log.puts "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
+        end
+        raise e
+      rescue Exception => e #(System.Exception e)
+        log.puts "Raising non-Win32Ole error in initialize:", e
+        raise e
+      end
     end
 
     # Exception handling wrapper for Win32OLE exceptions.
@@ -86,70 +132,6 @@ module P2BaselessClient #P2SimpleGate2Client
       end
     end
 
-    def Start(args)
-      begin
-
-        # Объект "соединение" и параметры соединения с приложением P2MQRouter
-        @conn = P2::Connection.new :ini => CLIENT_INI,
-                                   :host => "localhost",
-                                   :port => 4001,
-                                   :AppName => "p2ruby_baseless"
-
-        if File.exists? AGGR_PATH
-          File.open(AGGR_PATH) do |file|
-            @aggr_rev = file.readlines.last.chomp.to_i
-          end
-        end
-
-        if File.exists? DEAL_PATH
-          File.open(DEAL_PATH) do |file|
-            line = file.readlines.select { |l| l =~ /^replRev/ }.last
-            rev = line.split('=')[1] if line
-            @deal_rev = rev.chomp.to_i if rev
-          end
-        end
-
-        # создаем объект "входящий поток репликации" для потока агрегированых заявок
-        @aggr_stream = P2::DataStream.new :DBConnString => "",
-                                          :type => P2::RT_COMBINED_DYNAMIC,
-                                          :name => AGGR_ID
-        #noinspection RubyArgCount
-        @aggr_stream.TableSet = P2::TableSet.new
-        #       @aggr_stream.TableSet.InitFromIni2("orders_aggr.ini", "CustReplScheme")
-        @aggr_stream.TableSet.InitFromIni(AGGR_INI, "")
-        @aggr_stream.TableSet.Rev["orders_aggr"] = @aggr_rev + 1
-
-        # создаем объект "входящий поток репликации" для потока агрегированых заявок
-        @deal_stream = P2::DataStream.new :DBConnString => "",
-                                          :type => P2::RT_COMBINED_DYNAMIC,
-                                          :name => DEAL_ID
-        #noinspection RubyArgCount
-        @deal_stream.TableSet = P2::TableSet.new
-        @deal_stream.TableSet.InitFromIni(DEAL_INI, "")
-        #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
-        @deal_stream.TableSet.Rev["deal"] = @deal_rev + 1
-
-        # Creating Stats objects for collecting event statistics
-        @stats = {AGGR_ID => Stats.new(self),
-                  DEAL_ID => Stats.new(self)}
-        # Register event handlers for Connecyion and Data Stream events
-        @conn.events.handler = self
-        @aggr_stream.events.handler = @stats[AGGR_ID] # self
-        @deal_stream.events.handler = @stats[DEAL_ID] # self
-      rescue WIN32OLERuntimeError => e
-        p2_error = P2.p2_error e #Marshal.GetHRForException(e)
-        log.puts e
-        if p2_error == P2::P2ERR_INI_PATH_NOT_FOUND
-          log.puts "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
-        end
-        return p2_error
-      rescue Exception => e #(System.Exception e)
-        log.puts "Raising non-Win32Ole error in Start:", e
-        raise e
-      end
-      return (0)
-    end
-
     # Main event cycle
     def Run()
       until @stop
@@ -159,8 +141,8 @@ module P2BaselessClient #P2SimpleGate2Client
           try do
             until @stop
               try do
-                @aggr_stream.keep_alive @conn, :orders_aggr => @aggr_rev + 1
-                @deal_stream.keep_alive @conn, :deal => @deal_rev + 1
+                @aggr_stream.keep_alive @conn, :orders_aggr => @current_rev["orders_aggr"] + 1
+                @deal_stream.keep_alive @conn, :deal => @current_rev["deal"] + 1
               end
               # Actual processing of incoming messages happens in event callbacks
               # Oбрабатываем пришедшее сообщение в интерфейсах обратного вызова
@@ -198,15 +180,19 @@ module P2BaselessClient #P2SimpleGate2Client
 
     # Insert record
     def onStreamDataInserted(stream, table_name, rec)
+      # Interrupt inside event hook bubbles up instead of being caught in main loop...
       try do
         log.puts "Stream #{stream.StreamName} inserts into #{table_name} "
 
         if stream.StreamName == AGGR_ID
           # Пришел поток FORTS_FUTAGGR20_REPL
-          save_aggr_rev(rec)
+#          save_data(rec, table_name, @aggr_file, stream)
+          save_aggr_rev(rec, table_name)
 
         elsif stream.StreamName == DEAL_ID
           # Пришел поток FORTS_FUTTRADE_REPL
+          # !!!! Saves records from ALL tables for now, while we need only 'deal'
+#          save_data(rec, table_name, @deal_file, stream, '\n', '')
           save_deal_data(rec, table_name)
         end
       end
@@ -214,10 +200,12 @@ module P2BaselessClient #P2SimpleGate2Client
 
     # Delete record
     def onStreamDataDeleted(stream, table_name, id, rec)
-      save_aggr_rev(rec)
+#      save_data(rec, table_name, @aggr_file, stream)
+      save_aggr_rev(rec, table_name)
       log.puts "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
     end
 
+    # Stream LifeNum chang
     def onStreamLifeNumChanged(stream, life_num)
       if (stream.StreamName == AGGR_ID)
         @aggr_stream.TableSet.LifeNum = life_num
@@ -229,39 +217,57 @@ module P2BaselessClient #P2SimpleGate2Client
       end
     end
 
-    def save_aggr_rev(rec)
+    # Load latest revision from file with given path,
+    # return 0 if no file or saved revision available
+    def load_rev file_path
+      if File.exists? file_path
+        File.open(file_path) do |file|
+          line = file.readlines.select { |l| l =~ /^replRev/ }.last
+          rev = line ? line.split('=')[1] : nil
+          rev.chomp.to_i if rev
+        end
+      end || 0
+    end
+
+    def save_aggr_rev(rec, table_name)
       @aggr_file ||= File.new(AGGR_PATH, "w") # System.Text.Encoding.Unicode)
-      @aggr_rev = rec.GetValAsLongByIndex(1)
+      @current_rev['orders_aggr'] = rec.GetValAsLongByIndex(1)
 
-      (0...rec.Count).each { |i| log.print(rec.GetValAsStringByIndex(i) + "; ") }
-      log.puts ''
+      fields = @aggr_stream.TableSet.FieldList[table_name] #"orders_aggr"]
+      log.puts fields.split(',').map { |f| "#{f}=#{rec.GetValAsString(f)}" }.join "; "
 
-      @aggr_file.puts @aggr_rev.to_s
+      @aggr_file.puts "replRev=#{@current_rev['orders_aggr']}"
       @aggr_file.flush
     end
 
     def save_deal_data(rec, table_name)
-      # Interrupt inside this method bubbles up instead of being caught... Why?
       @deal_file ||= File.new(DEAL_PATH, "w") # System.Text.Encoding.Unicode)
-      @deal_rev = rec.GetValAsLongByIndex(1)
+      @current_rev['deal'] = rec.GetValAsLongByIndex(1)
 
       fields = @deal_stream.TableSet.FieldList[table_name] #"deal"]
-      fields.split(',').each do |field|
-        @deal_file.puts(field + " = " + rec.GetValAsString(field))
-      end
-
+      @deal_file.puts fields.split(',').map { |f| "#{f}=#{rec.GetValAsString(f)}" }.join "\n"
       @deal_file.puts ''
+
       @deal_file.flush
+    end
+
+    def save_data(rec, table_name, file, stream, divider = '; ', finalizer = nil)
+      @current_rev[table_name] = rec.GetValAsLongByIndex(1)
+
+      fields = stream.TableSet.FieldList[table_name] #"deal"]
+      file.puts fields.split(',').map { |f| "#{f}=#{rec.GetValAsString(f)}" }.join divider
+      file.puts(finalizer) if finalizer
+
+      file.flush
     end
   end
 end
 
-#/ The main entry point for the application.
+# The main entry point for the application.
 router = start_router
 
 begin
   client = P2BaselessClient::Client.new
-  exit 1 unless client.Start(ARGV) == 0
   client.Run
 rescue Exception => e
   puts "Caught in main loop: #{e.class}"
