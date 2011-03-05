@@ -75,27 +75,31 @@ module P2BaselessClient #P2SimpleGate2Client
                                    :port => 4001,
                                    :AppName => "p2ruby_baseless"
 
-        # Create "replication data stream" object for aggregated orders info
-        @aggr_stream = P2::DataStream.new :type => P2::RT_COMBINED_DYNAMIC,
-                                          :name => AGGR_ID,
-                                          :TableSet => P2::TableSet.new(:ini => AGGR_INI)
-
-        # Create "replication data stream" object for incoming trades/deals info
-        @deal_stream = P2::DataStream.new :type => P2::RT_COMBINED_DYNAMIC,
-                                          :name => DEAL_ID,
-                                          :TableSet => P2::TableSet.new(:ini => DEAL_INI)
-        #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
-
         # Load previous table revisions of data streams
-        @current_rev ||= Hash.new(0)
-        @current_rev["orders_aggr"] = load_rev(AGGR_PATH)
-        @aggr_stream.TableSet.Rev["orders_aggr"] = @current_rev["orders_aggr"] + 1
-        @current_rev["deal"] = load_rev(DEAL_PATH)
-        @deal_stream.TableSet.Rev["deal"] = @current_rev["deal"] + 1
+        @current_rev = {"orders_aggr" => load_rev(AGGR_PATH),
+                        "deal" => load_rev(DEAL_PATH)}
 
         # Open files for writing received data (and tracking table revisions)
         @aggr_file ||= File.new(AGGR_PATH, "w") # System.Text.Encoding.Unicode)
         @deal_file ||= File.new(DEAL_PATH, "w") # System.Text.Encoding.Unicode)
+
+        # Initialize TableSets with scheme and revision data
+        deal_tables = P2::TableSet.new :ini => DEAL_INI,
+                                       :rev => {"deal" => @current_rev["deal"] + 1}
+        aggr_tables = P2::TableSet.new :ini => AGGR_INI,
+                                       :rev => {"orders_aggr" =>
+                                                    @current_rev["orders_aggr"] + 1}
+
+        # Create "replication data stream" object for aggregated orders info
+        @aggr_stream = P2::DataStream.new :type => P2::RT_COMBINED_DYNAMIC,
+                                          :name => AGGR_ID,
+                                          :TableSet => aggr_tables
+
+        # Create "replication data stream" object for incoming trades/deals info
+        @deal_stream = P2::DataStream.new :type => P2::RT_COMBINED_DYNAMIC,
+                                          :name => DEAL_ID,
+                                          :TableSet => deal_tables
+        #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
 
         # Create Stats objects  collect event statistics
         @stats = {AGGR_ID => Stats.new(self),
