@@ -1,12 +1,12 @@
 require_relative 'script_helper'
 require 'pp'
 
-# Constants
+# File path constants
 LOG_PATH = 'log\baseless_client.log'
 AGGR_PATH = 'log\SaveAggrRev.txt'
 DEAL_PATH = 'log\SaveDeal.txt'
 
-# Replication Streams
+# Replication Stream parameters
 AGGR_INI = 'spec\files\orders_aggr.ini'
 DEAL_INI = 'spec\files\fut_trades.ini'
 AGGR_ID = 'FORTS_FUTAGGR20_REPL'
@@ -27,10 +27,17 @@ module P2
   end
 end
 
-# Global functions
+## Global functions
+
+# Normal log (STDOUT)
 def log
   STDOUT
 #  @log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
+end
+
+# Error log (for unexpected events/exceptions)
+def error_log
+  @error_log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
 end
 
 module P2BaselessClient #P2SimpleGate2Client
@@ -69,7 +76,7 @@ module P2BaselessClient #P2SimpleGate2Client
       @stop = false
 
       begin
-        # Объект "соединение" и параметры соединения с приложением P2MQRouter
+        # Create Connection object with P2MQRouter connectivity parameters
         @conn = P2::Connection.new :ini => CLIENT_INI,
                                    :host => "localhost",
                                    :port => 4001,
@@ -101,7 +108,7 @@ module P2BaselessClient #P2SimpleGate2Client
                                           :TableSet => deal_tables
         #        @deal_stream.TableSet.InitFromIni2("forts_scheme.ini", "FutTrade")
 
-        # Create Stats objects  collect event statistics
+        # Create Stats objects that collect event statistics
         @stats = {AGGR_ID => Stats.new(self),
                   DEAL_ID => Stats.new(self)}
 
@@ -113,7 +120,7 @@ module P2BaselessClient #P2SimpleGate2Client
       rescue WIN32OLERuntimeError => e
         log.puts e
         if P2.p2_error(e) == P2::P2ERR_INI_PATH_NOT_FOUND #Marshal.GetHRForException(e)
-          log.puts "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
+          error_log.puts "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
         end
         raise e
       rescue Exception => e #(System.Exception e)
@@ -137,7 +144,7 @@ module P2BaselessClient #P2SimpleGate2Client
     end
 
     # Main event cycle
-    def Run()
+    def run
       until @stop
         try do
           # (Re)-connecting to Router
@@ -162,7 +169,7 @@ module P2BaselessClient #P2SimpleGate2Client
       end
     end
 
-    # Обработка состояния соединения
+    # Handling Connection status change
     def onConnectionStatusChanged(conn, new_status)
       state = "MQ connection state " + @conn.status_text(new_status)
 
@@ -172,7 +179,7 @@ module P2BaselessClient #P2SimpleGate2Client
       log.puts(state)
     end
 
-    # Обработка состояния потока репликации
+    # Handling replication Data Stream status change
     def onStreamStateChanged(stream, new_state)
       state = "Stream #{stream.StreamName} state: #{@deal_stream.state_text(new_state)}"
       case new_state
@@ -189,27 +196,28 @@ module P2BaselessClient #P2SimpleGate2Client
         log.puts "Stream #{stream.StreamName} inserts into #{table_name} "
 
         if stream.StreamName == AGGR_ID
-          # Пришел поток FORTS_FUTAGGR20_REPL
-#          save_data(rec, table_name, @aggr_file, stream)
-          save_aggr_rev(rec, table_name)
+          # This is FORTS_FUTAGGR20_REPL stream event
+          save_aggr(rec, table_name, stream)
 
-        elsif stream.StreamName == DEAL_ID
-          # Пришел поток FORTS_FUTTRADE_REPL
-          # !!!! Saves records from ALL tables for now, while we need only 'deal'
-#          save_data(rec, table_name, @deal_file, stream, '\n', '')
-          save_deal_data(rec, table_name)
+        elsif stream.StreamName == DEAL_ID && table_name == 'deal'
+          # This is FORTS_FUTTRADE_REPL stream event
+          # !!!! Saving only records from 'deal' table, not heartbeat or multileg_deal
+          save_data(rec, table_name, @deal_file, stream, "\n", '')
         end
       end
     end
 
     # Delete record
     def onStreamDataDeleted(stream, table_name, id, rec)
-#      save_data(rec, table_name, @aggr_file, stream)
-      save_aggr_rev(rec, table_name)
       log.puts "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
+      if stream.StreamName == AGGR_ID
+        save_aggr(rec, table_name, stream)
+      else
+        error_log.puts 'Unexpected onStreamDataDeleted event'
+      end
     end
 
-    # Stream LifeNum chang
+    # Stream LifeNum change
     def onStreamLifeNumChanged(stream, life_num)
       if (stream.StreamName == AGGR_ID)
         @aggr_stream.TableSet.LifeNum = life_num
@@ -233,35 +241,20 @@ module P2BaselessClient #P2SimpleGate2Client
       end || 0
     end
 
-    def save_aggr_rev(rec, table_name)
-      @aggr_file ||= File.new(AGGR_PATH, "w") # System.Text.Encoding.Unicode)
-      @current_rev['orders_aggr'] = rec.GetValAsLongByIndex(1)
-
-      fields = @aggr_stream.TableSet.FieldList[table_name] #"orders_aggr"]
-      log.puts fields.split(',').map { |f| "#{f}=#{rec.GetValAsString(f)}" }.join "; "
-
+    # Save/log aggregate orders record
+    def save_aggr(rec, table_name, stream)
+      save_data(rec, table_name, log, stream)
       @aggr_file.puts "replRev=#{@current_rev['orders_aggr']}"
       @aggr_file.flush
     end
 
-    def save_deal_data(rec, table_name)
-      @deal_file ||= File.new(DEAL_PATH, "w") # System.Text.Encoding.Unicode)
-      @current_rev['deal'] = rec.GetValAsLongByIndex(1)
-
-      fields = @deal_stream.TableSet.FieldList[table_name] #"deal"]
-      @deal_file.puts fields.split(',').map { |f| "#{f}=#{rec.GetValAsString(f)}" }.join "\n"
-      @deal_file.puts ''
-
-      @deal_file.flush
-    end
-
+    # Save/log given record data
     def save_data(rec, table_name, file, stream, divider = '; ', finalizer = nil)
       @current_rev[table_name] = rec.GetValAsLongByIndex(1)
 
-      fields = stream.TableSet.FieldList[table_name] #"deal"]
+      fields = stream.TableSet.FieldList(table_name) #"deal"]
       file.puts fields.split(',').map { |f| "#{f}=#{rec.GetValAsString(f)}" }.join divider
       file.puts(finalizer) if finalizer
-
       file.flush
     end
   end
@@ -272,7 +265,7 @@ router = start_router
 
 begin
   client = P2BaselessClient::Client.new
-  client.Run
+  client.run
 rescue Exception => e
   puts "Caught in main loop: #{e.class}"
   raise e
