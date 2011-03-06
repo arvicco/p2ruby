@@ -161,8 +161,8 @@ module P2BaselessClient #P2SimpleGate2Client
             end
           end
 
-          try { @aggr_stream.Close() } if (@aggr_stream.State != P2::DS_STATE_CLOSE)
-          try { @deal_stream.Close() } if (@deal_stream.State != P2::DS_STATE_CLOSE)
+          try { @aggr_stream.Close() } unless @aggr_stream.closed?
+          try { @deal_stream.Close() } unless @deal_stream.closed?
 
           @conn.Disconnect()
         end
