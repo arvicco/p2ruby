@@ -152,6 +152,10 @@ module P2
       @ole._invoke(6, [table_name], [VT_BSTR])
     end
 
+    def NewEnum
+      @ole._invoke(8, [], [])
+    end
+
     # HRESULT GetScheme
     #   OLE_HANDLE p_val [OUT]
     def GetScheme(p_val)

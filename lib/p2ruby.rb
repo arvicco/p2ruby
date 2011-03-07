@@ -1,6 +1,7 @@
 require 'version'
 require 'win32ole'
 require 'win32ole/property'
+#require 'win32ole-pr'
 
 require 'rubygems'
 require 'bundler/setup'

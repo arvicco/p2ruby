@@ -161,12 +161,6 @@ describe P2::DataStream do
 
       describe 'data stream in error' # how?
     end
-
-    describe '#keep_alive' do
-      it 'does nothing unless data stream is closed or in error'
-      it 'opens data stream if it is closed'
-      it 'closes an then opens data stream that is in error'
-    end
   end # when initialized Baseless
 
   describe '#events' do

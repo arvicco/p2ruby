@@ -12,11 +12,23 @@ def get_table_set
                            :type => P2::RT_COMBINED_DYNAMIC
 
   @ds.Open(@conn)
-  sleep 1
-  @table_set = @ds.TableSet
+
+  @ds.events.on_event { |*args| p args }
+  2.times { @conn.ProcessMessage2(1000) } # Push @ds to receive its TableSet
 end
 
 describe P2::TableSet do
+  before(:all) do
+    start_router
+    get_table_set
+  end
+
+  after(:all) do
+    @ds.Close() if @ds.open?
+    @conn.Disconnect() if @conn.connected?
+    stop_router
+  end
+
   describe '.new' do
     context 'with directly instantiated TableSet' do
       subject { P2::TableSet.new :ini => TABLESET_INI, :life_num => 1313, :rev => {'rts_index'=>13} }
@@ -47,21 +59,32 @@ describe P2::TableSet do
         subject.LifeNum.should == 1
         subject.Rev['rts_index'].should == 1
       end
+
     end
 
     context 'with TableSet received from RTS' do
-      before(:all) do
-        start_router
-        get_table_set
-      end
+      subject { P2::TableSet.new :ole => @ds.ole.TableSet }
+      describe '#each' do
 
-      after(:all) do
-        @ds.Close() if @ds.open?
-        @conn.Disconnect() if @conn.connected?
-        stop_router
-      end
+        it 'is' do
+          p subject
+          p subject.Count()
+          p (subject.each.methods-Object.methods).sort
+          p subject.each { |item| p item }
+          p enum = subject.ole_methods.find { |m| m.name=~ /Enum/ }
+          (enum.methods-Object.methods).each do |m|
+            puts "#{m}: #{(enum.send(m)).inspect}"
+          end
+          puts 'Returned by .NewEnum(), ._NewEnum() and .invoke "_NewEnum" :'
+          p subject.NewEnum()
+          p subject._NewEnum()
+          p subject.invoke "_NewEnum"
+          p "WIN32OLE::ARGV"
+          p WIN32OLE::ARGV
+          p subject.each.to_a.size
 
-      subject { P2::TableSet.new :ole => @table_set }
+        end
+      end
 
     end
   end
