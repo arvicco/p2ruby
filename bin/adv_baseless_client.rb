@@ -182,7 +182,7 @@ class EventedDataStream < P2::DataStream
   def load_revisions
     @revisions ||= Hash.new(0)
     if File.exists? REV_PATH
-      pattern = Regexp.new "^#{self.StreamName}:(.+)=(\\d+)"
+      pattern = Regexp.new "#{self.StreamName}: (.+) = (\\d+)"
       File.read(REV_PATH).scan(pattern).each { |table, rev| @revisions[table] = rev.to_i }
     end
   end
@@ -194,7 +194,10 @@ class EventedDataStream < P2::DataStream
 
   def save_revisions
     File.open(REV_PATH, "a") do |file|
-      @revisions.each { |table, rev| file.puts "#{self.StreamName}:#{table}=#{rev}" }
+      time = Time.now.strftime("%Y-%m-%d %H:%M:%S.%3N")
+      @revisions.each do |table, rev|
+        file.puts "#{time} #{self.StreamName}: #{table} = #{rev}"
+      end
     end
   end
 end

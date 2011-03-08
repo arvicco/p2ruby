@@ -26,7 +26,7 @@ Dir['tasks/*.rake'].sort.each { |file| load file }
 # Project-specific tasks
 
 namespace :ole do
-  desc "Register P2ClientGate.dll COM/OLE objects with Windows"
+  desc "Regist  moter P2ClientGate.dll COM/OLE objects with Windows"
   task :register do
     cd P2_PATH
     system 'regsvr32 P2ClientGate.dll'
