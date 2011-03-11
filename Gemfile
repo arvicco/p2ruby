@@ -19,6 +19,7 @@ source :gemcutter
 
 gem 'win_gui', '>=0.2.19'#, :path => '/Dev/apps/win/win_gui'
 gem 'windows-pr'
+gem 'fxruby', :require => 'fox16'
 
 group :cucumber do
   gem 'cucumber'

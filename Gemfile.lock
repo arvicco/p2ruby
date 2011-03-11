@@ -11,6 +11,7 @@ GEM
     diff-lcs (1.1.2)
     ffi (1.0.6-x86-mingw32)
       rake (>= 0.8.7)
+    fxruby (1.6.20-x86-mingw32)
     gherkin (2.3.3-x86-mingw32)
       json (~> 1.4.6)
     json (1.4.6-x86-mingw32)
@@ -40,6 +41,7 @@ PLATFORMS
 
 DEPENDENCIES
   cucumber
+  fxruby
   rspec (>= 2.0.0)
   win_gui (>= 0.2.19)
   windows-pr
