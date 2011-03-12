@@ -152,14 +152,6 @@ module VCL
       end
     end
 
-    def log *args
-      puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
-      # храним только 50 строк
-      @log.pop if @log.size > 50
-      # добавляем строкy в начало
-      @log.unshift "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
-    end
-
     def RedrawOrderBook force
       @orders_changed = true
     end

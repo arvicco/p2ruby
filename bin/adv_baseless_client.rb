@@ -82,7 +82,7 @@ end
 router = start_router
 
 begin
-  client = BaselessClient.new 'Adv_baseless', router
+  client = BaselessClient.new :name => 'Adv_baseless', :router => router
   client.run
 rescue Exception => e
   puts "Caught in main loop: #{e.class}"

@@ -213,11 +213,12 @@ class Client
 
   include ExceptionWrapper
 
-  attr_accessor :streams
+  attr_accessor :name, :logger, :streams
 
-  def initialize app_name, router
-    @app_name = app_name
-    @router = router
+  def initialize opts = {}
+    @name = opts[:name] || 'P2RB'
+    @router = opts[:router]
+    @logger = opts[:logger] || STDOUT # File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
     @stop = false
 
     begin
@@ -225,7 +226,7 @@ class Client
       @conn = P2::Connection.new :ini => CLIENT_INI,
                                  :host => "localhost",
                                  :port => 4001,
-                                 :AppName => @app_name
+                                 :AppName => @name
       # Client will handle Connection's events by default
       @conn.events.handler = self
 
@@ -276,12 +277,16 @@ class Client
         @conn.Disconnect()
       end
     end
+    finalize
+    # Segfaults upon exit, seems like client leaves before all incoming messages are
+    # processed and stream/connection state changes. Hook exit to onConnectionStatusChanged?
   end
 
   # Client's cleanup actions
   def finalize
     # Make sure this finalizer runs only once
     unless @finalized
+      @finalized = true
       @stop = true
       @streams.each do |_, stream|
         stream.Close unless stream.closed?
@@ -290,8 +295,7 @@ class Client
       @conn.Disconnect()
       @router.exit
 
-      @outputs.each { |out| pp out }
-      @finalized = true
+      @outputs.each { |out| pp out }  # log out } - will not work if logger writes to GUI
     end
   end
 
@@ -305,7 +309,7 @@ class Client
   end
 
   def log *args
-    STDOUT.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
-    #  @log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
+    time = Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')
+    @logger.puts "#{time}: #{args.map(&:to_s).join(' ')}"
   end
 end # class Client

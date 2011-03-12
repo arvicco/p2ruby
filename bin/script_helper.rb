@@ -49,7 +49,7 @@ def start_router opts ={}
 
   if block_given?
     begin
-      yield
+      yield router
     rescue => e
       raise e
     ensure

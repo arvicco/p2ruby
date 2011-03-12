@@ -1,30 +1,103 @@
 # encoding: CP1251
-require_relative 'vcl_client'
-require 'pp'
+require_relative 'adv_vcl_client'
 
 include Fox
 
+class OrderBookView < FXTable
+  def initialize(parent, order_book = nil)
+    @order_book = order_book
+    super(parent, :opts => LAYOUT_FILL | TABLE_READONLY | TABLE_NO_COLSELECT, :width => 310)
+    self.setTableSize(20, 3)
+    self.rowHeaderWidth = 1
+    self.columnHeaderHeight = 1
+#    self.showHorzGrid(false)
+  end
+end
+
+class LogView < FXList
+  attr_reader :log
+
+  def initialize(parent, opts, log=nil)
+    super(parent, :opts => opts)
+    appendItem 'LogView inited...'
+  end
+
+  def puts *args
+    prependItem args.to_s
+    # храним только 100 строк
+#    @log.pop if @log.size > 100
+#    # добавляем строкy в начало
+#    @log.unshift "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
+  end
+end
+
 class VCLForm < FXMainWindow
-  def initialize(app)
-    super(app, "P2 Client Order book", :width => 400, :height => 400)
+
+  include ExceptionWrapper
+
+  def initialize(app, client)
+    @client = client
+    super(app, "P2 Client Order Books", :width => 1100, :height => 1350)
+    add_menu_bar
+    splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
+    @book_view = OrderBookView.new splitter
+    @log_view = LogView.new(splitter, LAYOUT_SIDE_TOP)
+    @client.logger = @log_view
   end
 
   def create
     super
     show(PLACEMENT_SCREEN)
   end
+
+  def add_menu_bar
+    menu_bar = FXMenuBar.new(self, LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
+    file_menu = FXMenuPane.new(self)
+    FXMenuTitle.new(menu_bar, "File", :popupMenu => file_menu)
+
+#    import_cmd = FXMenuCommand.new(file_menu, "Import...")
+#    import_cmd.connect(SEL_COMMAND) do
+#      dialog = FXFileDialog.new(self, "Import Photos")
+#      dialog.selectMode = SELECTFILE_MULTIPLE
+#      dialog.patternList = ["JPEG Images (*.jpg, *.jpeg)"]
+#      if dialog.execute != 0
+#        import_photos(dialog.filenames)
+#      end
+#    end
+    exit_cmd = FXMenuCommand.new(file_menu, "Exit")
+    exit_cmd.connect(SEL_COMMAND) do
+      log "Sending Client a signal to stop"
+      @client.stop = true
+      log "Exiting GUI"
+      Thread.exit
+    end
+  end
+
+  #  Logging delegated to @client
+  def log *args
+    @client.log *args if @client
+  end
 end
 
-start_router do
-#  Thread.new do
-#    app = FXApp.new
-#    VCLForm.new(app)
-#    app.create
-#    app.run
-#  end
-  client = VCL::Client.new
+start_router do |router|
+
+  client = VCLClient.new :name => "Gui_vcl_client", :router => router
+
+  @gui_thread = Thread.new do
+#    sleep 2
+    FXApp.new do |app|
+      VCLForm.new(app, client)
+      app.create
+      app.run
+    end
+  end
+
   client.run
+  client.log "Run finished, exiting start_router block"
 end
+
+# Waiting for GUI thread to finish...
+@gui_thread.join
 
 #def onConnectButtonClick(Sender
 #  : TObject)

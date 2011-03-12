@@ -83,7 +83,7 @@ end # class InfoStream
 class VCLClient < Client
   ## Overriden inherited methods
 
-  attr_accessor :logs, :orders, :instruments
+  attr_accessor :stop, :logs, :orders, :instruments
 
   # Specific setup for Client subclasses
   def setup
@@ -134,13 +134,15 @@ class VCLClient < Client
   end
 end # class VCLClient
 
-# The main entry point for the application.
-router = start_router
+# The main entry point, if this script is called directly
+if __FILE__ == $0
+  router = start_router
 
-begin
-  client = VCLClient.new "Adv_vcl_client", router
-  client.run
-rescue Exception => e
-  puts "Caught in main loop: #{e.class}"
-  raise e
+  begin
+    client = VCLClient.new :name => "Adv_vcl_client", :router => router
+    client.run
+  rescue Exception => e
+    puts "Caught in main loop: #{e.class}"
+    raise e
+  end
 end
