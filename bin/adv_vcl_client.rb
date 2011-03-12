@@ -9,6 +9,9 @@ require 'pp'
 LOG_PATH = 'log\baseless_client.log'
 REV_PATH = 'log\Revisions.txt'
 
+INFO_ID = 'FORTS_FUTINFO_REPL'
+INFO_PATH = 'log\SaveInfo.txt'
+
 # Replication Stream parameters
 AGGR_ID = 'FORTS_FUTAGGR20_REPL'
 AGGR_INI = 'spec\files\orders_aggr.ini'
@@ -46,12 +49,7 @@ def try
   rescue WIN32OLERuntimeError => e #(System.Runtime.InteropServices.COMException e)
     log "Ignoring caught Win32Ole runtime error:", e
   rescue Exception => e #(System.Exception e)
-    $client.streams.each do |_, stream|
-      puts "#{stream.StreamName}:"
-      pp stream.stats
-      stream.save_revisions
-    end
-    p $client.orders.
+    $client.finalize
     log "Raising non-Win32Ole error:", e
     raise e
   end
@@ -157,36 +155,40 @@ class EventedDataStream < P2::DataStream
     @save_path = opts.delete(:save_path)
     @ini = opts.delete(:ini)
 
-    super opts
+    super({:type => P2::RT_COMBINED_DYNAMIC}.merge(opts))
 
-    # Initialize data streams TableSet with given scheme and load latest table revisions
-    #noinspection RubyArgCount
-    self.TableSet = P2::TableSet.new :ini => @ini
-    set_revisions
+    # Memoized table field names and latest table revisions
+    @fields = {}
+    @revisions ||= Hash.new(0)
+
+    # If data scheme ini file is given, initialize our TableSet
+    # from given scheme and load latest table revisions
+    if @ini
+      #noinspection RubyArgCount
+      self.TableSet = P2::TableSet.new :ini => @ini
+      load_revisions
+    end
 
     # Open file for writing received data
     @save_file = File.new(@save_path, "a")
 
-    # Memoized table field names
-    @fields = {}
-
-    # Create Stats object that collects event statistics
+    # Create Stats object that collects event statistics               2
     @stats = Stats.new(self)
     # Register event handlers for Data Stream events (@stats proxy for self)
     self.events.handler = @stats # self
   end
 
-  # (Re)-opens stale data stream, optionally resetting table revisions of its TableSet
+  # (Re)-opens stale DataStream, optionally resetting table revisions of its TableSet
   def keep_alive
     if closed? || error?
       self.Close if error?
+      # TableSet is set by server upon Stream opening, unless initialized from scheme ini
       set_revisions if self.TableSet
       self.Open(@conn)
     end
   end
 
   def load_revisions
-    @revisions ||= Hash.new(0)
     if File.exists? REV_PATH
       pattern = Regexp.new "#{self.StreamName}: (.+) = (\\d+)"
       File.read(REV_PATH).scan(pattern).each { |table, rev| @revisions[table] = rev.to_i }
@@ -194,7 +196,6 @@ class EventedDataStream < P2::DataStream
   end
 
   def set_revisions
-    load_revisions unless @revisions
     @revisions.each { |table, rev| self.TableSet.Rev[table.to_s] = rev + 1 }
   end
 
@@ -208,7 +209,7 @@ class EventedDataStream < P2::DataStream
   end
 end
 
-class OrdersStream < EventedDataStream
+class OrderStream < EventedDataStream
 
   # устанавливаем обработчик смены номера жизни, он необходим для корректного
   # перехода потока в online
@@ -220,11 +221,11 @@ class OrdersStream < EventedDataStream
   def onStreamDataInserted(stream, table_name, rec)
     # поток AGGR, добавляем строку в один из стаканов
     $client.orders.addrecord(rec.GetValAsLong('isin_id'),
-                            rec.GetValAsString('replID').to_i,
-                            rec.GetValAsString('replRev').to_i,
-                            rec.GetValAsString('price').to_f,
-                            rec.GetValAsString('volume').to_f,
-                            rec.GetValAsLong('dir'))
+                             rec.GetValAsString('replID').to_i,
+                             rec.GetValAsString('replRev').to_i,
+                             rec.GetValAsString('price').to_f,
+                             rec.GetValAsString('volume').to_f,
+                             rec.GetValAsLong('dir'))
     super
   end
 
@@ -249,20 +250,43 @@ class OrdersStream < EventedDataStream
 
 end
 
+class InfoStream < EventedDataStream
+  # устанавливаем обработчик смены номера жизни, он необходим для корректного
+  # перехода потока в online
+  def onStreamLifeNumChanged(stream, life_num)
+    $client.instruments.clear
+    super
+  end
 
-# This is an event proxy that just collects event statistics
+  def onStreamDataInserted(stream, table_name, rec)
+    # поток INFO & таблица fut_sess_contents, формируем список инструментов
+    if table_name == 'fut_sess_contents'
+      isin_id = rec.GetValAsString('isin_id')
+      # добавляем инструмент, если его еще нет
+      $client.instruments[isin_id] ||=
+          "#{isin_id}, #{rec.GetValAsString('short_isin')}, #{rec.GetValAsString('name')}"
+    end
+    super
+  end
+end
+
+# This is an event proxy that collects event statistics,
+# and wraps all events in exception processing blocks
 class Stats
   def initialize real_handler
     @real_handler = real_handler
     @stats = {}
 
-    # Mock all event processing methods of real event handler
+    # Wrap all event processing methods of real event handler
+    # in stats gathering and exception processing blocks
     @real_handler.methods.select { |m| m =~/^on/ }.each do |method|
       self.define_singleton_method(method) do |stream, *args|
-        key = args.empty? ? stream.StreamName : args.first
-        @stats[method] ||= Hash.new(0)
-        @stats[method][key] += 1
-        @real_handler.send method, stream, *args
+        try do
+          key = args.empty? ? stream.StreamName : args.first
+          @stats[method] ||= Hash.new(0)
+          @stats[method][key] += 1
+          @real_handler.send method, stream, *args
+        end
       end
     end
   end
@@ -281,7 +305,8 @@ class Client
 
   attr_accessor :stats, :streams, :log, :orders, :instruments
 
-  def initialize
+  def initialize router
+    @router = router
     @stop = false
 
     # VCL modifications:
@@ -300,23 +325,25 @@ class Client
 
       # Create replication objects for interesting data streams
       @streams =
-          {:common => EventedDataStream.new(:type => P2::RT_COMBINED_DYNAMIC,
-                                            :name => COMMON_ID,
+          {:common => EventedDataStream.new(:name => COMMON_ID,
                                             :ini => COMMON_INI,
                                             :save_path => COMMON_PATH,
                                             :conn => @conn),
 
-           :orders => OrdersStream.new(:type => P2::RT_COMBINED_DYNAMIC,
-                                       :name => AGGR_ID,
-                                       :ini => AGGR_INI,
-                                       :save_path => AGGR_PATH,
-                                       :conn => @conn),
+           :orders => OrderStream.new(:name => AGGR_ID,
+                                      :ini => AGGR_INI,
+                                      :save_path => AGGR_PATH,
+                                      :conn => @conn),
 
-#           :deals => EventedDataStream.new(:type => P2::RT_COMBINED_DYNAMIC,
-#                                           :name => DEAL_ID,
-#                                           :ini => DEAL_INI,
-#                                           :save_path => DEAL_PATH,
-#                                           :conn => @conn)
+           :info => InfoStream.new(:name => INFO_ID,
+                                   :save_path => INFO_PATH,
+                                   :conn => @conn),
+
+           #           :deals => EventedDataStream.new(:type => P2::RT_COMBINED_DYNAMIC,
+           #                                           :name => DEAL_ID,
+           #                                           :ini => DEAL_INI,
+           #                                           :save_path => DEAL_PATH,
+           #                                           :conn => @conn)
           }
 
       # TODO: tweak #process_record method for @stream[:orders]
@@ -354,6 +381,23 @@ class Client
         try { @streams.each { |_, stream| stream.Close unless stream.closed? } }
         @conn.Disconnect()
       end
+    end
+  end
+
+  # Client's cleanup actions
+  def finalize
+    # Make sure this finalizer runs only once
+    unless @finalized
+      @streams.each do |_, stream|
+        stream.Close unless stream.closed?
+        stream.save_revisions
+        puts "#{stream.StreamName}:"
+        pp stream.stats
+      end
+      @conn.Disconnect()
+      @router.exit
+      p @orders.order_books
+      @finalized = true
     end
   end
 
@@ -418,11 +462,11 @@ end
 router = start_router
 
 begin
-  $client = Client.new
+  $client = Client.new router
   $client.run
 rescue Exception => e
   puts "Caught in main loop: #{e.class}"
   raise e
 ensure
-  router.exit
+  $client.finalize
 end

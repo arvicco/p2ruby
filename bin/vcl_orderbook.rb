@@ -4,17 +4,16 @@ module VCL
   tDuplicates = [:dup_accept, :dup_ignore, :dup_replace]
 
 #      // базовый класс "список" с поддержкой автоматического освобождения элементов
-#type  TCustomList     = class(tList)
+#type  CustomList     = class(tList)
 #        procedure   clear; override;
 #        procedure   freeitem(item: pointer); virtual; abstract;
 #        procedure   freeall; virtual;
 #        procedure   delete(index: longint); virtual;
 #        procedure   remove(item: pointer); virtual;
-#        function    extract(item: pointer): pointer; virtual;
 #      end;
 #
 #      // базовый класс "сортированный список"
-#type  tSortedList     = class(TCustomList)
+#type  tSortedList     = class(CustomList)
 #        fDuplicates   : tDuplicates;
 #        constructor create;
 #        function    checkitem(item: pointer): boolean; virtual; abstract;
@@ -92,21 +91,20 @@ module VCL
     attr_accessor :id, :rev, :price, :volume, :buysell, :order_book
 
     def inspect
-      "Item #{id}:#{volume}@#{price}"
+      "#{id}:#{volume}@#{price}"
     end
 
   end
 
 #      // базовый класс "список" с поддержкой автоматического освобождения элементов
-#type  TCustomList     = class(tList)
+#type  CustomList     = class(tList)
 #        procedure   clear; override;
 #        procedure   freeitem(item: pointer); virtual; abstract;
 #        procedure   freeall; virtual;
 #        procedure   delete(index: longint); virtual;
 #        procedure   remove(item: pointer); virtual;
-#        function    extract(item: pointer): pointer; virtual;
 #      end;
-  class TCustomList < Array
+  class CustomList < Array
 
     def clear
       (0...size).each { freeitem(self[i]) }
@@ -129,15 +127,15 @@ module VCL
       delete item
     end
 
-    # Different from #remove in that it's supposed to RETURN item
-    def extract item #(item: pointer): pointer
-      #  ??  notify(result, lnExtracted)
-      remove item
-    end
-  end # class TCustomList
+#    # Different from #remove in that it's supposed to RETURN item
+#    def extract item #(item: pointer): pointer
+#      #  ??  notify(result, lnExtracted)
+#      remove item
+#    end
+  end # class CustomList
 
 #      // базовый класс "сортированный список"
-#type  tSortedList     = class(TCustomList)
+#type  tSortedList     = class(CustomList)
 #        fDuplicates   : tDuplicates;
 #        constructor create;
 #        function    checkitem(item: pointer): boolean; virtual; abstract;
@@ -146,7 +144,7 @@ module VCL
 #        procedure   add(item: pointer); virtual;
 #        procedure   insert(index: longint; item: pointer); virtual;
 #      end;
-  class TSortedList < TCustomList
+  class SortedList < CustomList
 
     attr_accessor :duplicates
 
@@ -206,7 +204,7 @@ module VCL
     end
   end
 
-  #class TSortedList
+  #class SortedList
 
 #      // индекс стакана по цене
 #type  tOrderBook      = class(tSortedList)
@@ -224,7 +222,7 @@ module VCL
 #        property    isin_id: longint read fisin_id;
 #        property    changed: boolean read fchanged write fchanged;
 #      end;
-  class OrderBook < TSortedList
+  class OrderBook < SortedList
     attr_accessor :isin_id, :changed
 
     def initialize isin_id
@@ -263,7 +261,7 @@ module VCL
 #        function    searchadditem(isin_id: longint): tOrderBook;
 #      end;
 #
-  class OrderBookList < TSortedList
+  class OrderBookList < SortedList
 
     def checkitem item #(item: pointer): boolean
       item
@@ -300,7 +298,8 @@ module VCL
 #        function    delrecord(const id: int64): boolean;
 #        procedure   clearbyrev(const rev: int64);
 #      end;
-  class OrderList < TSortedList
+  class OrderList < SortedList
+    attr_accessor :order_books
 
     def initialize
       super
@@ -330,7 +329,7 @@ module VCL
       if result
         item = self[idx]
 
-        if item.price != price  # признак, что цена изменилась
+        if item.price != price # признак, что цена изменилась
           item.order_book.remove(item) if item.order_book # удаляем из стакана
           if price > 0
             item.order_book = searchadditem(isin_id) unless item.order_book
