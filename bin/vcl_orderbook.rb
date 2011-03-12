@@ -84,14 +84,14 @@ module VCL
 #        rev        : int64;
 #        price         : double;  // цена
 #        volume        : double;  // кол-во
-#        buysell       : longint; // покупка/продажа
+#        buysell       : longint; // покупка(1)/продажа(2)
 #        order_book      : tOrderBook;
 #      end;
   class OrderBookItem
     attr_accessor :id, :rev, :price, :volume, :buysell, :order_book
 
     def inspect
-      "#{id}:#{volume}@#{price}"
+      "#{id}:#{price}>#{volume}#{buysell == 1 ? '+' : '-'}"
     end
 
   end
