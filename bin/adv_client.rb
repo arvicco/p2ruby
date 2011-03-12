@@ -1,31 +1,26 @@
 require_relative 'script_helper'
 require 'pp'
 
-# Globals
-######################################
-
 # File path constants
 LOG_PATH = 'log\baseless_client.log'
 REV_PATH = 'log\Revisions.txt'
 
-## Global functions:
-
-# Normal log (delegates to client)
-def log *args
-  $client.log *args if $client
-end
-
+# Provides #try method that nicely wraps exception handling in host classes
+module ExceptionWrapper
 # Exception handling wrapper for Win32OLE exceptions.
 # Catch/log Win32OLE exceptions, pass on all others...
-def try
-  begin
-    yield
-  rescue WIN32OLERuntimeError => e #(System.Runtime.InteropServices.COMException e)
-    log "Ignoring caught Win32Ole runtime error:", e
-  rescue Exception => e #(System.Exception e)
-    $client.finalize if $client
-    log "Raising non-Win32Ole error:", e
-    raise e
+  def try
+    begin
+      yield
+    rescue WIN32OLERuntimeError => e
+      log "Ignoring caught Win32ole runtime error:", e
+    rescue Exception => e
+      # Works both inside Client and classes that know about @client
+      self.finalize if self.kind_of? Client
+      @client.finalize if @client
+      log "Raising non-Win32ole error:", e
+      raise e
+    end
   end
 end
 
@@ -39,32 +34,18 @@ end
 #
 module DataStreamEventHandlers
 
-  # Handling replication Data Stream status change
-  def onStreamStateChanged(stream, new_state)
-    log "Stream #{stream.StreamName} state: #{state_text(new_state)}"
-    case new_state
-      when P2::DS_STATE_CLOSE, P2::DS_STATE_ERROR
-        # @opened = false
-    end
-  end
-
   # Insert record
   def onStreamDataInserted(stream, table_name, rec)
     @fields[table_name] ||= stream.TableSet.FieldList(table_name).split(',')
     @revisions[table_name] = rec.GetValAsLongByIndex(1)
     log "Stream #{stream.StreamName} inserts into #{table_name} "
-    try { process_record rec, @fields[table_name] }
+    process_record rec, @fields[table_name]
   end
 
   # Delete record
   def onStreamDataDeleted(stream, table_name, id, rec)
     @revisions[table_name] = rec.GetValAsLongByIndex(1)
     log "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
-#    if stream.StreamName == AGGR_ID
-##      save_aggr(rec, table_name, stream)
-#    else
-#      log "Unexpected onStreamDataDeleted for #{stream.StreamName}: deletes #{id} from #{table_name} "
-#    end
   end
 
   # Stream LifeNum change
@@ -72,10 +53,15 @@ module DataStreamEventHandlers
   def onStreamLifeNumChanged(stream, life_num)
     log "Stream #{stream.StreamName} LifeNum changed to #{life_num} "
     self.TableSet.LifeNum = life_num
-    self.TableSet.SetLifeNumToIni @ini
+    self.TableSet.SetLifeNumToIni @ini if @ini
   end
 
   # Dummy events (just for statistics):
+
+  # Handling replication Data Stream status change
+  def onStreamStateChanged(stream, new_state)
+    log "Stream #{stream.StreamName} state: #{state_text(new_state)}"
+  end
 
   #   Нотификация об изменении записи в БД. Для безбазового клиента не приходит.
   def onStreamDataUpdated(stream, table_name, id, rec)
@@ -108,7 +94,6 @@ module DataStreamEventHandlers
   # Standard method to process received data record is to save it into @save_file
   # Classes that include DataStreamEventHandlers may redefine their own record handling
   def process_record rec, fields
-    #noinspection RubyArgCount
     save_data @save_file, rec, fields
   end
 
@@ -123,12 +108,14 @@ end # module DataStreamEventHandlers
 # Enhanced P2::DataStream class handling its own Events internally
 class EventedDataStream < P2::DataStream
 
+  include ExceptionWrapper
   include DataStreamEventHandlers
 
   attr_accessor :stats
 
   def initialize opts = {}
     @conn = opts.delete(:conn)
+    @client = opts.delete(:client)
     @save_path = opts.delete(:save_path)
     @ini = opts.delete(:ini)
 
@@ -184,6 +171,11 @@ class EventedDataStream < P2::DataStream
       end
     end
   end
+
+  #  Logging delegated to @client
+  def log *args
+    @client.log *args if @client
+  end
 end # class EventedDataStream
 
 # This is an event proxy that collects event statistics,
@@ -194,10 +186,10 @@ class Stats
     @stats = {}
 
     # Wrap all event processing methods of real event handler
-    # in stats gathering and exception processing blocks
+    # in a stub that gathers stats and handles exceptions
     @real_handler.methods.select { |m| m =~/^on/ }.each do |method|
       self.define_singleton_method(method) do |stream, *args|
-        try do
+        @real_handler.try do
           key = args.empty? ? stream.StreamName : args.first
           @stats[method] ||= Hash.new(0)
           @stats[method][key] += 1
@@ -218,6 +210,8 @@ end # class Stats
 
 # Main class implementing business logics
 class Client
+
+  include ExceptionWrapper
 
   attr_accessor :streams
 

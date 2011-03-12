@@ -24,13 +24,13 @@ class OrderStream < EventedDataStream
   # устанавливаем обработчик смены номера жизни, он необходим для корректного
   # перехода потока в online
   def onStreamLifeNumChanged(stream, life_num)
-    $client.orders.clear
+    @client.orders.clear
     super
   end
 
   def onStreamDataInserted(stream, table_name, rec)
     # поток AGGR, добавляем строку в один из стаканов
-    $client.orders.addrecord(rec.GetValAsLong('isin_id'),
+    @client.orders.addrecord(rec.GetValAsLong('isin_id'),
                              rec.GetValAsString('replID').to_i,
                              rec.GetValAsString('replRev').to_i,
                              rec.GetValAsString('price').to_f,
@@ -41,20 +41,20 @@ class OrderStream < EventedDataStream
 
   def onStreamDataDeleted(stream, table_name, id, rec)
     # удаляем строку из одного из стаканов
-    $client.orders.delrecord(id)
+    @client.orders.delrecord(id)
     super
   end
 
   def onStreamDatumDeleted(stream, table_name, rev)
     # удаляем строки из всех стаканов с ревиженом меньше заданного
-    $client.orders.clearbyrev(rev)
+    @client.orders.clearbyrev(rev)
     # перерисовываем стакан
-    $client.RedrawOrderBook(false)
+    @client.RedrawOrderBook(false)
     super
   end
 
   def onStreamDataEnd(stream)
-    $client.RedrawOrderBook(false)
+    @client.RedrawOrderBook(false)
     super
   end
 end # class OrderStream
@@ -63,7 +63,7 @@ class InfoStream < EventedDataStream
   # устанавливаем обработчик смены номера жизни, он необходим для корректного
   # перехода потока в online
   def onStreamLifeNumChanged(stream, life_num)
-    $client.instruments.clear
+    @client.instruments.clear
     super
   end
 
@@ -72,7 +72,7 @@ class InfoStream < EventedDataStream
     if table_name == 'fut_sess_contents'
       isin_id = rec.GetValAsString('isin_id')
       # добавляем инструмент, если его еще нет
-      $client.instruments[isin_id] ||=
+      @client.instruments[isin_id] ||=
           "#{isin_id}, #{rec.GetValAsString('short_isin')}, #{rec.GetValAsString('name')}"
     end
     super
@@ -95,25 +95,22 @@ class VCLClient < Client
 
     # Create replication objects for interesting data streams
     @streams =
-        {:common => EventedDataStream.new(:name => COMMON_ID,
+        {:common => EventedDataStream.new(:client => self,
+                                          :name => COMMON_ID,
                                           :ini => COMMON_INI,
                                           :save_path => COMMON_PATH,
                                           :conn => @conn),
 
-         :orders => OrderStream.new(:name => AGGR_ID,
+         :orders => OrderStream.new(:client => self,
+                                    :name => AGGR_ID,
                                     :ini => AGGR_INI,
                                     :save_path => AGGR_PATH,
                                     :conn => @conn),
 
-         :info => InfoStream.new(:name => INFO_ID,
+         :info => InfoStream.new(:client => self,
+                                 :name => INFO_ID,
                                  :save_path => INFO_PATH,
                                  :conn => @conn),
-
-         #           :deals => EventedDataStream.new(:type => P2::RT_COMBINED_DYNAMIC,
-         #                                           :name => DEAL_ID,
-         #                                           :ini => DEAL_INI,
-         #                                           :save_path => DEAL_PATH,
-         #                                           :conn => @conn)
         }
 
     # TODO: tweak #process_record method for @stream[:orders]
@@ -141,11 +138,9 @@ end # class VCLClient
 router = start_router
 
 begin
-  $client = VCLClient.new "Adv_vcl_client", router
-  $client.run
+  client = VCLClient.new "Adv_vcl_client", router
+  client.run
 rescue Exception => e
   puts "Caught in main loop: #{e.class}"
   raise e
-ensure
-  $client.finalize
 end
