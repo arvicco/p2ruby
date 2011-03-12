@@ -20,10 +20,18 @@ class LogView < FXList
   def initialize(parent, opts, log=nil)
     super(parent, :opts => opts)
     appendItem 'LogView inited...'
+    @last_line = ''
+    @counter = 0
   end
 
-  def puts *args
-    prependItem args.to_s
+  def puts line
+    if line == @last_line
+      @counter += 1
+    else
+      prependItem line + (@counter > 0 ? ": #{@counter}" : '')
+      @last_line = line
+      @counter = 0
+    end
     # храним только 100 строк
 #    @log.pop if @log.size > 100
 #    # добавляем строкy в начало
@@ -37,7 +45,7 @@ class VCLForm < FXMainWindow
 
   def initialize(app, client)
     @client = client
-    super(app, "P2 Client Order Books", :width => 1100, :height => 1350)
+    super(app, "P2 Client Order Books", :width => 1100, :height => 1250)
     add_menu_bar
     splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
     @book_view = OrderBookView.new splitter

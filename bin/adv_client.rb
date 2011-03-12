@@ -70,7 +70,7 @@ module DataStreamEventHandlers
 
   # Нотификация об удалении всех записей из БД с ревижином меньше минимального серверного.
   def onStreamDatumDeleted(stream, table_name, rev)
-    log "Stream #{stream.StreamName} deletes Datum in #{table_name} with rev below #{rev}"
+    log "Stream #{stream.StreamName} deletes Datum in #{table_name} below rev #{rev}"
     # Arrives once per table, can be used to enumerate tables in DataStream!
   end
 
