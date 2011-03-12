@@ -83,11 +83,13 @@ end # class InfoStream
 class VCLClient < Client
   ## Overriden inherited methods
 
+  attr_accessor :logs, :orders, :instruments
+
   # Specific setup for Client subclasses
   def setup
     super
 
-    @log = []
+    @logs = []
     @instruments = {}
     @orders = VCL::OrderList.new
 
@@ -124,9 +126,9 @@ class VCLClient < Client
     super
 
     # храним только 50 строк
-    @log.pop if @log.size > 50
+    @logs.pop if @logs.size > 50
     # добавляем строкy в начало
-    @log.unshift "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
+    @logs.unshift "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
   end
 
   ## VCLClient-specific methods

@@ -84,7 +84,7 @@ module DataStreamEventHandlers
 
   # Нотификация об удалении всех записей из БД с ревижином меньше минимального серверного.
   def onStreamDatumDeleted(stream, table_name, rev)
-    log "Stream #{stream.StreamName} deletes Datum in #{table_name} "
+    log "Stream #{stream.StreamName} deletes Datum in #{table_name} with rev below #{rev}"
     # Arrives once per table, can be used to enumerate tables in DataStream!
   end
 
@@ -219,13 +219,12 @@ end # class Stats
 # Main class implementing business logics
 class Client
 
-  attr_accessor :streams, :log, :orders, :instruments
+  attr_accessor :streams
 
   def initialize app_name, router
     @app_name = app_name
     @router = router
     @stop = false
-    @outputs = []
 
     begin
       # Create Connection object with P2MQRouter connectivity parameters
@@ -236,6 +235,8 @@ class Client
       # Client will handle Connection's events by default
       @conn.events.handler = self
 
+      @streams = {}
+      @outputs = []
       # Run setup for client subclasses
       setup
 
@@ -313,39 +314,4 @@ class Client
     STDOUT.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
     #  @log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
   end
-
-#  # Insert record
-#  def onStreamDataInserted(stream, table_name, rec)
-#    # Interrupt inside event hook bubbles up instead of being caught in main loop...
-#    try do
-#      log "Stream #{stream.StreamName} inserts into #{table_name} "
-#
-#      if stream.StreamName == AGGR_ID
-#        # This is FORTS_FUTAGGR20_REPL stream event
-#        save_aggr(rec, table_name, stream)
-#
-#      elsif stream.StreamName == DEAL_ID && table_name == 'deal'
-#        # This is FORTS_FUTTRADE_REPL stream event
-#        # !!!! Saving only records from 'deal' table, not heartbeat or multileg_deal
-#        save_data(rec, table_name, @deal_file, stream, "\n", '')
-#      end
-#    end
-#  end
-#
-#  # Save/log aggregate orders record
-#  def save_aggr(rec, table_name, stream)
-#    save_data(rec, table_name, log, stream)
-#    @aggr_file.puts "replRev=#{@revisions['orders_aggr']}"
-#    @aggr_file.flush
-#  end
-#
-#  # Save/log given record data
-#  def save_data(rec, table_name, file, stream, divider = '; ', finalizer = nil)
-#    @revisions[table_name] = rec.GetValAsLongByIndex(1)
-#
-#    fields = stream.TableSet.FieldList(table_name) #"deal"]
-#    file.puts fields.split(',').map { |f| "#{f}=#{rec.GetValAsString(f)}" }.join divider
-#    file.puts(finalizer) if finalizer
-#    file.flush
-#  end
-end
+end # class Client
