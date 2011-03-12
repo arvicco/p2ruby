@@ -27,18 +27,9 @@ COMMON_PATH = 'log\SaveCommon.txt'
 
 ## Global functions:
 
-# Normal log (STDOUT)
+# Normal log (delegates to client)
 def log *args
-  STDOUT.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
-  $client.log "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}" if $client
-#  @log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
-end
-
-# Error log (for unexpected events/exceptions)
-def error_log *args
-  @error_log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
-  @error_log_file.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
-  @error_log_file.flush
+  $client.log *args if $client
 end
 
 # Exception handling wrapper for Win32OLE exceptions.
@@ -86,11 +77,11 @@ module DataStreamEventHandlers
   def onStreamDataDeleted(stream, table_name, id, rec)
     @revisions[table_name] = rec.GetValAsLongByIndex(1)
     log "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
-    if stream.StreamName == AGGR_ID
-#      save_aggr(rec, table_name, stream)
-    else
-      error_log "Unexpected onStreamDataDeleted for #{stream.StreamName}: deletes #{id} from #{table_name} "
-    end
+#    if stream.StreamName == AGGR_ID
+##      save_aggr(rec, table_name, stream)
+#    else
+#      log "Unexpected onStreamDataDeleted for #{stream.StreamName}: deletes #{id} from #{table_name} "
+#    end
   end
 
   # Stream LifeNum change
@@ -116,14 +107,17 @@ module DataStreamEventHandlers
 
   # Нотификация об удалении базы данных.
   def onStreamDBWillBeDeleted(stream)
+    log "Stream #{stream.StreamName} DBWillBeDeleted"
   end
 
   # Нотификация начала транзакции по обработке пакета данных от сервера репликации.
   def onStreamDataBegin(stream)
-  end
+    log "Stream #{stream.StreamName} Data begins"
+   end
 
   # Нотификация начала транзакции по обработке пакета данных от сервера репликации.
   def onStreamDataEnd(stream)
+    log "Stream #{stream.StreamName} Data ends"
   end
 
   # Helper methods:
@@ -303,61 +297,44 @@ end
 # Main class implementing business logics
 class Client
 
-  attr_accessor :stats, :streams, :log, :orders, :instruments
+  attr_accessor :streams, :log, :orders, :instruments
 
-  def initialize router
+  def initialize app_name, router
+    @app_name = app_name
     @router = router
     @stop = false
-
-    # VCL modifications:
-    @log = []
-    @instruments = {}
-    @orders = VCL::OrderList.new
+    @outputs = []
 
     begin
       # Create Connection object with P2MQRouter connectivity parameters
       @conn = P2::Connection.new :ini => CLIENT_INI,
                                  :host => "localhost",
                                  :port => 4001,
-                                 :AppName => "adv_baseless"
-      # Client will handle Connection's events
+                                 :AppName => @app_name
+      # Client will handle Connection's events by default
       @conn.events.handler = self
 
-      # Create replication objects for interesting data streams
-      @streams =
-          {:common => EventedDataStream.new(:name => COMMON_ID,
-                                            :ini => COMMON_INI,
-                                            :save_path => COMMON_PATH,
-                                            :conn => @conn),
+      # Run setup for client subclasses
+      setup
 
-           :orders => OrderStream.new(:name => AGGR_ID,
-                                      :ini => AGGR_INI,
-                                      :save_path => AGGR_PATH,
-                                      :conn => @conn),
-
-           :info => InfoStream.new(:name => INFO_ID,
-                                   :save_path => INFO_PATH,
-                                   :conn => @conn),
-
-           #           :deals => EventedDataStream.new(:type => P2::RT_COMBINED_DYNAMIC,
-           #                                           :name => DEAL_ID,
-           #                                           :ini => DEAL_INI,
-           #                                           :save_path => DEAL_PATH,
-           #                                           :conn => @conn)
-          }
-
-      # TODO: tweak #process_record method for @stream[:orders]
+      # Adding streams stats to outputs:
+      @outputs += @streams.map { |id, stream| [id, stream.stats] }.flatten
 
     rescue WIN32OLERuntimeError => e
       log e
       if P2.p2_error(e) == P2::P2ERR_INI_PATH_NOT_FOUND #Marshal.GetHRForException(e)
-        error_log "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
+        log "Can't find one or both of ini file: P2ClientGate.ini, orders_aggr.ini"
       end
       raise e
     rescue Exception => e #(System.Exception e)
-      log "Raising non-Win32Ole error in initialize:", e
+      log "Raising non-Win32Ole error in initialize: #{e}"
       raise e
     end
+  end
+
+  # Override and set up @streams and @outputs here
+  # (as well as other artifacts specific to your client)
+  def setup
   end
 
   # Main event cycle
@@ -388,34 +365,31 @@ class Client
   def finalize
     # Make sure this finalizer runs only once
     unless @finalized
+      @stop = true
       @streams.each do |_, stream|
         stream.Close unless stream.closed?
         stream.save_revisions
-        puts "#{stream.StreamName}:"
-        pp stream.stats
       end
       @conn.Disconnect()
       @router.exit
-      p @orders.order_books
+
+      @outputs.each { |out| pp out }
       @finalized = true
     end
   end
 
   # Handling Connection status change
   def onConnectionStatusChanged(conn, new_status)
-    state = "MQ connection state " + @conn.status_text(new_status)
+    log "MQ connection state " + @conn.status_text(new_status)
 
     if ((new_status & P2::CS_ROUTER_CONNECTED) != 0)
       # Когда соединились - запрашиваем адрес сервера-обработчика ?
     end
-    log(state)
   end
 
   def log *args
-    # храним только 50 строк
-    @log.pop if @log.size > 50
-    # добавляем строкy в начало
-    @log.unshift "#{args}"
+    STDOUT.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
+  #  @log_file ||= File.new(LOG_PATH, "w") # System.Text.Encoding.Unicode)
   end
 
   def RedrawOrderBook force
@@ -458,11 +432,57 @@ class Client
 #  end
 end
 
+class VCLClient < Client
+  # Specific setup for Client subclasses
+  def setup
+    # VCL modifications:
+    @log = []
+    @instruments = {}
+    @orders = VCL::OrderList.new
+
+    # Create replication objects for interesting data streams
+    @streams =
+        {:common => EventedDataStream.new(:name => COMMON_ID,
+                                          :ini => COMMON_INI,
+                                          :save_path => COMMON_PATH,
+                                          :conn => @conn),
+
+         :orders => OrderStream.new(:name => AGGR_ID,
+                                    :ini => AGGR_INI,
+                                    :save_path => AGGR_PATH,
+                                    :conn => @conn),
+
+         :info => InfoStream.new(:name => INFO_ID,
+                                 :save_path => INFO_PATH,
+                                 :conn => @conn),
+
+         #           :deals => EventedDataStream.new(:type => P2::RT_COMBINED_DYNAMIC,
+         #                                           :name => DEAL_ID,
+         #                                           :ini => DEAL_INI,
+         #                                           :save_path => DEAL_PATH,
+         #                                           :conn => @conn)
+        }
+
+    # TODO: tweak #process_record method for @stream[:orders]
+
+    # Setting up outputs:
+    @outputs << @orders.order_books
+  end
+
+  def log *args
+    super
+    # храним только 50 строк
+    @log.pop if @log.size > 50
+    # добавляем строкy в начало
+    @log.unshift "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
+  end
+end
+
 # The main entry point for the application.
 router = start_router
 
 begin
-  $client = Client.new router
+  $client = VCLClient.new "Adv_vcl_client", router
   $client.run
 rescue Exception => e
   puts "Caught in main loop: #{e.class}"
