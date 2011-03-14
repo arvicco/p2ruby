@@ -31,22 +31,10 @@ class LogView < FXList
         @last_size = @logs.size
       end
     end
-  end
 
-  def puts line
-    prependItem line
-    # grouping similar entries with count
-#    if line == @last_line
-#      @counter += 1
-#    else
-#      prependItem line + (@counter > 0 ? ": #{@counter}" : '')
-#      @last_line = line
-#      @counter = 0
+#    self.connect(SEL_KEYPRESS) do |sender, sel, event|
+#       log :critical, event.state
 #    end
-    # храним только 100 строк
-#    @log.pop if @log.size > 100
-#    # добавляем строкy в начало
-#    @log.unshift "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
   end
 end
 
@@ -58,10 +46,15 @@ class VCLForm < FXMainWindow
     @client = client
     super(app, "P2 Client Order Books", :width => 1100, :height => 1160)
     add_menu_bar
+#    app.addSignal("SIGINT") { log "Sigint"; finalize }
+#    app.addSignal("SIGTERM") { log "Sigterm"; finalize }
+
+    # Views setup
     splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
     @book_view = OrderBookView.new splitter
     @log_view = LogView.new(splitter, LAYOUT_SIDE_TOP, @client.logs)
-#    @client.logger = @log_view
+    # TODO: Set up a repeating chore to process messages at @client?
+
   end
 
   def create
@@ -73,23 +66,18 @@ class VCLForm < FXMainWindow
     menu_bar = FXMenuBar.new(self, LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
     file_menu = FXMenuPane.new(self)
     FXMenuTitle.new(menu_bar, "File", :popupMenu => file_menu)
-
-#    import_cmd = FXMenuCommand.new(file_menu, "Import...")
-#    import_cmd.connect(SEL_COMMAND) do
-#      dialog = FXFileDialog.new(self, "Import Photos")
-#      dialog.selectMode = SELECTFILE_MULTIPLE
-#      dialog.patternList = ["JPEG Images (*.jpg, *.jpeg)"]
-#      if dialog.execute != 0
-#        import_photos(dialog.filenames)
-#      end
-#    end
     exit_cmd = FXMenuCommand.new(file_menu, "Exit")
-    exit_cmd.connect(SEL_COMMAND) do
-      log :debug, "Sending Client a signal to stop"
-      @client.stop = true
-      log :debug, "Exiting GUI"
-      Thread.exit
-    end
+    exit_cmd.connect(SEL_COMMAND) { finalize }
+  end
+
+  # Wrap up @client and GUI Application
+  def finalize
+    log :info, "Sending Client a signal to stop"
+    @client.stop = true
+    # Waiting for client to completely stop before exiting
+    sleep 0.1 until @client.stopped
+    log :info, "Exiting GUI"
+    Thread.exit
   end
 
   #  Logging delegated to @client
@@ -112,11 +100,12 @@ start_router do |router|
   end
 
   client.run
-  client.log  :debug, "Run finished, exiting start_router block"
+  client.log :debug, "Run finished, client finalized"
+
+  # Waiting for GUI thread to finish...
+  @gui_thread.join
 end
 
-# Waiting for GUI thread to finish...
-@gui_thread.join
 
 #def onConnectButtonClick(Sender: TObject)
 #  begin

@@ -213,7 +213,7 @@ class Client
 
   include ExceptionWrapper
 
-  attr_accessor :name, :logger, :streams
+  attr_accessor :name, :logger, :streams, :stopped
 
   def initialize opts = {}
     @name = opts[:name] || 'P2RB'
@@ -283,11 +283,12 @@ class Client
   end
 
   # Client's cleanup actions
+  # TODO: Still some problems with multi-threading/exception logics...
   def finalize
     # Make sure this finalizer runs only once
-    unless @finalized
-      @finalized = true
+    unless @stopping
       @stop = true
+      @stopping = true
       @streams.each do |_, stream|
         stream.Close unless stream.closed?
         stream.save_revisions
@@ -296,6 +297,7 @@ class Client
       @router.exit
 
       @outputs.each { |out| pp out } # log out } - will not work if logger writes to GUI
+      @stopped = true
     end
   end
 
