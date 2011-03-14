@@ -44,8 +44,22 @@ class VCLForm < FXMainWindow
 
   def initialize(app, client)
     @client = client
-    super(app, "P2 Client Order Books", :width => 1100, :height => 1160)
-    add_menu_bar
+    super(app, "P2 Client Order Books", :width => 1200, :height => 1160)
+    top_frame = FXHorizontalFrame.new(self, :opts => LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
+    add_menu_bar top_frame
+
+    disconnect_button = FXButton.new(top_frame, "Disconnect",
+                                   :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
+    disconnect_button.connect(SEL_COMMAND) do |sender, sel, data|
+      log :info, "Pretend to disconnect" #@controller.activate_launch_sequence
+    end
+
+    connect_button = FXButton.new(top_frame, "Connect",
+                                   :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
+    connect_button.connect(SEL_COMMAND) do |sender, sel, data|
+      log :info, "Pretend to connect" #@controller.activate_launch_sequence
+    end
+
 #    app.addSignal("SIGINT") { log "Sigint"; finalize }
 #    app.addSignal("SIGTERM") { log "Sigterm"; finalize }
 
@@ -62,8 +76,8 @@ class VCLForm < FXMainWindow
     show(PLACEMENT_SCREEN)
   end
 
-  def add_menu_bar
-    menu_bar = FXMenuBar.new(self, LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
+  def add_menu_bar frame = self
+    menu_bar = FXMenuBar.new(frame, LAYOUT_SIDE_TOP|LAYOUT_LEFT)
     file_menu = FXMenuPane.new(self)
     FXMenuTitle.new(menu_bar, "File", :popupMenu => file_menu)
     exit_cmd = FXMenuCommand.new(file_menu, "Exit")
@@ -88,24 +102,25 @@ end
 
 start_router do |router|
 
-  client = VCLClient.new :name => "Gui_vcl_client", :router => router
+  # Making @client main Object's instance var to avoid segfault on exit
+  @client = VCLClient.new :name => "Gui_vcl_client", :router => router
 
   @gui_thread = Thread.new do
 #    sleep 2
     FXApp.new do |app|
-      VCLForm.new(app, client)
+      VCLForm.new(app, @client)
       app.create
       app.run
     end
   end
 
-  client.run
-  client.log :debug, "Run finished, client finalized"
+  @client.run
+  @client.log :debug, "Run finished, client finalized"
 
-  # Waiting for GUI thread to finish...
-  @gui_thread.join
 end
 
+# Waiting for GUI thread to finish...
+@gui_thread.join
 
 #def onConnectButtonClick(Sender: TObject)
 #  begin
