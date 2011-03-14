@@ -44,24 +44,22 @@ class VCLForm < FXMainWindow
     top_frame = FXHorizontalFrame.new(self, :opts => LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
     add_menu_bar top_frame
 
-    disconnect_button = FXButton.new(top_frame, "Disconnect",
-                                   :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
-    disconnect_button.connect(SEL_COMMAND) do |sender, sel, data|
-      log :info, "Pretend to disconnect" #@controller.activate_launch_sequence
+    add_buttons top_frame
+
+    @instruments_view = FXListBox.new(top_frame, :opts =>
+        LISTBOX_NORMAL|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X) #|LAYOUT_CENTER)
+    @instruments_view.numVisible = 50
+    @instruments_view.connect(SEL_UPDATE) do |sender, sel, data|
+      if sender.numItems < @client.instruments.size
+        sender.clearItems
+        @client.instruments.each do |k, v|
+          sender.prependItem v.encode('UTF-8')
+        end
+      end
     end
 
-    connect_button = FXButton.new(top_frame, "Connect",
-                                   :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
-    connect_button.connect(SEL_COMMAND) do |sender, sel, data|
-      log :info, "Pretend to connect" #@controller.activate_launch_sequence
-    end
-
-#    app.addSignal("SIGINT") { log "Sigint"; finalize }
-#    app.addSignal("SIGTERM") { log "Sigterm"; finalize }
-
-    # Split views setup
     splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
-    @book_view = OrderBookView.new splitter
+    @order_book_view = OrderBookView.new splitter
     @log_view = LogView.new(splitter, LAYOUT_SIDE_TOP, @client.logs)
     # TODO: Set up a repeating chore to process messages at @client?
   end
@@ -77,6 +75,25 @@ class VCLForm < FXMainWindow
     FXMenuTitle.new(menu_bar, "File", :popupMenu => file_menu)
     exit_cmd = FXMenuCommand.new(file_menu, "Exit")
     exit_cmd.connect(SEL_COMMAND) { finalize }
+  end
+
+  def add_buttons frame = self
+    @disconnect_button = FXButton.new(frame, "Disconnect",
+                                      :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
+    @disconnect_button.connect(SEL_COMMAND) do |sender, sel, data|
+      log :info, "Pretend to disconnect" #@controller.activate_launch_sequence
+      sender.enabled = false
+      @connect_button.enabled = true
+    end
+    @disconnect_button.enabled = false
+
+    @connect_button = FXButton.new(frame, "Connect",
+                                   :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
+    @connect_button.connect(SEL_COMMAND) do |sender, sel, data|
+      log :info, "Pretend to connect" #@controller.activate_launch_sequence
+      sender.enabled = false
+      @disconnect_button.enabled = true
+    end
   end
 
   # Wrap up @client and GUI Application
