@@ -38,20 +38,20 @@ module DataStreamEventHandlers
   def onStreamDataInserted(stream, table_name, rec)
     @fields[table_name] ||= stream.TableSet.FieldList(table_name).split(',')
     @revisions[table_name] = rec.GetValAsLongByIndex(1)
-    log "Stream #{stream.StreamName} inserts into #{table_name} "
+    log :debug, "Stream #{stream.StreamName} inserts into #{table_name} "
     process_record rec, @fields[table_name]
   end
 
   # Delete record
   def onStreamDataDeleted(stream, table_name, id, rec)
     @revisions[table_name] = rec.GetValAsLongByIndex(1)
-    log "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
+    log :debug, "Stream #{stream.StreamName} deletes #{id} from #{table_name} "
   end
 
   # Stream LifeNum change
   # Нотификация изменения номера жизни в серверной схеме репликации.
   def onStreamLifeNumChanged(stream, life_num)
-    log "Stream #{stream.StreamName} LifeNum changed to #{life_num} "
+    log :info, "Stream #{stream.StreamName} LifeNum changed to #{life_num} "
     self.TableSet.LifeNum = life_num
     self.TableSet.SetLifeNumToIni @ini if @ini
   end
@@ -60,33 +60,33 @@ module DataStreamEventHandlers
 
   # Handling replication Data Stream status change
   def onStreamStateChanged(stream, new_state)
-    log "Stream #{stream.StreamName} state: #{state_text(new_state)}"
+    log :info, "Stream #{stream.StreamName} state: #{state_text(new_state)}"
   end
 
   #   Нотификация об изменении записи в БД. Для безбазового клиента не приходит.
   def onStreamDataUpdated(stream, table_name, id, rec)
-    log "Stream #{stream.StreamName} updates #{id} in #{table_name} "
+    log :debug, "Stream #{stream.StreamName} updates #{id} in #{table_name} "
   end
 
   # Нотификация об удалении всех записей из БД с ревижином меньше минимального серверного.
   def onStreamDatumDeleted(stream, table_name, rev)
-    log "Stream #{stream.StreamName} deletes Datum in #{table_name} below rev #{rev}"
+    log :info, "Stream #{stream.StreamName} deletes Datum in #{table_name} below rev #{rev}"
     # Arrives once per table, can be used to enumerate tables in DataStream!
   end
 
   # Нотификация об удалении базы данных.
   def onStreamDBWillBeDeleted(stream)
-    log "Stream #{stream.StreamName} DBWillBeDeleted"
+    log :info, "Stream #{stream.StreamName} DBWillBeDeleted"
   end
 
   # Нотификация начала транзакции по обработке пакета данных от сервера репликации.
   def onStreamDataBegin(stream)
-    log "Stream #{stream.StreamName} Data begins"
+    log :debug, "Stream #{stream.StreamName} Data begins"
   end
 
   # Нотификация начала транзакции по обработке пакета данных от сервера репликации.
   def onStreamDataEnd(stream)
-    log "Stream #{stream.StreamName} Data ends"
+    log :debug, "Stream #{stream.StreamName} Data ends"
   end
 
   # Helper methods:
@@ -295,13 +295,13 @@ class Client
       @conn.Disconnect()
       @router.exit
 
-      @outputs.each { |out| pp out }  # log out } - will not work if logger writes to GUI
+      @outputs.each { |out| pp out } # log out } - will not work if logger writes to GUI
     end
   end
 
   # Handling Connection status change
   def onConnectionStatusChanged(conn, new_status)
-    log "MQ connection state " + @conn.status_text(new_status)
+    log :info, "MQ connection state " + @conn.status_text(new_status)
 
     if ((new_status & P2::CS_ROUTER_CONNECTED) != 0)
       # Когда соединились - запрашиваем адрес сервера-обработчика ?
@@ -309,7 +309,12 @@ class Client
   end
 
   def log *args
-    time = Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')
-    @logger.puts "#{time}: #{args.map(&:to_s).join(' ')}"
+    level = args.first.kind_of?(Symbol) ? args.shift : :info
+    time = Win::Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')
+    if level == :debug
+      STDOUT.puts "#{time}: #{args.map(&:to_s).join(' ')}"
+    else
+      @logger.puts "#{time}: #{args.map(&:to_s).join(' ')}"
+    end
   end
 end # class Client

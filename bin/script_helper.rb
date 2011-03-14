@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'pathname'
 require 'fileutils'
+require 'win/time'
 
 require 'pathname'
 lib = (Pathname.new(__FILE__).dirname + '../lib').expand_path.to_s
