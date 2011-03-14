@@ -14,6 +14,7 @@ module ExceptionWrapper
       yield
     rescue WIN32OLERuntimeError => e
       log "Ignoring caught Win32ole runtime error:", e
+      sleep 0.1 # Give other Threads a chance to execute
     rescue Exception => e
       # Works both inside Client and classes that know about @client
       self.finalize if self.kind_of? Client
@@ -261,25 +262,28 @@ class Client
       try do
         # (Re)-connecting to Router
         @conn.Connect()
-        try do
-          until @stop
-            # Check status for all streams, reopen as necessary
-            try { @streams.each { |_, stream| stream.keep_alive } }
 
-            # Actual processing of incoming messages happens in event callbacks
-            # Oбрабатываем пришедшее сообщение в интерфейсах обратного вызова
-            @conn.ProcessMessage2(100)
-          end
-        end
+        # Processing messages in a loop
+        try { process_messages until @stop }
 
         # Make sure streams are closed and disconnect before reconnecting
-        try { @streams.each { |_, stream| stream.Close unless stream.closed? } }
+        @streams.each { |_, stream| try { stream.Close } unless stream.closed? }
         @conn.Disconnect()
       end
     end
     finalize
     # Segfaults upon exit, seems like client leaves before all incoming messages are
     # processed and stream/connection state changes. Hook exit to onConnectionStatusChanged?
+  end
+
+  # Keep alive streams and process messages once
+  def process_messages
+    # Check status for all streams, reopen as necessary
+    @streams.each { |_, stream| try { stream.keep_alive } }
+
+    # Actual processing of incoming messages happens in event callbacks
+    # Oбрабатываем пришедшее сообщение в интерфейсах обратного вызова
+    @conn.ProcessMessage2(100)
   end
 
   # Client's cleanup actions
@@ -316,7 +320,7 @@ class Client
     time = Win::Time.now
     level = args.first.kind_of?(Symbol) ? args.shift : :info
     entry = "#{time.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{level}: #{args.map(&:to_s).join(' ')}"
-    @logger.puts entry
+    @logger.print entry + "\n" # To avoid Thread conflict
     [time, level, entry]
   end
 end # class Client

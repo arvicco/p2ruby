@@ -31,10 +31,6 @@ class LogView < FXList
         @last_size = @logs.size
       end
     end
-
-#    self.connect(SEL_KEYPRESS) do |sender, sel, event|
-#       log :critical, event.state
-#    end
   end
 end
 
@@ -63,12 +59,11 @@ class VCLForm < FXMainWindow
 #    app.addSignal("SIGINT") { log "Sigint"; finalize }
 #    app.addSignal("SIGTERM") { log "Sigterm"; finalize }
 
-    # Views setup
+    # Split views setup
     splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
     @book_view = OrderBookView.new splitter
     @log_view = LogView.new(splitter, LAYOUT_SIDE_TOP, @client.logs)
     # TODO: Set up a repeating chore to process messages at @client?
-
   end
 
   def create
