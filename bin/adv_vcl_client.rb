@@ -120,11 +120,8 @@ class VCLClient < Client
   end
 
   def log *args
-    super
-#    # храним только 50 строк
-#    @logs.pop if @logs.size > 50
-#    # добавляем строкy в начало
-#    @logs.unshift "#{Win::Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{args}"
+    time, level, entry = super
+    @logs << entry if level != :debug
   end
 
   ## VCLClient-specific methods

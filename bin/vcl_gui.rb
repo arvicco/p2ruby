@@ -6,7 +6,7 @@ include Fox
 class OrderBookView < FXTable
   def initialize(parent, order_book = nil)
     @order_book = order_book
-    super(parent, :opts => LAYOUT_FILL | TABLE_READONLY | TABLE_NO_COLSELECT, :width => 310)
+    super(parent, :opts => LAYOUT_FILL | TABLE_READONLY | TABLE_NO_COLSELECT, :width => 305)
     self.setTableSize(20, 3)
     self.rowHeaderWidth = 1
     self.columnHeaderHeight = 1
@@ -17,21 +17,32 @@ end
 class LogView < FXList
   attr_reader :log
 
-  def initialize(parent, opts, log=nil)
+  def initialize(parent, opts, logs=nil)
     super(parent, :opts => opts)
     appendItem 'LogView inited...'
-    @last_line = ''
-    @counter = 0
+    @logs = logs
+    @last_size = 0
+
+    self.connect(SEL_UPDATE) do |sender, sel, data|
+      if @last_size < @logs.size
+        (@last_size...@logs.size).each do |i|
+          prependItem @logs[i]
+        end
+        @last_size = @logs.size
+      end
+    end
   end
 
   def puts line
-    if line == @last_line
-      @counter += 1
-    else
-      prependItem line + (@counter > 0 ? ": #{@counter}" : '')
-      @last_line = line
-      @counter = 0
-    end
+    prependItem line
+    # grouping similar entries with count
+#    if line == @last_line
+#      @counter += 1
+#    else
+#      prependItem line + (@counter > 0 ? ": #{@counter}" : '')
+#      @last_line = line
+#      @counter = 0
+#    end
     # храним только 100 строк
 #    @log.pop if @log.size > 100
 #    # добавляем строкy в начало
@@ -45,12 +56,12 @@ class VCLForm < FXMainWindow
 
   def initialize(app, client)
     @client = client
-    super(app, "P2 Client Order Books", :width => 1100, :height => 1250)
+    super(app, "P2 Client Order Books", :width => 1100, :height => 1160)
     add_menu_bar
     splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
     @book_view = OrderBookView.new splitter
-    @log_view = LogView.new(splitter, LAYOUT_SIDE_TOP)
-    @client.logger = @log_view
+    @log_view = LogView.new(splitter, LAYOUT_SIDE_TOP, @client.logs)
+#    @client.logger = @log_view
   end
 
   def create
@@ -74,9 +85,9 @@ class VCLForm < FXMainWindow
 #    end
     exit_cmd = FXMenuCommand.new(file_menu, "Exit")
     exit_cmd.connect(SEL_COMMAND) do
-      log "Sending Client a signal to stop"
+      log :debug, "Sending Client a signal to stop"
       @client.stop = true
-      log "Exiting GUI"
+      log :debug, "Exiting GUI"
       Thread.exit
     end
   end
@@ -101,23 +112,19 @@ start_router do |router|
   end
 
   client.run
-  client.log "Run finished, exiting start_router block"
+  client.log  :debug, "Run finished, exiting start_router block"
 end
 
 # Waiting for GUI thread to finish...
 @gui_thread.join
 
-#def onConnectButtonClick(Sender
-#  : TObject)
+#def onConnectButtonClick(Sender: TObject)
 #  begin
 #    # установление соединения по кнопке connect
 #
-#    # при импорте библиотеки типов метод Connect был автоматически переименован в
-#    # Connect1 для того, чтобы избежать пересечения со стандартным методом Connect
-#    # Ole-сервера дельфи
 #    if assigned(@conn) then
 #      try
-#      @conn.Connect1
+#      @conn.Connect
 #      except
 #      on e : exception do
 #        log('Исключение при попытке соединения: %s', [e.message])
@@ -129,31 +136,11 @@ end
 #begin
 #  # разрыв соединения по кнопке disconnect
 #
-#  # при импорте библиотеки типов метод Disconnect был автоматически переименован в
-#  # Disconnect1 для того, чтобы избежать пересечения со стандартным методом Disconnect
-#  # Ole-сервера дельфи
 #  if assigned(@conn) then try
-#    @conn.Disconnect1
+#    @conn.Disconnect
 #  except
 #    on e: exception do log('Исключение при разрыве соединения: %s', [e.message])
 #  end
-#end
-#
-#def TForm1.log(const alogstr: string)
-#begin
-#  # вывод информации в LogListBox
-#  if assigned(LogListBox) then with LogListBox.Items do begin
-#    # храним только 50 строк
-#    if (Count > 50) then Delete(Count - 1)
-#    # добавляем строки в начало
-#    Insert(0, formatdatetime('hh:nn:ss.zzz ', fPreciseTime.Now) + alogstr)
-#  end
-#end
-#
-#def TForm1.log(const alogstr: string; const aparams: array of const)
-#begin
-#  # вывод лога с форматированием строки
-#  log(format(alogstr, aparams))
 #end
 #
 #def TForm1.InstrumentComboBoxChange(Sender: TObject)

@@ -308,13 +308,13 @@ class Client
     end
   end
 
+  # Default logging puts *args into a @logger with timestamp,
+  # and returns time, loglevel nand entry for subclasses to handle further
   def log *args
+    time = Win::Time.now
     level = args.first.kind_of?(Symbol) ? args.shift : :info
-    time = Win::Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')
-    if level == :debug
-      STDOUT.puts "#{time}: #{args.map(&:to_s).join(' ')}"
-    else
-      @logger.puts "#{time}: #{args.map(&:to_s).join(' ')}"
-    end
+    entry = "#{time.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{level}: #{args.map(&:to_s).join(' ')}"
+    @logger.puts entry
+    [time, level, entry]
   end
 end # class Client
