@@ -14,47 +14,30 @@ class OrderBookView < FXTable
 
     self.connect(SEL_UPDATE) do |sender, sel, data|
       unless @selector.currentItem == -1
-        isin = @selector.getItem(@selector.currentItem)[0..5].to_i
-        puts isin
-        book = @order_books.searchadditem(isin)
-        book.each
-        puts book
-        unless book.empty?
+        p isin = @selector.getItem(@selector.currentItem)[0..5].to_i
+        p book = @order_books[isin] # What if another book was selected?
+        if book.changed && !book.empty
+#        unless book.empty?
+          # устанавливаем кол-во строк в гриде
           self.setTableSize(book.size, 3)
-          book.each_with_index do |book_item, i| #price, :volume, :buysell
-#            p i, book_item
-#            p book_item.price.to_s
+          book.changed = false
+          book.each_with_index do |(price, book_item), i| #price, :volume, :buysell
+            # заполняем цену
             self.setItemText(i, 1, book_item.price.to_s)
+            # помещаем кол-во справа или слева от цены, в зависимости от buysell
             col = (book_item.buysell - 1) * 2
             self.setItemText(i, col, book_item.volume.to_s)
           end
         end
-#        # если стакан не пуст
-#        if Count > 0 then begin
-#          # устанавливаем кол-во строк в гриде
-#          OrderBookGrid.RowCount = Count
-#          # заполняем ячейки грида
-#          for i = 0 to Count - 1 do
-#            with pOrderBookItem(items[i])^ do begin
-#              # заполняем цену
-#              OrderBookGrid.Cells[1, i] = FloatToStr(price)
-#              # помещаем кол-во справа или слева от цены, в зависимости от buysell
-#              OrderBookGrid.Cells[bsn[(buysell and 1 == 1)], i]      = FloatToStr(volume)
-#              # противоположную ячейку очищаем
-#              OrderBookGrid.Cells[bsn[not (buysell and 1 == 1)], i]  = ''
-#            end
-#        end else ClearGrid
-#        changed = false
-#      end
       end
     end
   end
-end
+end # class OrderBookView
 
 class LogView < FXList
   attr_reader :logs
 
-  def initialize(p, logs=nil)
+  def initialize(p, logs)
     super(p, :opts => LAYOUT_SIDE_TOP)
     @logs = logs
 
@@ -62,20 +45,19 @@ class LogView < FXList
       (numItems...@logs.size).each { |i| prependItem @logs[i] }
     end
   end
-end
+end # class LogView
 
 class InstrumentsView < FXListBox
   def initialize(p, instruments)
     super(p, :opts => LISTBOX_NORMAL|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X)
-    self.numVisible = 50
+    self.numVisible = 60
     @instruments = instruments
 
     self.connect(SEL_UPDATE) do |sender, sel, data|
       (numItems...@instruments.size).each { |i| prependItem @instruments[i].encode('UTF-8') }
-#      puts getItem(currentItem) unless currentItem == -1
     end
   end
-end
+end # class InstrumentsView
 
 class Button < FXButton
   def initialize p, text, enable = true, &block
@@ -83,7 +65,7 @@ class Button < FXButton
     self.connect(SEL_COMMAND, &block)
     self.enabled = enable
   end
-end
+end # class Button
 
 class VCLForm < FXMainWindow
 
@@ -105,6 +87,7 @@ class VCLForm < FXMainWindow
     @log_view = LogView.new splitter, @client.logs
 
     # TODO: Set up a repeating chore to process messages at @client?
+    # TODO: Set up a repeating chore (timer 0.1 sec) to observe @client.logs/order_updated?
   end
 
   def create
@@ -150,7 +133,8 @@ class VCLForm < FXMainWindow
   def log *args
     @client.log *args if @client
   end
-end
+
+end # class VCLForm
 
 start_router do |router|
 
@@ -257,24 +241,8 @@ end
 #end
 #
 #initialization
-#  # нужно для корректного перевода из строк, возвращаемых методом GetValAsString, в числа
-#  decimalseparator = '.'
-#
 #  # инициализируем COM
 #  CoInitializeEx(nil, COINIT_APARTMENTTHREADED)
 #
 #finalization
 #  CoUnInitialize
-#
-#end.
-#
-#
-#Form1 = TForm1.new
-#
-#initialization
-## инициализируем COM
-#CoInitializeEx(nil, COINIT_APARTMENTTHREADED)
-#
-#finalization
-#CoUnInitialize
-

@@ -49,12 +49,12 @@ class OrderStream < EventedDataStream
     # удаляем строки из всех стаканов с ревиженом меньше заданного
     @client.orders.clearbyrev(rev)
     # перерисовываем стакан
-    @client.RedrawOrderBook(false)
+    @client.onOrderBookUpdated(false)
     super
   end
 
   def onStreamDataEnd(stream)
-    @client.RedrawOrderBook(false)
+    @client.onOrderBookUpdated(false)
     super
   end
 end # class OrderStream
@@ -83,7 +83,7 @@ end # class InfoStream
 class VCLClient < Client
   ## Overriden inherited methods
 
-  attr_accessor :stop, :logs, :orders, :instruments
+  attr_accessor :stop, :logs, :orders, :instruments, :logs_updated, :orders_updated
 
   # Specific setup for Client subclasses
   def setup
@@ -91,7 +91,8 @@ class VCLClient < Client
 
     @logs = []
     @instruments = []
-    @orders = VCL::OrderList.new
+#    @orders = VCL::OrderList.new
+    @orders = VCL::OrderHash.new
 
     # Create replication objects for interesting data streams
     @streams =
@@ -121,12 +122,16 @@ class VCLClient < Client
 
   def log *args
     time, level, entry = super
-    @logs << entry unless level == :debug
+    unless level == :debug
+      @logs << entry
+      @logs_updated = true
+    end
   end
 
-  ## VCLClient-specific methods
-  def RedrawOrderBook force
-    @orders_changed = true
+  # Pseud-event that informs @client's observers:
+  # it's time to update OrderBookView
+  def onOrderBookUpdated force
+    @orders_updated = true
   end
 end # class VCLClient
 

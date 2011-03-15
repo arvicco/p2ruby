@@ -206,7 +206,7 @@ begin
     with AStream do try
       // если статус потока - ошибка или закрыт
       if (State = DS_STATE_ERROR) or (State = DS_STATE_CLOSE) then begin
-        // ксли ошибка, то закрываем
+        // если ошибка, то закрываем
         if (State = DS_STATE_ERROR) then Close;
         // далее пытаемся открыть его вновь
         if assigned(fConn) then Open(fConn.DefaultInterface);

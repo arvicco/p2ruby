@@ -1,102 +1,7 @@
 module VCL
 
 #type  
-  tDuplicates = [:dup_accept, :dup_ignore, :dup_replace]
-
-#      // базовый класс "список" с поддержкой автоматического освобождения элементов
-#type  CustomList     = class(tList)
-#        procedure   clear; override;
-#        procedure   freeitem(item: pointer); virtual; abstract;
-#        procedure   freeall; virtual;
-#        procedure   delete(index: longint); virtual;
-#        procedure   remove(item: pointer); virtual;
-#      end;
-#
-#      // базовый класс "сортированный список"
-#type  tSortedList     = class(CustomList)
-#        fDuplicates   : tDuplicates;
-#        constructor create;
-#        function    checkitem(item: pointer): boolean; virtual; abstract;
-#        function    compare(item1, item2: pointer): longint; virtual; abstract;
-#        function    search(item: pointer; var index: longint): boolean; virtual;
-#        procedure   add(item: pointer); virtual;
-#        procedure   insert(index: longint; item: pointer); virtual;
-#      end;
-#
-#      // индекс стакана по цене
-#type  tOrderBook      = class(tSortedList)
-#      private
-#        fisin_id      : longint;
-#        fchanged      : boolean;
-#      public
-#        procedure   freeitem(item: pointer); override;
-#        function    checkitem(item: pointer): boolean; override;
-#        function    compare(item1, item2: pointer): longint; override;
-#
-#        procedure   add(item: pointer); override;
-#        procedure   remove(item: pointer); override;
-#
-#        property    isin_id: longint read fisin_id;
-#        property    changed: boolean read fchanged write fchanged;
-#      end;
-#
-#      // элемент "строка в стакане"
-#type  pOrderBookItem  = ^tOrderBookItem;
-#      tOrderBookItem  = record
-#        id         : int64;
-#        rev        : int64;
-#        price         : double;  // цена
-#        volume        : double;  // кол-во
-#        buysell       : longint; // покупка/продажа
-#        order_book      : tOrderBook;
-#      end;
-#
-#      // список стаканов
-#type  tPriceLists     = class(tSortedList)
-#      private
-#        tmp_ordbook   : tOrderBook;
-#      public
-#        destructor  destroy; override;
-#        procedure   freeitem(item: pointer); override;
-#        function    checkitem(item: pointer): boolean; override;
-#        function    compare(item1, item2: pointer): longint; override;
-#        function    searchadditem(isin_id: longint): tOrderBook;
-#      end;
-#
-#      // общая таблица котировок
-#type  OrderList  = class(tSortedList)
-#        fOrderBooks   : tPriceLists;
-#        constructor create;
-#        destructor  destroy; override;
-#        procedure   freeitem(item: pointer); override;
-#        function    checkitem(item: pointer): boolean; override;
-#        function    compare(item1, item2: pointer): longint; override;
-#        function    searchadditem(isin_id: longint): tOrderBook;
-#        function    addrecord(isin_id: longint; const id, rev: int64; const price, volume: double; buysell: longint): boolean;
-#        function    delrecord(const id: int64): boolean;
-#        procedure   clearbyrev(const rev: int64);
-#      end;
-
-#      // элемент "строка в стакане"
-#type  pOrderBookItem  = ^tOrderBookItem;
-#      tOrderBookItem  = record
-#        id         : int64;
-#        rev        : int64;
-#        price         : double;  // цена
-#        volume        : double;  // кол-во
-#        buysell       : longint; // покупка(1)/продажа(2)
-#        order_book      : tOrderBook;
-#      end;
-  class OrderBookItem
-    attr_accessor :id, :rev, :price, :volume, :buysell, :order_book
-
-    def inspect
-      "#{id}:#{price}>#{volume}#{buysell == 1 ? '+' : '-'}"
-    end
-
-    alias to_s inspect
-  end
-
+#  tDuplicates = [:dup_accept, :dup_ignore, :dup_replace]
 #      // базовый класс "список" с поддержкой автоматического освобождения элементов
 #type  CustomList     = class(tList)
 #        procedure   clear; override;
@@ -124,15 +29,9 @@ module VCL
     # Deletes ALL items from arr that are equal to obj.?
     # No, we need to remove ONE item by "pointer"
     def remove item #(item: pointer)
-      freeitem(item)
+      freeitem item
       delete item
     end
-
-#    # Different from #remove in that it's supposed to RETURN item
-#    def extract item #(item: pointer): pointer
-#      #  ??  notify(result, lnExtracted)
-#      remove item
-#    end
   end # class CustomList
 
 #      // базовый класс "сортированный список"
@@ -203,9 +102,7 @@ module VCL
         super index, item
       end
     end
-  end
-
-  #class SortedList
+  end # class SortedList
 
 #      // индекс стакана по цене
 #type  tOrderBook      = class(tSortedList)
@@ -375,5 +272,172 @@ module VCL
     end
 
   end #class OrderList
+
+#      // элемент "строка в стакане"
+#type  pOrderBookItem  = ^tOrderBookItem;
+#      tOrderBookItem  = record
+#        id         : int64;
+#        rev        : int64;
+#        price         : double;  // цена
+#        volume        : double;  // кол-во
+#        buysell       : longint; // покупка(1)/продажа(2)
+#        order_book      : tOrderBook;
+#      end;
+  class OrderBookItem
+    attr_accessor :id, :rev, :price, :volume, :buysell, :order_book
+
+    def inspect
+      "#{id}:#{price}>#{volume}#{buysell == 1 ? '+' : '-'}"
+    end
+
+    alias to_s inspect
+  end
+
+  #######################
+  # New hierarchy:
+  #######################
+
+  # Abstract (equivalent of SortedList)
+  # базовый класс "сортированный список"
+  class SortedHash < Hash
+
+    def free item
+    end
+
+    def check item
+      true
+    end
+
+    def index item
+      item.object_id
+    end
+
+    # Adds new item only if it passes check...
+    # TODO: What to do with the item it should have replaced?!
+    def add item
+      self[index item] = item if check item
+#      check item ? super : free key # delete key
+    end
+
+    def remove item
+      free item
+      delete index item
+    end
+
+    def clear
+      each_value { |item| free item }
+      super
+    end
+
+  end # SortedHash
+
+  # Represents DOM (OrderBook) for one security
+  # индекс стакана по цене
+  class DOM < SortedHash
+    attr_accessor :isin_id, :changed
+
+    def initialize isin_id
+      @isin_id = isin_id
+      @changed = false
+      super
+    end
+
+    def index item
+      item.price
+    end
+
+    def check item
+      item.price > 0
+    end
+
+    def add item
+      @changed = true # Marking DOM as changed
+      super
+    end
+
+    def remove item
+      @changed = true # Marking DOM as changed
+      super
+    end
+  end # class DOM
+
+
+  # Represents Hash of DOMs (OrderBooks) indexed by isin_id
+  #      список стаканов
+  class DOMHash < SortedHash
+
+    def index item
+      item.isin_id
+    end
+
+    # Always return DOM for isin_id, create one on spot if need be
+    def [] isin_id
+      super || add(DOM.new isin_id)
+    end
+  end # class DOMHash
+
+  # Represents Hash of all aggregated orders by (repl) id
+  #    общая таблица котировок
+  class OrderHash < SortedHash
+    attr_accessor :order_books
+
+    def index item
+      item.id
+    end
+
+    def initialize
+      super
+      @order_books = DOMHash.new
+    end
+
+    # We need to clear item from its order book before scrapping it
+    def free item
+      item.order_book.remove item if item.order_book
+    end
+
+    # Rebooks item to a correct order book, given its price
+    def rebook item, book
+      if (item.price > 0)
+        # item represents new aggr_order with price
+        item.order_book = book unless item.order_book
+        book.add item # добавляем в стакан
+      else
+        # item clears previous aggr_order for given price
+        item.order_book = nil
+      end
+    end
+
+    def addrecord isin_id, id, rev, price, volume, buysell
+      item = self[id] || OrderBookItem.new
+
+      price_changed = item.price != price # признак, что цена изменилась
+
+      item.id = id
+      item.rev = rev
+      item.price = price
+      item.volume = volume
+      item.buysell = buysell
+
+      if price_changed
+        if self[id] # item is already here
+          item.order_book.remove item if item.order_book # free item - удаляем из стакана
+        else # new item
+          add item
+        end
+        rebook item, @order_books[isin_id]
+      end
+    end
+
+    def delrecord id
+      remove self[id] if self[id]
+    end
+
+    # Clear all records with rev less than given
+    def clearbyrev rev #(const rev: int64)
+      each_value { |item| remove item if item.rev < rev } # удаляем из общей таблицы
+    end
+
+  end # class OrderHash
+
 end # module
 
