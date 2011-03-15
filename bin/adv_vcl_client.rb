@@ -72,7 +72,7 @@ class InfoStream < EventedDataStream
     if table_name == 'fut_sess_contents'
       isin_id = rec.GetValAsString('isin_id')
       # добавляем инструмент, если его еще нет
-      @client.instruments[isin_id] ||=
+      @client.instruments <<
           "#{isin_id}, #{rec.GetValAsString('short_isin')}, #{rec.GetValAsString('name')}"
     end
     super
@@ -90,7 +90,7 @@ class VCLClient < Client
     super
 
     @logs = []
-    @instruments = {}
+    @instruments = []
     @orders = VCL::OrderList.new
 
     # Create replication objects for interesting data streams
@@ -121,7 +121,7 @@ class VCLClient < Client
 
   def log *args
     time, level, entry = super
-    @logs << entry if level != :debug
+    @logs << entry unless level == :debug
   end
 
   ## VCLClient-specific methods

@@ -320,7 +320,7 @@ class Client
     time = Win::Time.now
     level = args.first.kind_of?(Symbol) ? args.shift : :info
     entry = "#{time.strftime('%Y-%m-%d %H:%M:%S.%3N')}: #{level}: #{args.map(&:to_s).join(' ')}"
-    @logger.print entry + "\n" # To avoid Thread conflict
+    @logger.print entry + "\n" unless level == :debug# To avoid Thread conflict
     [time, level, entry]
   end
 end # class Client

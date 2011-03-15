@@ -4,33 +4,46 @@ require_relative 'adv_vcl_client'
 include Fox
 
 class OrderBookView < FXTable
-  def initialize(parent, order_book = nil)
+  def initialize(p, order_book = nil)
     @order_book = order_book
-    super(parent, :opts => LAYOUT_FILL | TABLE_READONLY | TABLE_NO_COLSELECT, :width => 305)
+    super(p, :opts => LAYOUT_FILL|TABLE_READONLY|TABLE_NO_COLSELECT, :width => 305)
     self.setTableSize(20, 3)
     self.rowHeaderWidth = 1
     self.columnHeaderHeight = 1
-#    self.showHorzGrid(false)
   end
 end
 
 class LogView < FXList
-  attr_reader :log
+  attr_reader :logs
 
-  def initialize(parent, opts, logs=nil)
-    super(parent, :opts => opts)
-    appendItem 'LogView inited...'
+  def initialize(p, logs=nil)
+    super(p, :opts => LAYOUT_SIDE_TOP)
     @logs = logs
-    @last_size = 0
 
     self.connect(SEL_UPDATE) do |sender, sel, data|
-      if @last_size < @logs.size
-        (@last_size...@logs.size).each do |i|
-          prependItem @logs[i]
-        end
-        @last_size = @logs.size
-      end
+      (numItems...@logs.size).each { |i| prependItem @logs[i] }
     end
+  end
+end
+
+class InstrumentsView < FXListBox
+  def initialize(p, instruments)
+    super(p, :opts => LISTBOX_NORMAL|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X)
+    self.numVisible = 50
+    @instruments = instruments
+
+    self.connect(SEL_UPDATE) do |sender, sel, data|
+      (numItems...@instruments.size).each { |i| prependItem @instruments[i].encode('UTF-8') }
+#      puts getItem(currentItem) unless currentItem == -1
+    end
+  end
+end
+
+class Button < FXButton
+  def initialize p, text, enable = true, &block
+    super(p, text, :opts => BUTTON_NORMAL|LAYOUT_RIGHT) {} # suppress yielding to &block
+    self.connect(SEL_COMMAND, &block)
+    self.enabled = enable
   end
 end
 
@@ -40,27 +53,19 @@ class VCLForm < FXMainWindow
 
   def initialize(app, client)
     @client = client
-    super(app, "P2 Client Order Books", :width => 1200, :height => 1160)
+    super(app, "P2 Client Order Books", :width => 1200, :height => 1200)
     top_frame = FXHorizontalFrame.new(self, :opts => LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
+
+    # Top frame layout
     add_menu_bar top_frame
-
     add_buttons top_frame
+    @instruments_view = InstrumentsView.new top_frame, @client.instruments
 
-    @instruments_view = FXListBox.new(top_frame, :opts =>
-        LISTBOX_NORMAL|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X) #|LAYOUT_CENTER)
-    @instruments_view.numVisible = 50
-    @instruments_view.connect(SEL_UPDATE) do |sender, sel, data|
-      if sender.numItems < @client.instruments.size
-        sender.clearItems
-        @client.instruments.each do |k, v|
-          sender.prependItem v.encode('UTF-8')
-        end
-      end
-    end
-
+    # Split bottom layout
     splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
     @order_book_view = OrderBookView.new splitter
-    @log_view = LogView.new(splitter, LAYOUT_SIDE_TOP, @client.logs)
+    @log_view = LogView.new splitter, @client.logs
+
     # TODO: Set up a repeating chore to process messages at @client?
   end
 
@@ -72,28 +77,25 @@ class VCLForm < FXMainWindow
   def add_menu_bar frame = self
     menu_bar = FXMenuBar.new(frame, LAYOUT_SIDE_TOP|LAYOUT_LEFT)
     file_menu = FXMenuPane.new(self)
-    FXMenuTitle.new(menu_bar, "File", :popupMenu => file_menu)
-    exit_cmd = FXMenuCommand.new(file_menu, "Exit")
+    FXMenuTitle.new(menu_bar, "&File", :popupMenu => file_menu)
+    exit_cmd = FXMenuCommand.new(file_menu, "&Exit")
     exit_cmd.connect(SEL_COMMAND) { finalize }
   end
 
   def add_buttons frame = self
-    @disconnect_button = FXButton.new(frame, "Disconnect",
-                                      :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
-    @disconnect_button.connect(SEL_COMMAND) do |sender, sel, data|
-      log :info, "Pretend to disconnect" #@controller.activate_launch_sequence
+    @disconnect_button = Button.new(frame, "&Disconnect", false) do |sender, sel, data|
+      log :info, "Pretend to disconnect"
       sender.enabled = false
       @connect_button.enabled = true
     end
-    @disconnect_button.enabled = false
 
-    @connect_button = FXButton.new(frame, "Connect",
-                                   :opts => BUTTON_NORMAL|LAYOUT_RIGHT)
-    @connect_button.connect(SEL_COMMAND) do |sender, sel, data|
-      log :info, "Pretend to connect" #@controller.activate_launch_sequence
+    @connect_button = Button.new(frame, "&Connect") do |sender, sel, data|
+      log :info, "Pretend to connect"
       sender.enabled = false
       @disconnect_button.enabled = true
     end
+
+    exit_button = Button.new(frame, "&Exit") { finalize }
   end
 
   # Wrap up @client and GUI Application
