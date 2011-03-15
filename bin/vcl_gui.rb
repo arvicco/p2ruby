@@ -4,12 +4,50 @@ require_relative 'adv_vcl_client'
 include Fox
 
 class OrderBookView < FXTable
-  def initialize(p, order_book = nil)
-    @order_book = order_book
+  def initialize p, order_books, selector
+    @order_books = order_books
+    @selector = selector
     super(p, :opts => LAYOUT_FILL|TABLE_READONLY|TABLE_NO_COLSELECT, :width => 305)
     self.setTableSize(20, 3)
     self.rowHeaderWidth = 1
     self.columnHeaderHeight = 1
+
+    self.connect(SEL_UPDATE) do |sender, sel, data|
+      unless @selector.currentItem == -1
+        isin = @selector.getItem(@selector.currentItem)[0..5].to_i
+        puts isin
+        book = @order_books.searchadditem(isin)
+        book.each
+        puts book
+        unless book.empty?
+          self.setTableSize(book.size, 3)
+          book.each_with_index do |book_item, i| #price, :volume, :buysell
+#            p i, book_item
+#            p book_item.price.to_s
+            self.setItemText(i, 1, book_item.price.to_s)
+            col = (book_item.buysell - 1) * 2
+            self.setItemText(i, col, book_item.volume.to_s)
+          end
+        end
+#        # если стакан не пуст
+#        if Count > 0 then begin
+#          # устанавливаем кол-во строк в гриде
+#          OrderBookGrid.RowCount = Count
+#          # заполняем ячейки грида
+#          for i = 0 to Count - 1 do
+#            with pOrderBookItem(items[i])^ do begin
+#              # заполняем цену
+#              OrderBookGrid.Cells[1, i] = FloatToStr(price)
+#              # помещаем кол-во справа или слева от цены, в зависимости от buysell
+#              OrderBookGrid.Cells[bsn[(buysell and 1 == 1)], i]      = FloatToStr(volume)
+#              # противоположную ячейку очищаем
+#              OrderBookGrid.Cells[bsn[not (buysell and 1 == 1)], i]  = ''
+#            end
+#        end else ClearGrid
+#        changed = false
+#      end
+      end
+    end
   end
 end
 
@@ -63,7 +101,7 @@ class VCLForm < FXMainWindow
 
     # Split bottom layout
     splitter = FXSplitter.new(self, :opts => SPLITTER_HORIZONTAL|LAYOUT_FILL)
-    @order_book_view = OrderBookView.new splitter
+    @order_book_view = OrderBookView.new splitter, @client.orders.order_books, @instruments_view
     @log_view = LogView.new splitter, @client.logs
 
     # TODO: Set up a repeating chore to process messages at @client?

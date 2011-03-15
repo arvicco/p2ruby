@@ -94,6 +94,7 @@ module VCL
       "#{id}:#{price}>#{volume}#{buysell == 1 ? '+' : '-'}"
     end
 
+    alias to_s inspect
   end
 
 #      // базовый класс "список" с поддержкой автоматического освобождения элементов
