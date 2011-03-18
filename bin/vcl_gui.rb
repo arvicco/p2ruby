@@ -16,17 +16,17 @@ class OrderBookView < FXTable
       unless @selector.currentItem == -1
         p isin = @selector.getItem(@selector.currentItem)[0..5].to_i
         p book = @order_books[isin] # What if another book was selected?
-        if book.changed && !book.empty
-#        unless book.empty?
+        if book.changed && !book.empty?
           # устанавливаем кол-во строк в гриде
           self.setTableSize(book.size, 3)
           book.changed = false
-          book.each_with_index do |(price, book_item), i| #price, :volume, :buysell
+          book.values.sort{|a,b| b.price <=> a.price}.each_with_index do |book_item, i| #price, :volume, :buysell
             # заполняем цену
-            self.setItemText(i, 1, book_item.price.to_s)
+            price = book_item.price
+            self.setItemText(i, 1, price.integer? ? price.to_i.to_s : price.to_s)
             # помещаем кол-во справа или слева от цены, в зависимости от buysell
             col = (book_item.buysell - 1) * 2
-            self.setItemText(i, col, book_item.volume.to_s)
+            self.setItemText(i, col, book_item.volume.to_i.to_s)
           end
         end
       end

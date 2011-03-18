@@ -328,7 +328,6 @@ module VCL
       each_value { |item| free item }
       super
     end
-
   end # SortedHash
 
   # Represents DOM (OrderBook) for one security
@@ -436,7 +435,6 @@ module VCL
     def clearbyrev rev #(const rev: int64)
       each_value { |item| remove item if item.rev < rev } # удаляем из общей таблицы
     end
-
   end # class OrderHash
 
 end # module
