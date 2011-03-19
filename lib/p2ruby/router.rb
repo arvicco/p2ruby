@@ -5,7 +5,7 @@ module P2
     include P2
 
     def self.find
-      router = WinGui::App.find :title => ROUTER_TITLE
+      router = ::WinGui::App.find :title => ROUTER_TITLE
       router ? new(:app => router) : nil
     end
 
@@ -24,11 +24,11 @@ module P2
         @opts[:args] ||= "/ini:#{@opts[:ini]}"
         @opts[:timeout] ||= 3
 
-        @app = WinGui::App.launch(:dir => @opts[:dir],
-                                  :path => @opts[:path],
-                                  :args => @opts[:args],
-                                  :title => @opts[:title],
-                                  :timeout => @opts[:timeout])
+        @app = ::WinGui::App.launch(:dir => @opts[:dir],
+                                    :path => @opts[:path],
+                                    :args => @opts[:args],
+                                    :title => @opts[:title],
+                                    :timeout => @opts[:timeout])
       end
     end
 
