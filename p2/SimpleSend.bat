@@ -1,2 +1,0 @@
-CScript SimpleSend.js 
-
