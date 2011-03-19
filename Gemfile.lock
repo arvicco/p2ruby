@@ -11,7 +11,6 @@ GEM
     diff-lcs (1.1.2)
     ffi (1.0.6-x86-mingw32)
       rake (>= 0.8.7)
-    fxruby (1.6.20-x86-mingw32)
     gherkin (2.3.3-x86-mingw32)
       json (~> 1.4.6)
     json (1.4.6-x86-mingw32)
@@ -27,21 +26,13 @@ GEM
     term-ansicolor (1.0.5)
     win (0.3.26)
       ffi (>= 0.6.0)
-    win32-api (1.4.8-x86-mingw32)
     win_gui (0.2.20)
       win (>= 0.3.26)
-    windows-api (0.4.0)
-      win32-api (>= 1.4.5)
-    windows-pr (1.1.3)
-      win32-api (>= 1.4.5)
-      windows-api (>= 0.3.0)
 
 PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
   cucumber
-  fxruby
-  rspec (>= 2.0.0)
+  rspec (>= 2.5.0)
   win_gui (>= 0.2.20)
-  windows-pr

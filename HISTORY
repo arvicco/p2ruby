@@ -9,3 +9,7 @@
 == 0.0.2 / 2011-03-19
 
 * P2 dir removed
+
+== 0.0.3 / 2011-03-19
+
+* Client examples moved into a separate project

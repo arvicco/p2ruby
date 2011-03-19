@@ -23,7 +23,6 @@ gem 'win_gui', '>=0.2.20'#, :path => '/Dev/apps/win/win_gui'
 group :cucumber do
   gem 'cucumber'
   gem 'rspec', '>=2.5.0', :require => ['rspec/expectations', 'rspec/stubs/cucumber']
-  # add more here...
 end
 
 group :test do # Group for testing code on Windows (win, win_gui)
