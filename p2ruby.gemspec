@@ -4,8 +4,8 @@
 Gem::Specification.new do |gem|
   gem.name        = "p2ruby"
   gem.version     = File.open('VERSION').read.strip # = ::P2::VERSION # - conflicts with Bundler
-  gem.summary     = "FIXME: New project p2ruby"
-  gem.description = "FIXME: New project p2ruby"
+  gem.summary     = "Ruby bindings for P2ClientGate"
+  gem.description = "Ruby bindings and wrapper classes for P2ClientGate"
   gem.authors     = ["arvicco"]
   gem.email       = "arvitallian@gmail.com"
   gem.homepage    = "http://github.com/arvicco/p2ruby"

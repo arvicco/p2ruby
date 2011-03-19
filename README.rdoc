@@ -1,27 +1,24 @@
 = p2ruby
-by: Arvicco
-url: http://github.com/arvicco/p2ruby
+by:: Arvicco
+url:: http://github.com/arvicco/p2ruby
 
 == DESCRIPTION:
 
-FIXME (describe your package)
+Ruby bindings and wrapper classes for P2ClientGate.
 
 == FEATURES/PROBLEMS:
 
-* FIXME (list of features or problems)
-
-== SYNOPSIS:
-
-  FIXME (code sample of usage)
+All implemented COM classes wrapped except for CP2DataBuffer. Most event interfaces work,
+except for IP2AsyncEvent* since they are not implemented anywhere.
 
 == REQUIREMENTS:
 
-* FIXME (list of requirements)
+* Plaza 2 gateway account
+* P2ClientGate installed and connected to Plaza 2 gateway
 
 == INSTALL:
 
   $ sudo gem install p2ruby
-* FIXME anything else?
 
 == LICENSE:
 Copyright (c) 2010 Arvicco. See LICENSE for details.

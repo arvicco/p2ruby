@@ -10,17 +10,17 @@ BASE_DIR = (Pathname.new(__FILE__).dirname + '..').realpath
 SOURCE_DIR = BASE_DIR + 'p2/'
 TMP_DIR = BASE_DIR + 'tmp/'
 TEST_DIR = BASE_DIR + 'tmp/p2/'
+CONFIG_DIR = BASE_DIR + 'config/ini/'
 
-CLIENT_INI = BASE_DIR + 'spec/files/P2ClientGate.ini'
-CLIENT_INI1 = BASE_DIR + 'spec/files/P2ClientGate1.ini'
-MESSAGE_INI = BASE_DIR + 'spec/files/p2fortsgate_messages.ini'
-TABLESET_INI = BASE_DIR + 'spec/files/rts_index.ini'
-# start ./p2bin/P2MQRouter.exe /ini:CLIENT_router.ini
-ROUTER_INI = BASE_DIR + 'spec/files/client_router.ini'
+CLIENT_INI = CONFIG_DIR + 'P2ClientGate.ini'
+CLIENT_INI1 = CONFIG_DIR + 'P2ClientGate1.ini'
+MESSAGE_INI = CONFIG_DIR + 'p2fortsgate_messages.ini'
+TABLESET_INI = CONFIG_DIR + 'rts_index.ini'
+ROUTER_INI = CONFIG_DIR + 'client_router.ini'
 ROUTER_PATH = TEST_DIR + 'p2bin/P2MQRouter.exe'
 ROUTER_ARGS = "/ini:#{ROUTER_INI}"
-ROUTER_LOGIN = 'FORTS_FZ36001_bezvv' # My login to RTS test server
-ROUTER_TITLE = Regexp.new('P2MQRouter - ') # + ROUTER_LOGIN)
+ROUTER_LOGIN = "FORTS_FZ36001_" # Login (incomplete) to RTS test server
+ROUTER_TITLE = Regexp.new('P2MQRouter - ') # + ROUTER_LOGIN
 
 RSpec.configure do |config|
   # config.exclusion_filter = { :slow => true }

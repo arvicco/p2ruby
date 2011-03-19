@@ -13,3 +13,7 @@
 == 0.0.3 / 2011-03-19
 
 * Client examples moved into a separate project
+
+== 0.1.0 / 2011-03-19
+
+* OLE wrappers functional
