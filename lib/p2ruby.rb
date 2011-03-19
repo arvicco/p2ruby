@@ -1,11 +1,8 @@
 require 'version'
 require 'win32ole'
 require 'win32ole/property'
+require 'win_gui'
 #require 'win32ole-pr'
-
-require 'rubygems'
-require 'bundler/setup'
-Bundler.require(:default)
 
 # Namespace for loading P2ClientGate constants and helper methods
 module P2

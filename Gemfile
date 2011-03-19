@@ -17,7 +17,7 @@
 
 source :gemcutter
 
-gem 'win_gui', '>=0.2.20'#, :path => '/Dev/apps/win/win_gui'
+gem 'win_gui', '>=0.2.20', :require => 'win_gui' #, :path => '/Dev/apps/win/win_gui'
 #gem 'windows-pr'
 
 group :cucumber do
