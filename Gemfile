@@ -18,16 +18,15 @@
 source :gemcutter
 
 gem 'win_gui', '>=0.2.20'#, :path => '/Dev/apps/win/win_gui'
-gem 'windows-pr'
-gem 'fxruby', :require => 'fox16'
+#gem 'windows-pr'
 
 group :cucumber do
   gem 'cucumber'
-  gem 'rspec', '>=2.0.0', :require => ['rspec/expectations', 'rspec/stubs/cucumber']
+  gem 'rspec', '>=2.5.0', :require => ['rspec/expectations', 'rspec/stubs/cucumber']
   # add more here...
 end
 
 group :test do # Group for testing code on Windows (win, win_gui)
-  gem 'rspec', '>=2.0.0', :require => ['rspec', 'rspec/autorun']
+  gem 'rspec', '>=2.5.0', :require => ['rspec', 'rspec/autorun']
 end
 
