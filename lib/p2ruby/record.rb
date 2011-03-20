@@ -26,7 +26,7 @@ module P2
           GetValAsStringByIndex(id)
         else
           GetValAsString(id.to_s)
-      end.force_encoding('IBM866').encode('CP1251', :undef => :replace)
+      end #.force_encoding('IBM866').encode('CP1251', :undef => :replace)
     end
 
     # Yields all fields (basis for mixed in Enumerable methods)

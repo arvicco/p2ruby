@@ -1,24 +1,8 @@
 # For more information on bundler, please visit http://gembundler.com
-## Dependencies in this Gemfile are managed through the gemspec. Add/remove
-## depenencies there, rather than editing this file
-#
-#require 'pathname'
-#NAME = 'p2ruby'
-#BASE_PATH = Pathname.new(__FILE__).dirname
-#GEMSPEC_PATH = BASE_PATH + "#{NAME}.gemspec"
-#
-## Setup gemspec dependencies
-#gemspec = eval(GEMSPEC_PATH.read)
-#gemspec.dependencies.each do |dep|
-#  group = dep.type == :development ? :development : :default
-#  gem dep.name, dep.requirement, :group => group
-#end
-#gem(gemspec.name, gemspec.version, :path => BASE_PATH)
-
+# Library dependencies in this Gemfile are managed through the gemspec.
+# Development dependencies are managed here, don't add them to gemspec.
 source :gemcutter
-
-gem 'win_gui', '>=0.2.20', :require => 'win_gui' #, :path => '/Dev/apps/win/win_gui'
-#gem 'windows-pr'
+gemspec
 
 group :cucumber do
   gem 'cucumber'

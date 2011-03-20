@@ -3,6 +3,12 @@
   <component name="GemRequirementsHolder" version="3">
     <requirement>
       <requirement>
+        <dependency name="bundler" version="1.0.0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source from="p2ruby/Gemfile" />
+    </requirement>
+    <requirement>
+      <requirement>
         <dependency name="cucumber" version="0" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
@@ -16,12 +22,6 @@
     <requirement>
       <requirement>
         <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec', 'rspec/autorun']" git="false" path="false" doRequire="true" />
-      </requirement>
-      <source from="p2ruby/Gemfile" />
-    </requirement>
-    <requirement>
-      <requirement>
-        <dependency name="win_gui" version="0" bound="GREATER_OR_EQUAL" lib="win_gui" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
