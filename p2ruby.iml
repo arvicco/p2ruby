@@ -25,6 +25,12 @@
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
+    <requirement>
+      <requirement>
+        <dependency name="win_gui" version="0.2.20" bound="GREATER_OR_EQUAL" git="false" path="false" doRequire="true" />
+      </requirement>
+      <source from="p2ruby/Gemfile" />
+    </requirement>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
