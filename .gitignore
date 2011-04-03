@@ -16,6 +16,7 @@ tmtags
 ## PROJECT::GENERAL
 coverage
 config
+data
 rdoc
 pkg
 log
