@@ -152,8 +152,18 @@ module P2
     end
 
     # method UI4 Connect2
-    #  Создание локального соединения приложения с роутером. Выпущен в дополнение к методу Connection#Connect.
-    #   BSTR conn_str [IN]
+    #  Создание локального соединения приложения с роутером.
+    # Выпущен в дополнение к методу Connection#Connect.
+    # !!!!!!!!! Can be used for LRPC transport instead of TCP/IP:
+    # -------------------------------------
+    # Метод HRESULT Connect2([in] BSTR connStr, [out,retval] ULONG *errClass).
+    # В connStr задаются параметры коннекта.
+    #    Для разделяемой памяти: *"APPNAME=superRobot;LRPCQ_PORT=4001"*,
+    #    для сокета "APPNAME=superRobot;HOST=127.0.0.1;PORT=4001".
+    # Вызывать вместо метода Connect. Properties AppName, Host, Port, Password
+    # в новом способе не используются. Работает с версии 1.10.x
+    #
+    #  BSTR conn_str [IN]
     def Connect2(conn_str)
       @ole._invoke(18, [conn_str], [VT_BSTR])
     end
