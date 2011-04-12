@@ -35,7 +35,7 @@ class Version
   end
 
   def write(desc = nil)
-    CLASS_NAME::VERSION_FILE.open('w') {|file| file.puts to_s }
+    CLASS_NAME::VERSION_FILE.open('w') { |file| file.puts to_s }
     (BASE_PATH + 'HISTORY').open('a') do |file|
       file.puts "\n== #{to_s} / #{Time.now.strftime '%Y-%m-%d'}\n"
       file.puts "\n* #{desc}\n" if desc
@@ -51,17 +51,17 @@ desc 'Set version: [x.y.z] - explicitly, [1/10/100] - bump major/minor/patch, [.
 task :version, [:command, :desc] do |t, args|
   version = Version.new(CLASS_NAME::VERSION)
   case args.command
-    when /^(\d+)\.(\d+)\.(\d+)(?:\.(.*?))?$/  # Set version explicitly
+    when /^(\d+)\.(\d+)\.(\d+)(?:\.(.*?))?$/ # Set version explicitly
       version.update($1, $2, $3, $4)
-    when /^\.(.*?)$/                        # Set build
+    when /^\.(.*?)$/ # Set build
       version.build = $1
-    when /^(\d{1})$/                          # Bump patch
+    when /^(\d{1})$/ # Bump patch
       version.bump_patch $1
-    when /^(\d{1})0$/                         # Bump minor
+    when /^(\d{1})0$/ # Bump minor
       version.bump_minor $1
-    when /^(\d{1})00$/                        # Bump major
+    when /^(\d{1})00$/ # Bump major
       version.bump_major $1
-    else                                      # Unknown command, just display VERSION
+    else # Unknown command, just display VERSION
       puts "#{NAME} #{version}"
       next
   end

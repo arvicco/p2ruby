@@ -2,7 +2,7 @@
 #task 'gem:release' => 'test:run'
 
 task :notes do
- puts 'Output annotations (TBD)'
+  puts 'Output annotations (TBD)'
 end
 
 #Bundler not ready for prime time just yet

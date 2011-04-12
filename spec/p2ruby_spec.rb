@@ -39,8 +39,8 @@ describe P2 do
     P2MQ_ERRORCLASS_IS_USELESS.should == 0x0001
   end
 
-  it 'has error handler'do
-    expect { error 'Blah'}.to raise_error P2::Error, /Blah/
+  it 'has error handler' do
+    expect { error 'Blah' }.to raise_error P2::Error, /Blah/
   end
 end
 

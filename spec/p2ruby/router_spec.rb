@@ -22,7 +22,7 @@ describe P2::Router, "Driver for Router server app" do
 
   context "router initialized with :path => #{ROUTER_PATH}, :ini => #{ROUTER_INI}" do
     before(:all) { @router = P2::Router.new :dir => TEST_DIR, # To avoid file litter in BASE_DIR
-                                                :path => ROUTER_PATH, :ini => ROUTER_INI }
+                                            :path => ROUTER_PATH, :ini => ROUTER_INI }
     subject { @router }
 
     it 'has P2 Router application/window launched' do
