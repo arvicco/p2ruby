@@ -15,13 +15,13 @@
     </requirement>
     <requirement>
       <requirement>
-        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec', 'rspec/autorun']" git="false" path="false" doRequire="true" />
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
     <requirement>
       <requirement>
-        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec/expectations', 'rspec/stubs/cucumber']" git="false" path="false" doRequire="true" />
+        <dependency name="rspec" version="0" bound="GREATER_OR_EQUAL" lib="['rspec', 'rspec/autorun']" git="false" path="false" doRequire="true" />
       </requirement>
       <source from="p2ruby/Gemfile" />
     </requirement>
@@ -55,6 +55,7 @@
     <orderEntry type="library" scope="PROVIDED" name="[gem] ffi (v1.0.5, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/ffi-1.0.5)" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] win_gui (vFile.open('VERSION').read.strip, /Users/vb/Dev/apps/win/win_gui) from path" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="[gem] bundler (v1.0.10, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/bundler-1.0.10)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="[gem] win (v0.3.26, /Users/vb/.rvm/gems/ruby-1.9.2-p136/gems/win-0.3.26)" level="application" />
   </component>
   <component name="RModuleSettingsStorage" number="2" string0="$MODULE_DIR$/lib" string1="$MODULE_DIR$/spec" />
 </module>
