@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: CP1251
 require 'spec_helper'
 
 def baseless_opts
@@ -13,6 +13,7 @@ describe P2::DataStream do
     @conn = P2::Connection.new :app_name => 'DSTest',
                                :host => "127.0.0.1", :port => 4001
     @conn.Connect
+    sleep 0.5
     @conn.should be_connected
     @conn.should be_logged
     # Disconnected connection, for comparison

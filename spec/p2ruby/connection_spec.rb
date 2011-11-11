@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: CP1251
 require 'spec_helper'
 
 def random_name
@@ -16,15 +16,9 @@ shared_examples_for 'new connection' do
 
   it 'raises on NodeName access' do
     expect { subject.NodeName }.to raise_error /Couldn't get MQ node name/
-#      its(:NodeName) { should == "??" }
   end
 
   it 'is possible to set settable properties' do
-    # Notes: Свойства AppName, NodeName, Host, Port, Password и Timeout должны быть
-    # заданы до момента вызова метода Connect. В случае изменения данных свойств для
-    # того, чтобы изменения вступили в силу необходимо провести последовательный вызов
-    # методов Disconnect и Connect. Параметры аутентификации роутера (LoginStr) должны
-    # быть заданы до момента вызова метода Login.
     subject.AppName ='REASSIGNED'
     subject.Host ='REASSIGNED_HOST'
     subject.Port =1313
@@ -159,40 +153,40 @@ describe P2::Connection do
 
   describe '#Connect2 '
   #  Connect2 ( [in] BSTR connStr, [out, retval] ULONG* errClass);
-  #  Создание локального соединения приложения с роутером. Дополнение к методу Connect.
+  #  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Connect.
 
   describe '#ProcessMessage'
   #  ProcessMessage ( [out] ULONG* cookie,  [in] ULONG pollTimeout);
-  #  Прием и обработка сообщений, в том числе и репликационных.
-  #  Аргументы
-  #  •	pollTimeout — таймаут в миллисекундах, в течение которого ожидается получение сообщения;
-  #  •	cookie — уникальный идентификатор подписчика.
+  #  пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+  #  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  #  пїЅ	pollTimeout пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ;
+  #  пїЅ	cookie пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 
   describe '#ProcessMessage2'
   #  ProcessMessage2 ( [in] ULONG pollTimeout, [out, retval] ULONG* cookie);
-  #  Прием и обработка сообщений. Выпущен в дополнение к методу Connection.ProcessMessage,
-  #  так как тот не позволял в интерпретированных языках (JScript) получить результат
-  #  работы функции (cookie).
+  #  пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Connection.ProcessMessage,
+  #  пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (JScript) пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  #  пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (cookie).
 
   describe '#RegisterReceiver'
   #  RegisterReceiver ( [in] IP2MessageReceiver* newReceiver, [out,retval] ULONG* cookie);
-  #  Регистрация подписчика.
-  #  Аргументы
-  #  •	newReceiver — указатель на интерфейс обратного вызова;
-  #  •	cookie — уникальный идентификатор подписчика. Используется для того, чтобы можно
-  #     было отменить подписку, а также именно по нему в методе Connection.ProcessMessage
-  #     определяется получатель сообщения.
+  #  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+  #  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  #  пїЅ	newReceiver пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ;
+  #  пїЅ	cookie пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+  #     пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Connection.ProcessMessage
+  #     пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 
   describe '#UnRegisterReceiver'
   #  UnRegisterReceiver ([in] ULONG cookie);
-  #  Отмена регистрации подписчика.
+  #  пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 
   describe '#ResolveService' do
     #  ResolveService ( [in] BSTR service, [out,retval] BSTR* address);
-    #  Получение полного адреса приложения по имени сервиса, который оно предоставляет.
-    #  Аргументы
-    #  •	service — имя сервиса;
-    #  •	address — полный адрес приложения.
+    #  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    #  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    #  пїЅ	service пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ;
+    #  пїЅ	address пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 
     before(:all) do
       @conn = P2::Connection.new :app_name => random_name,
@@ -205,20 +199,20 @@ describe P2::Connection do
     it 'returns full server address, given a service name' do
       @conn.ResolveService('FORTS_OPTINFO_REPL').should == "FINTER_FORTS3.inter_info"
       @conn.ResolveService('FORTS_FUTINFO_REPL').should == "FINTER_FORTS3.inter_info"
-      @conn.ResolveService('FORTS_POS_REPL').should == "FINTER_FORTS3.inter_pos"
-      @conn.ResolveService('FORTS_FUTCOMMON_REPL').should== "FINTER_FORTS3.inter_futcommon"
-      @conn.ResolveService('FORTS_OPTCOMMON_REPL').should== "FINTER_FORTS3.inter_optcommon"
+      @conn.ResolveService('FORTS_POS_REPL').should == "FINTER_FORTS3.inter_infocore"
+      @conn.ResolveService('FORTS_FUTCOMMON_REPL').should == "FINTER_FORTS3.inter_futcommon"
+      @conn.ResolveService('FORTS_OPTCOMMON_REPL').should == "FINTER_FORTS3.inter_optcommon"
       @conn.ResolveService('FORTS_VOLAT_REPL').should == "FINTER_FORTS3.inter_vmv"
       @conn.ResolveService('FORTS_VM_REPL').should == "FINTER_FORTS3.inter_vmv"
       # Order placement:
-      @conn.ResolveService("FORTS_SRV").should == "FINTER_FORTS3.Dispatcher"
+      @conn.ResolveService("FORTS_SRV").should == SERVER_NAME # ? changed
     end
   end
 
-  #	Аутентификация выполняется асинхронно. Успешный возврат из метода Login означает,
-  # что аутентификационная информация была послана на сервер. Для того, чтобы узнать,
-  # успешно ли завершилась аутентификация, следует получать и обрабатывать уведомления
-  # о состоянии соединения.
+  #	пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Login пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+  # пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ,
+  # пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  # пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
   context 'When router is authenticated via ini file' do
   end
   context 'When router is authenticated explicitely - via Login()' do

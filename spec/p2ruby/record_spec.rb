@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: CP1251
 require 'spec_helper'
 
 # Impossible to instantiate Record directly (no PROGID), need to receive
@@ -9,6 +9,7 @@ def get_record
   @conn = P2::Connection.new :app_name => 'RecordTest',
                              :host => "127.0.0.1", :port => 4001
   @conn.Connect
+  sleep 0.5
 
   @ds = P2::DataStream.new :stream_name => 'RTS_INDEX_REPL',
                            :type => P2::RT_COMBINED_DYNAMIC

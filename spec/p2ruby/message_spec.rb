@@ -3,17 +3,16 @@ require 'spec_helper'
 
 def get_message opts ={}
   @factory.message :name => opts[:name] ||"FutAddOrder",
-                   :dest_addr => opts[:dest_addr] || "FINTER_FORTS3.Dispatcher",
+                   :dest_addr => opts[:dest_addr] || SERVER_NAME,
                    :field => opts[:field] || {
                        "P2_Category" => opts[:P2_Category] || "FORTS_MSG",
                        :P2_Type => opts[:P2_Type] || 1,
-                       "isin" => opts[:isin] || "RTS-3.11",
-                       :price => opts[:price] || "186500",
+                       "isin" => opts[:isin] || "RTS-3.12",
+                       :price => opts[:price] || "155500",
                        :amount => opts[:amount] || 1,
                        "client_code" => opts[:client_code] || "001",
                        "type" => opts[:type] || 1,
-                       "dir" => opts[:dir] || 1
-                   }
+                       "dir" => opts[:dir] || 1}
 end
 
 describe P2::Message do
@@ -35,14 +34,14 @@ describe P2::Message do
   its(:opts) { should have_key :name }
   its(:ole) { should be_a WIN32OLE }
   its(:Name) { should == "" } # Why? Because there is no Message#Name= setter... :(
-  its(:DestAddr) { should == "FINTER_FORTS3.Dispatcher" }
+  its(:DestAddr) { should == SERVER_NAME }
 
   context 'working with named property Field' do
     it 'initializes Field named properties correctly' do
       subject.Field["P2_Category"].should == "FORTS_MSG"
       subject.Field["P2_Type"].should == 1
-      subject.Field['isin'].should == "RTS-3.11"
-      subject.Field['price'].should == "186500"
+      subject.Field['isin'].should == "RTS-3.12"
+      subject.Field['price'].should == "155500"
       subject.Field['amount'].should == 1
       subject.Field['client_code'].should == "001"
       subject.Field['type'].should == 1
@@ -100,6 +99,7 @@ describe P2::Message do
       @conn = P2::Connection.new :app_name => 'DSTest',
                                  :host => "127.0.0.1", :port => 4001
       @conn.Connect
+      sleep 0.3
       @conn.should be_connected
       @conn.should be_logged
       # Disconnected connection, for comparison
@@ -145,6 +145,7 @@ describe P2::Message do
 
       it 'correctly outputs Windows Cyrillics' do
         pending 'freaking RSpec just does NOT output Cyrillics correctly, no matter what'
+
         Encoding.default_internal, Encoding.default_external = ['cp1251'] * 2
         lit = "ирокая электрификация южных губерний даст мощный толчок подъёму сельс"
         reply = @wrong_order.Send(@conn, 1000)

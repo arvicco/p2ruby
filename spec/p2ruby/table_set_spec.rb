@@ -66,7 +66,9 @@ describe P2::TableSet do
       subject { P2::TableSet.new :ole => @ds.ole.TableSet }
       describe '#each' do
 
-        it 'is' do
+        it 'is defined' do
+          pending 'Implementation error. See http://forum.rts.ru/viewtopic.asp?t=20380'
+
           p subject
           p subject.Count()
           p (subject.each.methods-Object.methods).sort

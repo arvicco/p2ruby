@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: CP1251
 require 'spec_helper'
 
 describe P2::Library do

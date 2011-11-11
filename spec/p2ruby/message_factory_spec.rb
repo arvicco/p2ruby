@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: CP1251
 require 'spec_helper'
 
 describe P2::MessageFactory do
@@ -16,16 +16,10 @@ describe P2::MessageFactory do
   its(:ole) { should be_a WIN32OLE }
 
   describe '#Init()', 'is implicitly called by #new'
-  # Init ( BSTR structFile, BSTR signFile); - »нициализаци€ объекта.
-  # јргументы
-  # Х	structFile Ч ini-файл, содержащий схему сообщений.
-  # Х	signFile Ч не используетс€.
+  # Init ( BSTR structFile, BSTR signFile);
 
   describe '#CreateMessageByName()', 'creates raw (unwrapped) OLE message objects' do
     # CreateMessageByName ( [in] BSTR msgName, [out,retval] IP2BLMessage** newMsg);
-    # —оздание сообщени€ по имени.
-    # јргументы
-    # Х	msgName Ч им€ сообщени€ (им€ таблицы Ѕƒ).
     it 'creates raw OLE message objects according to scheme' do
       msg = subject.CreateMessageByName("FutAddOrder")
       msg.should be_a WIN32OLE # raw (unwrapped) OLE object!

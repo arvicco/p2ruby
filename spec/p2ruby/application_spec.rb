@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: CP1251
 require 'spec_helper'
 
 describe P2::Application, "singleton app object" do
@@ -15,7 +15,7 @@ describe P2::Application, "singleton app object" do
   its(:opts) { should have_key :ini }
   its(:ini) { should == CLIENT_INI }
   its(:ole) { should be_a WIN32OLE }
-  its(:ParserType) { should == 2 } # •	1 — Plaza; •	2 — Plaza-II (default)
+  its(:ParserType) { should == 2 } # ï¿½	1 ï¿½ Plaza; ï¿½	2 ï¿½ Plaza-II (default)
 
   it 'is a Singleton' do
     a1 = P2::Application.instance
