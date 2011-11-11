@@ -13,6 +13,11 @@ tmtags
 ## VIM
 *.swp
 
+## Idea
+.idea
+.rakeTasks
+*.iml
+
 ## PROJECT::GENERAL
 coverage
 config
@@ -21,8 +26,6 @@ rdoc
 pkg
 log
 tmp
-.idea
-.iml
 .bundle
 
 ## PROJECT::SPECIFIC

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    p2ruby (0.1.4)
+    p2ruby (0.1.5)
       bundler (>= 1.0.0)
       win_gui (>= 0.2.21)
 

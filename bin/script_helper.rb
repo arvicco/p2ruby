@@ -5,8 +5,7 @@ Bundler.setup
 require 'pathname'
 require 'fileutils'
 
-BASE_DIR = (Pathname.new(__FILE__).dirname + '..').realpath.to_s
-#BASE_DIR = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)), '..'))
+BASE_DIR = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)), '..'))
 SOURCE_DIR = BASE_DIR + '/p2/'
 TMP_DIR = BASE_DIR + '/tmp/'
 TEST_DIR = BASE_DIR + '/tmp/p2/'
@@ -25,7 +24,12 @@ ROUTER_PATH = TEST_DIR + 'p2bin/P2MQRouter.exe'
 ROUTER_TITLE = /P2MQRouter - /
 
 def prepare_dirs
-  # First we need to prepare clean copy of P2 stand by copying P2 files to /tmp
+  unless File.exist? CONFIG_DIR
+   puts "Unable to start - .ini not found. Put all your .ini files into #{CONFIG_DIR}!"
+   exit
+  end
+
+  # We need to prepare clean copy of P2 stand by copying P2 files to /tmp
   FileUtils.rm_rf TMP_DIR
   FileUtils.cp_r SOURCE_DIR, TEST_DIR
 
