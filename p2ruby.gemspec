@@ -27,5 +27,5 @@ Gem::Specification.new do |gem|
 
   # Dependencies (dev dependencies managed in Gemfile)
   gem.add_dependency("bundler", [">= 1.0.0"])
-  gem.add_dependency("win_gui", [">=0.2.20"])
+  gem.add_dependency("win_gui", [">=0.2.21"])
 end

@@ -4,12 +4,13 @@ url:: http://github.com/arvicco/p2ruby
 
 == DESCRIPTION:
 
-Ruby bindings and wrapper classes for P2ClientGate.
+Ruby bindings and wrapper classes for RTS Plaza2 COM library (P2ClientGate).
 
 == FEATURES/PROBLEMS:
 
 All implemented COM classes wrapped except for CP2DataBuffer. Most event interfaces work,
-except for IP2AsyncEvent* since they are not implemented anywhere.
+except for IP2AsyncEvent* since they are not implemented anywhere (see
+http://forum.rts.ru/viewtopic.asp?t=20260).
 
 == REQUIREMENTS:
 
