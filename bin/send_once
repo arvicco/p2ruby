@@ -1,0 +1,46 @@
+require_relative 'script_helper'
+require 'p2ruby'
+
+# This script replicates SimpleSend.js functionality
+start_router do
+
+  # Creating Connection object
+  conn = P2::Connection.new(:ini => CLIENT_INI,
+                            :app_name => "RbOrdSend", # адрес приложения в коммуникациях РТС.
+                            :host => "127.0.0.1", # IP Адрес
+                            :port => 4001) # и порт локального роутера
+
+  result = conn.Connect() # устанавливаем соединение с локальным роутером
+
+  puts "Connection result: #{result}..."
+
+  server_address = conn.ResolveService("FORTS_SRV") # ищем адрес сервера приема заявок
+
+  puts "FORTS_SRV server address: #{server_address}..."
+
+  # создаем и инициализируем фабрику объектов-сообщений
+  msgs = P2::MessageFactory.new :ini => MESSAGE_INI
+
+  puts "Msg Factory inited..."
+
+  # создаем и заполняем сообщение
+  msg = msgs.message :name => "FutAddOrder",
+                     :dest_addr => server_address,
+                     :field => {
+                         "P2_Category" => "FORTS_MSG",
+                         "P2_Type" => 1,
+                         "isin" => "RTS-3.12",
+                         :price => "155500",
+                         :amount => 1,
+                         "client_code" => "001",
+                         "type" => 1,
+                         "dir" => 1}
+
+  msg.DestAddr = server_address
+
+  puts "Msg created, Sending it..."
+
+  msg = msg.Send(conn, 5000) # посылаем, ждем ответа в течение 5000 миллисекунд
+
+  puts msg.parse_reply #'CP866' #'CP1251'
+end

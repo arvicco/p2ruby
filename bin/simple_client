@@ -1,0 +1,8 @@
+require_relative 'script_helper'
+require 'clients/simple_client'
+
+# The main entry point for the application.
+start_router do
+  client = P2::SimpleClient.new
+  client.run
+end

@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+# encoding: Windows-1251
+require_relative 'script_helper'
+require 'clients/order_console'
+
+# Global functions
+#####################################
+def send_message conn, server_address, message_factory
+  $log.puts "Sending sync message..."
+
+  msg = message_factory.message :name => "FutAddOrder",
+                                :field => {
+                                    "P2_Category" => "FORTS_MSG",
+                                    "P2_Type" => 1,
+                                    "isin" => "RTS-3.12",
+                                    :price => "185500",
+                                    :amount => 1,
+                                    "client_code" => "001",
+                                    "type" => 1,
+                                    "dir" => 1}
+  msg.DestAddr = server_address
+
+  reply = msg.Send(conn, 1000)
+
+  $log.puts reply.parse_reply
+
+  $send = false
+end
+
+# Signal Handler (sends signals into main event loop via global variables)
+####################################
+Signal.trap("INT") do |signo|
+  puts "Send sync message?"
+  if 'y' == STDIN.gets.chomp
+    $send = true
+  else
+    puts "Interrupted... (#{signo})"
+    $exit = true
+  end
+end
+
+# Main execution logics
+#####################################
+# void ThreadProc(void* name) : Not sure why second event loop is needed?
+
+$log = ARGV.first == 'log' ? File.new("log/order_console.log", 'w') : STDOUT
+$exit = false
+$send = false
+
+start_router do
+  conn = Clients::ConnectionEvents.new "RbOrderConsole"
+  ds_futinfo = Clients::DataStreamEvents.new conn, "FORTS_FUTINFO"
+#  ds_pos = DataStreamEvents.new conn, "FORTS_POS"
+#  ds_part = DataStreamEvents.new conn, "FORTS_PART"
+#  ds_futtrade = DataStreamEvents.new conn, "FORTS_FUTTRADE"
+#  ds_optinfo = DataStreamEvents.new conn, "FORTS_OPTINFO"
+#  ds_futaggr = DataStreamEvents.new conn, "FORTS_OPTAGGR"
+#  ds_futaggr20 = DataStreamEvents.new conn, "FORTS_FUTAGGR20"
+#  ds_optcommon = DataStreamEvents.new conn, "FORTS_OPTCOMMON"
+#  ds_futcommon = DataStreamEvents.new conn, "FORTS_FUTCOMMON"
+  ds_index = Clients::DataStreamEvents.new conn, "RTS_INDEX"
+
+  server_address = conn.ResolveService("FORTS_SRV")
+
+  puts "Press Ctrl-C to send message or interrupt program"
+  message_factory = P2::MessageFactory.new :ini => MESSAGE_INI
+
+  until $exit
+    send_message(conn, server_address, message_factory) if $send
+    conn.ProcessMessage2(1000)
+  end
+end

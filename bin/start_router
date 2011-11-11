@@ -1,0 +1,4 @@
+# encoding: CP1251
+require_relative 'script_helper'
+
+start_router
