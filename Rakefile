@@ -25,18 +25,24 @@ Dir['tasks/*.rake'].sort.each { |file| load file }
 
 # Project-specific tasks
 
-namespace :ole do
+namespace :p2 do
+  desc "Update p2 (P2ClientGate) submodule to latest Github version"
+  task :update do
+    cd P2_PATH
+    raise 'Submodule p2 dirty!' unless `git status` =~ /nothing to commit .working directory clean/
+    sh 'git fetch'
+    sh 'git checkout master'
+    sh 'git merge origin/master'
+    cd BASE_PATH
+    sh 'git add p2'
+    sh 'git commit -m "SUBMODULE UPDATE: p2"'
+    puts 'Check your project ini/schema files: update may be needed!'
+  end
+
   desc "Register P2ClientGate.dll COM/OLE objects with Windows"
   task :register do
     cd P2_PATH
-    system 'regsvr32 P2ClientGate.dll'
+    sh 'regsvr32 P2ClientGate.dll'
     cd BASE_PATH
-  end
-
-  desc "Generate OLE class stubs from typelib"
-  task :generate do
-    puts "Generate P2 OLE classes"
-    filename = Time.now.strftime "ole%Y%m%d-%H%M%S"
-    system "ruby bin/olegen.rb > lib/#{filename}.rb"
   end
 end
