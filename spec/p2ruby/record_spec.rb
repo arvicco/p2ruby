@@ -62,12 +62,12 @@ describe P2::Record do
 
   describe '#[]' do
     it 'provides access to field content by field name' do
-      subject['name'].should =~ /RTS/
+      subject['name'].should =~ /RTS|MICEX/
       subject['moment'].should =~ Regexp.new(Time.now.strftime("%Y/%m/"))
     end
 
     it 'provides access to field content by field index' do
-      subject[3].should =~ /RTS/
+      subject[3].should =~ /RTS|MICEX/
       subject[4].should =~ Regexp.new(Time.now.strftime("%Y/%m/"))
     end
   end
@@ -78,8 +78,8 @@ describe P2::Record do
     end
 
     it 'serves as a basis for mixed in Enumerable methods' do
-      subject.select { |f| f =~ /RTS/ }.should_not == nil
-      subject.any? { |f| f =~ /RTS/ }.should == true
+      subject.select { |f| f =~ /RTS|MICEX/ }.should_not == nil
+      subject.any? { |f| f =~ /RTS|MICEX/ }.should == true
     end
   end
 end

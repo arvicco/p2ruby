@@ -8,7 +8,7 @@ def get_message opts ={}
                        "P2_Category" => opts[:P2_Category] || "FORTS_MSG",
                        :P2_Type => opts[:P2_Type] || 1,
                        "isin" => opts[:isin] || "RTS-3.12",
-                       :price => opts[:price] || "155500",
+                       :price => opts[:price] || "150500",
                        :amount => opts[:amount] || 1,
                        "client_code" => opts[:client_code] || "001",
                        "type" => opts[:type] || 1,
@@ -33,7 +33,7 @@ describe P2::Message do
   its(:progid) { should == 'P2ClientGate.P2BLMessage.1' }
   its(:opts) { should have_key :name }
   its(:ole) { should be_a WIN32OLE }
-  its(:Name) { should == "" } # Why? Because there is no Message#Name= setter... :(
+  its(:Name) { should == "FutAddOrder" } # Why? There was no Message#Name= setter... :(
   its(:DestAddr) { should == SERVER_NAME }
 
   context 'working with named property Field' do
@@ -41,7 +41,7 @@ describe P2::Message do
       subject.Field["P2_Category"].should == "FORTS_MSG"
       subject.Field["P2_Type"].should == 1
       subject.Field['isin'].should == "RTS-3.12"
-      subject.Field['price'].should == "155500"
+      subject.Field['price'].should == "150500"
       subject.Field['amount'].should == 1
       subject.Field['client_code'].should == "001"
       subject.Field['type'].should == 1
