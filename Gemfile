@@ -4,12 +4,7 @@
 source :gemcutter
 gemspec
 
-group :cucumber do
-  gem 'cucumber'
-  gem 'rspec', '>=2.5.0', :require => ['rspec/expectations', 'rspec/stubs/cucumber']
-end
-
 group :test do # Group for testing code on Windows (win, win_gui)
-  gem 'rspec', '>=2.5.0', :require => ['rspec', 'rspec/autorun']
+  gem 'rspec', '>=2.7.0' #, :require => ['rspec', 'rspec/autorun']
 end
 

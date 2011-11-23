@@ -25,3 +25,7 @@
 == 0.1.5 / 2011-11-11
 
 * Sample client scripts added
+
+== 0.1.6 / 2011-11-23
+
+* Message#parce_reply now understands Type 103 [FutDelUserOrders reply]

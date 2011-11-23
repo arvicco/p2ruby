@@ -20,18 +20,27 @@ module P2
       type = self.Field["P2_Type"]
 
       res = "Reply category: #{category}, type #{type}. " +
-          if category == "FORTS_MSG" && type == 101
-            code = self.Field["code"]
-            if code == 0
-              "Adding order Ok, Order_id: #{self.Field["order_id"]}."
-            else
-              "Adding order fail, logic error: #{self.Field["message"]}"
+          if category == "FORTS_MSG"
+            case type
+              when 100
+                "Adding order fail, system level error: " +
+                    "#{self.Field["code"]} #{self.Field["message"]}"
+              when 101
+                code = self.Field["code"]
+                if code == 0
+                  "Adding order Ok, Order_id: #{self.Field["order_id"]}."
+                else
+                  "Adding order fail, logic error: #{self.Field["message"]}"
+                end
+              when 103
+                "Deleted #{self.Field["num_orders"]} orders, " +
+                    "code: #{self.Field["code"]}, message: #{self.Field["message"]}"
+              else
+                "Unexpected MQ message type #{type} recieved."
             end
-          elsif category == "FORTS_MSG" && type == 100
-            "Adding order fail, system level error: " +
-                "#{self.Field["code"]} #{self.Field["message"]}"
           else
-            "Unexpected MQ message recieved."
+            "Unexpected MQ message category: #{category} recieved."
+
           end
 
       if encode
